@@ -1,0 +1,16 @@
+用法同clickText,判断check结果的变量为isCheckOK
+
+1、checkText:检查当前页是否包含某文字
+checkText 纪录片
+
+2、checkTextStartWith:检查当前页是否有以某文字开始的文本
+checkTextStartWith 纪录片
+
+3、checkTextContains:检查当前页是否包含某文字
+checkTextContains 纪录片
+
+4、checkTextSelected:检查文字Selected属性是否true
+checkTextSelected 纪录片
+
+5、checkTextChecked:检查文字Checked属性是否true
+checkTextChecked 自媒体

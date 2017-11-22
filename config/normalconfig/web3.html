@@ -1,0 +1,454 @@
+        }
+        
+        function drawmemory(ec) 
+        {
+            var myChart = ec.init(document.getElementById('memory')); 
+            option = 
+            {
+                title : 
+                {
+                    //text : '折线图',
+                    //subtext : '内存'
+                },
+                tooltip : 
+                {
+                    trigger: 'axis'
+                },
+                toolbox: 
+                {
+                    show : true,
+                    feature : {
+                        mark : {show: true},
+                        dataView : {show: true, readOnly: false},
+                        restore : {show: true},
+                        saveAsImage : {show: true}
+                    }
+                },
+                dataZoom: 
+                {
+                    show: true,
+                    start : 70
+                },
+                legend : 
+                {
+                    data : ['series1']
+                },
+                grid: 
+                {
+                    y2: 80
+                },
+                xAxis : 
+                [
+                    {
+                        type : 'category',
+                        boundaryGap : false,
+                        splitNumber:3,
+                        splitLine:{show: false},
+                        data : memoryTimeArr
+                    }
+                ],
+                yAxis : 
+                [
+                    {
+                        type : 'value',
+                        max : 500,
+                        min:0,
+                        splitLine:{show: false}
+                    }
+                ],
+                series : 
+                [
+                    {
+                        name:'memory',
+                        type:'line',
+                        stack: '总量',
+                        data:memoryValueArr
+                    },
+                    {
+                        name:'warning',
+                        type:'line',
+                        stack: '总量',
+                        data:memoryWarningArr
+                    }
+                ]
+            };         
+            myChart.setOption(option,true); 
+        }
+        
+        function drawcpu(ec) 
+        {
+            var myChart = ec.init(document.getElementById('cpu')); 
+            option = 
+            {
+                title : 
+                {
+                    //text : '折线图',
+                    //subtext : '内存'
+                },
+                tooltip : 
+                {
+                    trigger: 'axis'
+                },
+                toolbox: 
+                {
+                    show : true,
+                    feature : {
+                        mark : {show: true},
+                        dataView : {show: true, readOnly: false},
+                        restore : {show: true},
+                        saveAsImage : {show: true}
+                    }
+                },
+                dataZoom: 
+                {
+                    show: true,
+                    start : 70
+                },
+                legend : 
+                {
+                    data : ['series1']
+                },
+                grid: 
+                {
+                    y2: 80
+                },
+                xAxis : 
+                [
+                    {
+                        type : 'category',
+                        boundaryGap : false,
+                        splitNumber:3,
+                        splitLine:{show: false},
+                        data : cpuTimeArr
+                    }
+                ],
+                yAxis : 
+                [
+                    {
+                        type : 'value',
+                        max : 500,
+                        min:0,
+                        splitLine:{show: false}
+                    }
+                ],
+                series : 
+                [
+                    {
+                        name:'cpu',
+                        type:'line',
+                        stack: '总量',
+                        data:cpuValueArr
+                    },
+                    {
+                        name:'warning',
+                        type:'line',
+                        stack: '总量',
+                        data:cpuWarningArr
+                    }
+                ]
+            };         
+            myChart.setOption(option,true); 
+        }
+        
+        function drawcpuTemp(ec) 
+        {
+            var myChart = ec.init(document.getElementById('cpuTemp')); 
+            option = 
+            {
+                title : 
+                {
+                    //text : '折线图',
+                    //subtext : '内存'
+                },
+                tooltip : 
+                {
+                    trigger: 'axis'
+                },
+                toolbox: 
+                {
+                    show : true,
+                    feature : {
+                        mark : {show: true},
+                        dataView : {show: true, readOnly: false},
+                        restore : {show: true},
+                        saveAsImage : {show: true}
+                    }
+                },
+                dataZoom: 
+                {
+                    show: true,
+                    start : 70
+                },
+                legend : 
+                {
+                    data : ['series1']
+                },
+                grid: 
+                {
+                    y2: 80
+                },
+                xAxis : 
+                [
+                    {
+                        type : 'category',
+                        boundaryGap : false,
+                        splitNumber:3,
+                        splitLine:{show: false},
+                        data : cpuTempTimeArr
+                    }
+                ],
+                yAxis : 
+                [
+                    {
+                        type : 'value',
+                        max : 500,
+                        min:0,
+                        splitLine:{show: false}
+                    }
+                ],
+                series : 
+                [
+                    {
+                        name:'cpuTemp',
+                        type:'line',
+                        stack: '总量',
+                        data:cpuTempValueArr
+                    },
+                    {
+                        name:'warning',
+                        type:'line',
+                        stack: '总量',
+                        data:cpuTempWarningArr
+                    }
+                ]
+            };         
+            myChart.setOption(option,true); 
+        }
+    
+        function drawbatteryTemp(ec) 
+        {
+            var myChart = ec.init(document.getElementById('batteryTemp')); 
+            option = 
+            {
+                title : 
+                {
+                    //text : '折线图',
+                    //subtext : '内存'
+                },
+                tooltip : 
+                {
+                    trigger: 'axis'
+                },
+                toolbox: 
+                {
+                    show : true,
+                    feature : {
+                        mark : {show: true},
+                        dataView : {show: true, readOnly: false},
+                        restore : {show: true},
+                        saveAsImage : {show: true}
+                    }
+                },
+                dataZoom: 
+                {
+                    show: true,
+                    start : 70
+                },
+                legend : 
+                {
+                    data : ['series1']
+                },
+                grid: 
+                {
+                    y2: 80
+                },
+                xAxis : 
+                [
+                    {
+                        type : 'category',
+                        boundaryGap : false,
+                        splitNumber:3,
+                        splitLine:{show: false},
+                        data : batteryTempTimeArr
+                    }
+                ],
+                yAxis : 
+                [
+                    {
+                        type : 'value',
+                        max : 500,
+                        min:0,
+                        splitLine:{show: false}
+                    }
+                ],
+                series : 
+                [
+                    {
+                        name:'batteryTemp',
+                        type:'line',
+                        stack: '总量',
+                        data:batteryTempValueArr
+                    },
+                    {
+                        name:'warning',
+                        type:'line',
+                        stack: '总量',
+                        data:batteryTempWarningArr
+                    }
+                ]
+            };         
+            myChart.setOption(option,true); 
+        }
+        
+        function drawwifi(ec) 
+        {
+            var myChart = ec.init(document.getElementById('wifi')); 
+            option = 
+            {
+                title : 
+                {
+                    //text : '折线图',
+                    //subtext : '内存'
+                },
+                tooltip : 
+                {
+                    trigger: 'axis'
+                },
+                toolbox: 
+                {
+                    show : true,
+                    feature : {
+                        mark : {show: true},
+                        dataView : {show: true, readOnly: false},
+                        restore : {show: true},
+                        saveAsImage : {show: true}
+                    }
+                },
+                dataZoom: 
+                {
+                    show: true,
+                    start : 70
+                },
+                legend : 
+                {
+                    data : ['series1']
+                },
+                grid: 
+                {
+                    y2: 80
+                },
+                xAxis : 
+                [
+                    {
+                        type : 'category',
+                        boundaryGap : false,
+                        splitNumber:3,
+                        splitLine:{show: false},
+                        data : wifiTimeArr
+                    }
+                ],
+                yAxis : 
+                [
+                    {
+                        type : 'value',
+                        max : 500,
+                        min:0,
+                        splitLine:{show: false}
+                    }
+                ],
+                series : 
+                [
+                    {
+                        name:'wifi',
+                        type:'line',
+                        stack: '总量',
+                        data:wifiValueArr
+                    },
+                    {
+                        name:'warning',
+                        type:'line',
+                        stack: '总量',
+                        data:wifiWarningArr
+                    }
+                ]
+            };         
+            myChart.setOption(option,true); 
+        }
+        
+        function drawmobile(ec) 
+        {
+            var myChart = ec.init(document.getElementById('mobile')); 
+            option = 
+            {
+                title : 
+                {
+                    //text : '折线图',
+                    //subtext : '内存'
+                },
+                tooltip : 
+                {
+                    trigger: 'axis'
+                },
+                toolbox: 
+                {
+                    show : true,
+                    feature : {
+                        mark : {show: true},
+                        dataView : {show: true, readOnly: false},
+                        restore : {show: true},
+                        saveAsImage : {show: true}
+                    }
+                },
+                dataZoom: 
+                {
+                    show: true,
+                    start : 70
+                },
+                legend : 
+                {
+                    data : ['series1']
+                },
+                grid: 
+                {
+                    y2: 80
+                },
+                xAxis : 
+                [
+                    {
+                        type : 'category',
+                        boundaryGap : false,
+                        splitNumber:3,
+                        splitLine:{show: false},
+                        data : mobileTimeArr
+                    }
+                ],
+                yAxis : 
+                [
+                    {
+                        type : 'value',
+                        max : 500,
+                        min:0,
+                        splitLine:{show: false}
+                    }
+                ],
+                series : 
+                [
+                    {
+                        name:'mobile',
+                        type:'line',
+                        stack: '总量',
+                        data:mobileValueArr
+                    },
+                    {
+                        name:'warning',
+                        type:'line',
+                        stack: '总量',
+                        data:mobileWarningArr
+                    }
+                ]
+            };         
+            myChart.setOption(option,true); 
+        }
+    </script>
+</body>
+</html>

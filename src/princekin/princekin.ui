@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Princekin</class>
+ <widget class="QMainWindow" name="Princekin">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>618</width>
+    <height>390</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>618</width>
+    <height>390</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>618</width>
+    <height>390</height>
+   </size>
+  </property>
+  <property name="mouseTracking">
+   <bool>false</bool>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="qrc/princekin.qrc">
+    <normaloff>:/crown.ico</normaloff>:/crown.ico</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <property name="mouseTracking">
+    <bool>false</bool>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <widget class="QWidget" name="widget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>-10</x>
+      <y>50</y>
+      <width>636</width>
+      <height>371</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border-image: url(:/background.png);</string>
+    </property>
+    <widget class="QPushButton" name="pushButton">
+     <property name="geometry">
+      <rect>
+       <x>46</x>
+       <y>24</y>
+       <width>130</width>
+       <height>110</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>130</width>
+       <height>110</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <family>新宋体</family>
+       <pointsize>13</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="mouseTracking">
+      <bool>true</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border-image: url(:/button20.png);</string>
+     </property>
+     <property name="text">
+      <string>脚本录制</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_2">
+     <property name="geometry">
+      <rect>
+       <x>182</x>
+       <y>24</y>
+       <width>130</width>
+       <height>110</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>130</width>
+       <height>110</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <family>新宋体</family>
+       <pointsize>13</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="mouseTracking">
+      <bool>true</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border-image: url(:/button-yellow.png);</string>
+     </property>
+     <property name="text">
+      <string>脚本执行</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_4">
+     <property name="geometry">
+      <rect>
+       <x>318</x>
+       <y>24</y>
+       <width>130</width>
+       <height>110</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>130</width>
+       <height>110</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <family>新宋体</family>
+       <pointsize>13</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="mouseTracking">
+      <bool>true</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border-image: url(:/button20.png);</string>
+     </property>
+     <property name="text">
+      <string>性能测试</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_5">
+     <property name="geometry">
+      <rect>
+       <x>455</x>
+       <y>24</y>
+       <width>130</width>
+       <height>110</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>130</width>
+       <height>110</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <family>新宋体</family>
+       <pointsize>13</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="mouseTracking">
+      <bool>true</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border-image: url(:/button20.png);</string>
+     </property>
+     <property name="text">
+      <string>稳定性测试</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_6">
+     <property name="geometry">
+      <rect>
+       <x>46</x>
+       <y>140</y>
+       <width>130</width>
+       <height>110</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>130</width>
+       <height>110</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <family>新宋体</family>
+       <pointsize>13</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="mouseTracking">
+      <bool>true</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border-image: url(:/button20.png);</string>
+     </property>
+     <property name="text">
+      <string>埋点统计</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_7">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>182</x>
+       <y>140</y>
+       <width>130</width>
+       <height>110</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>130</width>
+       <height>110</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <family>新宋体</family>
+       <pointsize>13</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="mouseTracking">
+      <bool>true</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border-image: url(:/button20.png);</string>
+     </property>
+     <property name="text">
+      <string>遍历测试</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_8">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>318</x>
+       <y>140</y>
+       <width>130</width>
+       <height>110</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>130</width>
+       <height>110</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <family>新宋体</family>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+     <property name="mouseTracking">
+      <bool>true</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border-image: url(:/button20.png);</string>
+     </property>
+     <property name="text">
+      <string>接口测试</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_9">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>455</x>
+       <y>140</y>
+       <width>130</width>
+       <height>110</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>130</width>
+       <height>110</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <family>新宋体</family>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+     <property name="mouseTracking">
+      <bool>true</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border-image: url(:/button10.png);</string>
+     </property>
+     <property name="text">
+      <string>工具箱</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>410</x>
+       <y>280</y>
+       <width>171</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border-image: url(:/slogon.png);</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="widget_2" native="true">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>618</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="mouseTracking">
+     <bool>false</bool>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border-image: url(:/a.png);</string>
+    </property>
+    <widget class="ClickedLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>20</y>
+       <width>24</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border-image: url(:/crown.png);</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QWidget" name="widget_3" native="true">
+     <property name="geometry">
+      <rect>
+       <x>520</x>
+       <y>0</y>
+       <width>90</width>
+       <height>34</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QPushButton" name="pushButton_11">
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="qrc/princekin.qrc">
+          <normaloff>:/setup.png</normaloff>:/setup.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QPushButton" name="pushButton_10">
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="qrc/princekin.qrc">
+          <normaloff>:/narrow-normal.png</normaloff>:/narrow-normal.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="pushButton_3">
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="qrc/princekin.qrc">
+          <normaloff>:/close-normal.png</normaloff>:/close-normal.png</iconset>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="ClickedLabel" name="pincekinLabel">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>20</y>
+       <width>61</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(193, 144, 77);</string>
+     </property>
+     <property name="text">
+      <string>小王子</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>ClickedLabel</class>
+   <extends>QLabel</extends>
+   <header location="global">clickedlabel.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="qrc/princekin.qrc"/>
+ </resources>
+ <connections/>
+</ui>

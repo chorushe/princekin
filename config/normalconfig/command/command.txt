@@ -1,0 +1,274 @@
+1、back  返回键
+2、home  主界面
+3、menu  菜单键
+4、fastBack  连续两次点击返回键
+5、sleep  等待
+例： 
+//等待3秒
+sleep 3
+或 
+s=3
+sleep=s
+
+6、println  输出
+例：输出“执行成功”
+println 执行成功
+
+7、invoke  调用invoke目录下的脚本,比如invoke目录下有dl.txt
+例:
+invoke=dl
+
+8、takeScreen  截图,无参数，直接使用
+例:
+takeScreen
+
+
+*********以下点击(每个命令都有对应的_notExit命令)*****
+
+简介:执行点击命令,当点击失败时,自动结束当前脚本，进入下一个脚本；
+     每个点击命令有对应的以_notExit为后缀的命令，当点击失败时不
+     结束当前脚本，然后使用if-else逻辑判断isClickOK，从而控制脚
+     本执行流程。
+
+
+1、clickText:点击文字，当点击失败时，自动结束当前脚本
+(1)直接点击
+例:
+clickText 纪录片
+//2表示点击页面中出现的第3个“记录片”
+clickText 纪录片 2
+
+
+(2)变量方式点击
+v1=纪录片
+index=2
+
+clickText=v1
+//index2表示点击页面中出现的第3个“记录片”
+clickText=v1=index2
+
+
+2、clickText_notExit:点击文字，当点击失败时，不会结束当前脚本
+例:
+clickText_notExit 纪录片
+或
+v1=纪录片
+clickText_notExit=v1
+
+当执行clickText_notExit命令时，失败后不会退出，所以在此命令后面
+可以用isClickOK变量判断点击的结果并控制脚本执行
+if(isClickOK)
+{
+    Something to do is here...
+}
+else
+{
+    Something else to do is here...
+}
+
+
+3、clickTextStartWith:点击以某文字开始的文本
+例:点击以“纪录片”开头的文字
+clickTextStartWith 纪录片
+或
+v1=纪录片
+clickTextStartWith=v1
+
+
+4、clickTextContains:点击包含某文字的文本
+例:点击包含“纪录片”的文字
+clickTextContains 纪录片
+或
+v1=纪录片
+clickTextContains=v1
+
+5、clickDescription:点击包含某文字描述的控件
+例:某控件有文字描述:电视剧
+clickDescription 电视剧
+或
+v1=电视剧
+clickDescription=v1
+
+
+6、clickIdOrClass:点击控件id或类名
+例：点击android.widget.ImageView控件
+clickIdOrClass android.widget.ImageView
+点击第3个出现的android.widget.ImageView控件
+clickIdOrClass android.widget.ImageView 2
+或
+class=android.widget.ImageView
+index=2
+clickIdOrClass=class=index
+
+
+**********以上点击**********
+
+**********以下滑屏**********
+用法同clickText,判断命令为isScrollOK
+1、locateClassName 定位某个类，(滑动或设置横竖之前先定位，再滑动)，
+    定位之后得到 scroll 对象
+
+例：
+locateClassName android.support.v4.view.ViewPager
+或
+v1=android.support.v4.view.ViewPager
+locateClassName=v1
+
+2、locateScrollable 定位某个可以滑动的，(滑动或设置横竖之前先定位，再滑动)，
+   定位之后得到 scroll 对象
+
+例：
+locateScrollable true
+或
+v1=true
+locateScrollable=v1
+
+3、滑动方向
+setHorizontal   无参数,直接使用，(水平方向滑动)
+setVertical     无参数,直接使用，(垂直方向滑动)
+
+4、flingToEnd 快速滑动N次到末尾
+
+例：
+flingToEnd 5
+或
+v1=5
+flingToEnd=v1
+
+5、flingToBeginning 快速滑动N次到开始
+
+例：
+flingToBeginning 5
+或
+v1=5
+flingToBeginning=v1
+
+6、scrollTextIntoView 滑动到某个文字出现
+
+例：
+scrollTextIntoView 纪录片
+或
+v1=纪录片
+scrollTextIntoView=v1
+
+7、scrollIdOrClass 滑动到某个类或id出现
+
+例：
+//先定位可以滑动的组件
+locateClassName android.widget.ListView
+//再滑动到指定类或id
+scrollIdOrClass com.sohu.sohuvideo:id/iv_comments_comment
+scrollIdOrClass com.sohu.sohuvideo:id/iv_comments_comment 3
+
+************以上滑屏******************
+
+************以下文字检查**************
+
+用法同clickText,判断check结果的变量为isCheckOK
+
+1、checkText:检查当前页是否包含某文字
+checkText 纪录片
+
+2、checkTextStartWith:检查当前页是否有以某文字开始的文本
+checkTextStartWith 纪录片
+
+3、checkTextContains:检查当前页是否包含某文字
+checkTextContains 纪录片
+
+4、checkTextSelected:检查文字Selected属性是否true
+checkTextSelected 纪录片
+
+5、checkTextChecked:检查文字Checked属性是否true
+checkTextChecked 自媒体
+
+**********************以上文字检查**************
+
+*********以下输入文字，清除文字****************
+
+判断成功与否的结果变量为isOK
+
+1、inputText:输入文字,文字不能是中文,输入之前需先确定输入框，需要用clickText 点击一下再输入
+
+例：输入username
+
+clickText username
+inputText username
+或
+clickText username
+v1=abcusername
+inputText=v1
+
+2、clearText:清除文字，无参数,清除之前需要用 clickText 点击一下再清除
+
+例：清除username
+
+clickText username
+clearText
+*****************以上输入文字，清除文字************
+
+*****************以下启动APP**********************
+
+startApp,启动应用,应用参数可在工具箱模块中apk信息提取功能获取
+
+例：
+startApp com.sohu.sohu/.com.sohu.sohuvideo/com.sohu.sohuvideo.FirstNavigationActivityGroup
+或
+app=com.sohu.sohuvideo/com.sohu.sohuvideo.FirstNavigationActivityGroup
+startApp=app
+
+备注：用 isStartOK 判断是否启动成功
+      无 startApp_notExit
+
+***************以上启动APP**********************
+
+****************以上安装卸载APP*********************
+
+1、pushApk,安装应用之前需要先把apk文件push到sdcard中,apk文件预存放在config\\apk文件夹中
+
+例：
+pushApk sohutv.apk
+或
+apk=sohutv.apk
+push=apk
+
+备注：无push_notExit
+
+2、install,安装已经push到sdcard中的apk，可用变量isInstallOK判断是否安装成功
+
+例:
+install sohutv.apk
+或
+apk=sohutv.apk
+install=apk
+
+
+备注：无install_notExit
+
+3、uninstall,删除已经安装的apk，注意此处的变量是应用包名不是apk名，
+可用变量isUninstallOK 判断是否删除成功
+
+例:
+uninstall com.sohu.sohuvideo
+或
+apk=com.sohu.sohuvideo
+uninstall=apk
+
+
+备注：无uninstall_notExit
+
+*******************以上安装卸载APP************************
+
+******************以下统计点检测**********************
+
+checkStatPoint，可对统计点信息进行检测
+格式：checkStatPoint xmlName
+
+例：
+checkStatPoint \\pv\\behavior_pv_2001.xml
+或
+checkStatPoint /pv/behavior_pv_2001.xml
+
+备注：可对多个xml文件进行同时检测，只需在checkStatPoint后接多个xml文件名即可，用空格分开；
+      xml文件名需要带部分路径信息，详细情况见说明文档
+
+************************以上统计点检测*********************

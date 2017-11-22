@@ -1,0 +1,74 @@
+简介:执行点击命令,当点击失败时,自动结束当前脚本，进入下一个脚本；
+     每个点击命令有对应的以_notExit为后缀的命令，当点击失败时不
+     结束当前脚本，然后使用if-else逻辑判断isClickOK，从而控制脚
+     本执行流程。
+
+
+1、clickText:点击文字，当点击失败时，自动结束当前脚本
+(1)直接点击
+例:
+clickText 纪录片
+//2表示点击页面中出现的第3个“记录片”
+clickText 纪录片 2
+
+
+(2)变量方式点击
+v1=纪录片
+index=2
+
+clickText=v1
+//index2表示点击页面中出现的第3个“记录片”
+clickText=v1=index2
+
+
+2、clickText_notExit:点击文字，当点击失败时，不会结束当前脚本
+例:
+clickText_notExit 纪录片
+或
+v1=纪录片
+clickText_notExit=v1
+
+当执行clickText_notExit命令时，失败后不会退出，所以在此命令后面
+可以用isClickOK变量判断点击的结果并控制脚本执行
+if(isClickOK)
+{
+    Something to do is here...
+}
+else
+{
+    Something else to do is here...
+}
+
+
+3、clickTextStartWith:点击以某文字开始的文本
+例:点击以“纪录片”开头的文字
+clickTextStartWith 纪录片
+或
+v1=纪录片
+clickTextStartWith=v1
+
+
+4、clickTextContains:点击包含某文字的文本
+例:点击包含“纪录片”的文字
+clickTextContains 纪录片
+或
+v1=纪录片
+clickTextContains=v1
+
+5、clickDescription:点击包含某文字描述的控件
+例:某控件有文字描述:电视剧
+clickDescription 电视剧
+或
+v1=电视剧
+clickDescription=v1
+
+
+6、clickIdOrClass:点击控件id或类名
+例：点击android.widget.ImageView控件
+clickIdOrClass android.widget.ImageView
+点击第3个出现的android.widget.ImageView控件
+clickIdOrClass android.widget.ImageView 2
+或
+class=android.widget.ImageView
+index=2
+clickIdOrClass=class=index

@@ -1,0 +1,23 @@
+1、back  返回键
+2、home  主界面
+3、menu  菜单键
+4、fastBack  连续两次点击返回键
+5、sleep  等待
+例： 
+//等待3秒
+sleep 3
+或 
+s=3
+sleep=s
+
+6、println  输出
+例：输出“执行成功”
+println 执行成功
+
+7、invoke  调用invoke目录下的脚本,比如invoke目录下有dl.txt
+例:
+invoke=dl
+
+8、takeScreen  截图,无参数，直接使用
+例:
+takeScreen

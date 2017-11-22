@@ -1,0 +1,34 @@
+1、pushApk,安装应用之前需要先把apk文件push到sdcard中,apk文件预存放在
+   config\\apk文件夹中
+
+例：
+pushApk sohutv.apk
+或
+apk=sohutv.apk
+push=apk
+
+备注：无push_notExit
+
+2、install,安装已经push到sdcard中的apk,可用变量isInstallOK判断是否
+   安装成功
+
+例:
+install sohutv.apk
+或
+apk=sohutv.apk
+install=apk
+
+
+备注：无install_notExit
+
+3、uninstall,删除已经安装的apk，注意此处的变量是应用包名不是apk名，
+可用变量isUninstallOK 判断是否删除成功
+
+例:
+uninstall com.sohu.sohuvideo
+或
+apk=com.sohu.sohuvideo
+uninstall=apk
+
+
+备注：无uninstall_notExit

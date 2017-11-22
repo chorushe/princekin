@@ -1,0 +1,2 @@
+Lenovo=联想a
+nubia=中兴ff

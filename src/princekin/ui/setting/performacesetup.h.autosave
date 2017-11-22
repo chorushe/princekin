@@ -1,0 +1,56 @@
+#ifndef PERFORMACESETUP_H
+#define PERFORMACESETUP_H
+
+#include <QWidget>
+
+namespace Ui {
+class PerformaceSetup;
+}
+
+class PerformaceSetup : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit PerformaceSetup(QWidget *parent = 0);
+    ~PerformaceSetup();
+
+private:
+    Ui::PerformaceSetup *ui;
+    
+    int time;
+    int flag;
+    bool isBatteryCheck;
+    bool isCpuTempCheck;
+    bool isWifiCheck;
+    bool isMobileCheck;
+    QString batteryThres;
+    QString cpuTempThres;
+    QString wifiThres;
+    QString mobileThres;
+    
+protected:
+    void closeEvent(QCloseEvent *event);
+    
+signals:
+    void SendData(int showFlag,int time,bool isBatteryCheck,bool isCpuTempCheck,bool isWifiCheck,bool isMobileCheck, QString batteryThres, QString cpuTempThres,QString wifiThres,QString mobileThres);//showflag 0代表文本，1代表图表
+    
+    
+private slots:
+    void on_textRBtn_clicked();
+    void on_chartRBtn_clicked();
+    void on_timeLineEdit_textChanged(const QString &arg1);
+    void on_batteryCBtn_clicked();
+    void on_cpuTempCBtn_clicked();
+    void on_wifiCBtn_clicked();
+    void on_mobileCBtn_clicked();
+    void on_batteryLineEdit_textChanged(const QString &arg1);
+    void on_cpuTempLineEdit_textChanged(const QString &arg1);
+    void on_wifiLineEdit_textChanged(const QString &arg1);
+    void on_mobileLineEdit_textChanged(const QString &arg1);
+    
+    void stateChanged(bool state);
+    void recieveSettingSig(bool isBatteryCheck, bool isCpuTempCheck,bool isWifiCheck,bool isMobileCheck, QString batteryThres, QString cpuTempThres,QString wifiThres,QString mobileThres);
+};
+
+#endif // PERFORMACESETUP_H

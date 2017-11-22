@@ -1,0 +1,11 @@
+checkStatPoint，可对统计点信息进行检测
+格式：checkStatPoint xmlName
+
+例：
+checkStatPoint \\pv\\behavior_pv_2001.xml
+或
+checkStatPoint /pv/behavior_pv_2001.xml
+
+备注：可对多个xml文件进行同时检测，只需在checkStatPoint后接多个xml文件名
+      即可，用空格分开；
+      xml文件名需要带部分路径信息，详细情况见说明文档

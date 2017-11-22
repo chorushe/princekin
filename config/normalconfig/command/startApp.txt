@@ -1,0 +1,10 @@
+startApp,启动应用,应用参数可在工具箱模块中apk信息提取功能获取
+
+例：
+startApp com.sohu.sohu/.com.sohu.sohuvideo/com.sohu.sohuvideo.FirstNavigationActivityGroup
+或
+app=com.sohu.sohuvideo/com.sohu.sohuvideo.FirstNavigationActivityGroup
+startApp=app
+
+备注：用 isStartOK 判断是否启动成功
+      无 startApp_notExit

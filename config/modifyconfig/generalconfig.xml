@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Setting readme="这是整体设置选项配置">
+    <workspace value=""/>
+    <memOption thres="" value="false"/>
+    <cpuOption thres="" value="false"/>
+    <batteryOption thres="" value="false"/>
+    <cpuTempOption thres="" value="false"/>
+    <wifiOption thres="" value="false"/>
+    <mobileOption thres="" value="false"/>
+</Setting>

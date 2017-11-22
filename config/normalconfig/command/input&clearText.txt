@@ -1,0 +1,20 @@
+判断成功与否的结果变量为isOK
+
+1、inputText:输入文字,文字不能是中文,输入之前需先确定输入框，
+   需要用clickText 点击一下再输入
+
+例：输入username
+
+clickText username
+inputText username
+或
+clickText username
+v1=abcusername
+inputText=v1
+
+2、clearText:清除文字，无参数,清除之前需要用 clickText 点击一下再清除
+
+例：清除username
+
+clickText username
+clearText

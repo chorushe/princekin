@@ -1,0 +1,15 @@
+#include "performancedetail.h"
+#include "ui_performancedetail.h"
+
+performanceDetail::performanceDetail(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::performanceDetail)
+{
+    ui->setupUi(this);
+    int a=wifiNum.length();
+}
+
+performanceDetail::~performanceDetail()
+{
+    delete ui;
+}

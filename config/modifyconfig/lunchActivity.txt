@@ -1,0 +1,1 @@
+com.sohu.sohuvideo/com.sohu.sohuvideo.FirstNavigationActivityGroup

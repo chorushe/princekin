@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<behaviorconfig readme="这是行为统计配置文件">
+
+         <serverName>mvpdc</serverName>
+         <serverPassword>mvpdc1#pwd</serverPassword>
+         <serverIP>10.16.48.71</serverIP>
+         <serverPort>22</serverPort>
+         <appUid>c9e25b6c5931d72ac0a8f77ac6c611d1</appUid>
+         
+</behaviorconfig>

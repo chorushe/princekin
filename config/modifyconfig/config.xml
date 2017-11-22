@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Path readme="这是脚本配置文件存放路径">
+    <projectDir>e:\repository</projectDir>
+    <repositoryDir>e:\repository</repositoryDir>
+    <androidJarDir>D:\Android\SDK\platforms\android-23</androidJarDir>
+    <autoTravleBlackList>
+        <item>titlebar_title</item>
+        <item>iv_left_toolbar</item>
+    </autoTravleBlackList>
+    <IP>10.2.157.158</IP>
+    <Port value="123">8080</Port>
+</Path>

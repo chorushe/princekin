@@ -1,0 +1,55 @@
+用法同clickText,判断命令为isScrollOK
+1、locateClassName 定位某个类，(滑动或设置横竖之前先定位，再滑动)，
+    定位之后得到 scroll 对象
+
+例：
+locateClassName android.support.v4.view.ViewPager
+或
+v1=android.support.v4.view.ViewPager
+locateClassName=v1
+
+2、locateScrollable 定位某个可以滑动的，滑动或设置横竖之前先定位，
+   再滑动，定位之后得到 scroll 对象
+
+例：
+locateScrollable true
+或
+v1=true
+locateScrollable=v1
+
+3、滑动方向
+setHorizontal   无参数,直接使用，(水平方向滑动)
+setVertical     无参数,直接使用，(垂直方向滑动)
+
+4、flingToEnd 快速滑动N次到末尾
+
+例：
+flingToEnd 5
+或
+v1=5
+flingToEnd=v1
+
+5、flingToBeginning 快速滑动N次到开始
+
+例：
+flingToBeginning 5
+或
+v1=5
+flingToBeginning=v1
+
+6、scrollTextIntoView 滑动到某个文字出现
+
+例：
+scrollTextIntoView 纪录片
+或
+v1=纪录片
+scrollTextIntoView=v1
+
+7、scrollIdOrClass 滑动到某个类或id出现
+
+例：
+//先定位可以滑动的组件
+locateClassName android.widget.ListView
+//再滑动到指定类或id
+scrollIdOrClass com.sohu.sohuvideo:id/iv_comments_comment
+scrollIdOrClass com.sohu.sohuvideo:id/iv_comments_comment 3

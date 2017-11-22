@@ -1,0 +1,69 @@
+#include "performacesetup.h"
+#include "ui_performacesetup.h"
+
+PerformaceSetup::PerformaceSetup(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::PerformaceSetup)
+{
+    ui->setupUi(this);
+}
+
+PerformaceSetup::~PerformaceSetup()
+{
+    delete ui;
+}
+
+void PerformaceSetup::on_textRBtn_clicked()
+{
+    
+}
+
+void PerformaceSetup::on_chartRBtn_clicked()
+{
+    
+}
+
+void PerformaceSetup::on_timeLineEdit_textChanged(const QString &arg1)
+{
+    
+}
+
+void PerformaceSetup::on_batteryCBtn_clicked()
+{
+    
+}
+
+void PerformaceSetup::on_cpuTempCBtn_clicked()
+{
+    
+}
+
+void PerformaceSetup::on_wifiCBtn_clicked()
+{
+    
+}
+
+void PerformaceSetup::on_mobileCBtn_clicked()
+{
+    
+}
+
+void PerformaceSetup::on_batteryLineEdit_textChanged(const QString &arg1)
+{
+    
+}
+
+void PerformaceSetup::on_cpuTempLineEdit_textChanged(const QString &arg1)
+{
+    
+}
+
+void PerformaceSetup::on_wifiLineEdit_textChanged(const QString &arg1)
+{
+    
+}
+
+void PerformaceSetup::on_mobileLineEdit_textChanged(const QString &arg1)
+{
+    
+}
