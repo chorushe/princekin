@@ -151,6 +151,7 @@ QString XlsxInfo::getMobileVersion(const QString &arg_deviceId)
 
     return version;
 }
+
 QString XlsxInfo::getMobileVmsize(const QString &arg_deviceId)
 {
     QString cmdLine;

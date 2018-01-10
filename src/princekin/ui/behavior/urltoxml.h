@@ -52,8 +52,11 @@ private:
     Ui::UrlToXml *ui;
     QString UrlDecode(QString str);
     QString xmlPath;
+    QString rightXmlPath;
     bool isMultiPattern=false;
-    QHash<QString,QString> fileInfoHash;
+    QList<QPair<QString,QString>> fileInfoList;
+    QPair<QString,QString> filepair;
+    QStringList fileNameList;//装载xml文件名，用来判断list中是否有重复的文件名
     bool repeatFlag=false;//判断生成的文件名中是否有重复文件
     bool errorFlag=true;//在生成过程中是否有失败，如有失败就不提示生成成功了
 
@@ -79,6 +82,13 @@ private slots:
     void on_downLoadExcelBtn_clicked();
 
     void on_importExcelBtn_clicked();
+
+    void on_xmlPathLineEdit_textChanged(const QString &arg1);
+
+    void on_xmlPathLineEdit_editingFinished();
+
+
+    void on_xmlPathLineEdit_returnPressed();
 
 protected:
 

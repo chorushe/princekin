@@ -1,4 +1,5 @@
-    private void press_Back()
+
+        private void press_Back()
     {
         isPressOK=device.pressBack();
         System.out.println("BACK");
@@ -74,13 +75,18 @@
     }
     
     
-    
+    private void clickxy(int x,int y)
+    {
+        isClickOK=device.click(x,y);
+        System.out.println("clickxy " + String.valueOf(x) + " " + String.valueOf(y) + " " + isClickOK);
+    }
     
     private void clickText_notExit(String arg_Text)
     {
         isXXX=true;
         clickText(arg_Text);
     }
+    
     private void clickText_notExit(String arg_Text,int arg_index)
     {
         isXXX=true;
@@ -2906,7 +2912,7 @@
     //******************************************************************************************//
     private void startApp(String arg_package)
     {
-    	  String sec="";
+    	String sec="";
         isStartOK=false;
         BufferedReader br=null;
         Process p=null;
@@ -3386,7 +3392,7 @@
     	  {
     	      if(checkStatStr.startsWith("no"))
     	      {
-    	      	  System.out.println("该模块不支持统计点检测");
+    	      	  System.out.println("该模块不支持统计点检??");
     	          return;
     	      }
     	  }
@@ -3429,6 +3435,523 @@
         }
     }
     
+    
+    
+    private void doublePause_notExit(String arg_Text)
+    {
+        isXXX=true;
+        doublePause(arg_Text);
+    }
+    private void doublePause_notExit(String arg_Text,int arg_index)
+    {
+        isXXX=true;
+        doublePause(arg_Text,arg_index);
+    }
+    private void doublePause(String arg_Text)
+    {
+        try
+        {
+            if(isXXX)
+            {
+                outPutScript("doublePause_notExit " + arg_Text);
+            }
+            else
+            {
+                outPutScript("doublePause " + arg_Text);
+            }
+            selector=getResourceIdSelector(arg_Text);
+            obj=getObj(selector);
+            long timeout =Configurator.getInstance().getActionAcknowledgmentTimeout();
+            Configurator.getInstance().setActionAcknowledgmentTimeout(0);
+            isClickOK=obj.click();
+            obj.click();
+            obj.click();
+            Configurator.getInstance().setActionAcknowledgmentTimeout(timeout);
+        }
+        catch(UiObjectNotFoundException e)
+        {
+            isClickOK=false;
+            if(isXXX)
+            {
+                outPutScript("doublePause_notExit " + arg_Text + "    princekin_notExit" + isClickOK + "    NotFound");
+            }
+            else
+            {
+                outPutScript("doublePause " + arg_Text + "    princekin" + isClickOK + "    NotFound");
+            }
+            isXXX=false;
+            return;
+        }
+        if(isXXX)
+        {
+            isXXX=false;
+            outPutScript("doublePause_notExit " + arg_Text + "    princekin_notExit" + isClickOK);
+        }
+        else
+        {
+            outPutScript("doublePause " + arg_Text + "    princekin" + isClickOK);
+        }
+        //return isClickOK;
+    }
+    private void doublePause(String arg_Text,int arg_index)
+    {
+        try
+        {
+            if(isXXX)
+            {
+                outPutScript("doublePause_notExit " + arg_Text + "    " + String.valueOf(arg_index));
+            }
+            else
+            {
+                outPutScript("doublePause " + arg_Text + "    " + String.valueOf(arg_index));
+            }
+            selector=getResourceIdSelector(arg_Text,arg_index);
+            obj=getObj(selector);
+            long timeout =Configurator.getInstance().getActionAcknowledgmentTimeout();
+            Configurator.getInstance().setActionAcknowledgmentTimeout(0);
+            isClickOK=obj.click();
+            obj.click();
+            obj.click();
+            Configurator.getInstance().setActionAcknowledgmentTimeout(timeout);
+        }
+        catch(UiObjectNotFoundException e)
+        {
+            isClickOK=false;        	
+            if(isXXX)
+            {
+                outPutScript("doublePause_notExit " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin_notExit" + isClickOK + "    NotFound");
+            }
+            else
+            {
+                outPutScript("doublePause " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin" + isClickOK + "    NotFound");
+            }
+            isXXX=false;
+            return;
+        }
+        if(isXXX)
+        {
+            isXXX=false;
+            outPutScript("doublePause_notExit " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin_notExit" + isClickOK);
+        }
+        else
+        {
+            outPutScript("doublePause " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin" + isClickOK);
+        }
+        //return isClickOK;
+    }
+    
+    
+    
+    private void doublePlay_notExit(String arg_Text)
+    {
+        isXXX=true;
+        doublePlay(arg_Text);
+    }
+    private void doublePlay_notExit(String arg_Text,int arg_index)
+    {
+        isXXX=true;
+        doublePlay(arg_Text,arg_index);
+    }
+    private void doublePlay(String arg_Text)
+    {
+        try
+        {
+            if(isXXX)
+            {
+                outPutScript("doublePlay_notExit " + arg_Text);
+            }
+            else
+            {
+                outPutScript("doublePlay " + arg_Text);
+            }
+            selector=getResourceIdSelector(arg_Text);
+            obj=getObj(selector);
+            long timeout =Configurator.getInstance().getActionAcknowledgmentTimeout();
+            Configurator.getInstance().setActionAcknowledgmentTimeout(0);
+            isClickOK=obj.click();
+            obj.click();
+            obj.click();
+            obj.click();
+            Configurator.getInstance().setActionAcknowledgmentTimeout(timeout);
+        }
+        catch(UiObjectNotFoundException e)
+        {
+            isClickOK=false;
+            if(isXXX)
+            {
+                outPutScript("doublePlay_notExit " + arg_Text + "    princekin_notExit" + isClickOK + "    NotFound");
+            }
+            else
+            {
+                outPutScript("doublePlay " + arg_Text + "    princekin" + isClickOK + "    NotFound");
+            }
+            isXXX=false;
+            return;
+        }
+        if(isXXX)
+        {
+            isXXX=false;
+            outPutScript("doublePlay_notExit " + arg_Text + "    princekin_notExit" + isClickOK);
+        }
+        else
+        {
+            outPutScript("doublePlay " + arg_Text + "    princekin" + isClickOK);
+        }
+        //return isClickOK;
+    }
+    private void doublePlay(String arg_Text,int arg_index)
+    {
+        try
+        {
+            if(isXXX)
+            {
+                outPutScript("doublePlay_notExit " + arg_Text + "    " + String.valueOf(arg_index));
+            }
+            else
+            {
+                outPutScript("doublePlay " + arg_Text + "    " + String.valueOf(arg_index));
+            }
+            selector=getResourceIdSelector(arg_Text,arg_index);
+            obj=getObj(selector);
+            long timeout =Configurator.getInstance().getActionAcknowledgmentTimeout();
+            Configurator.getInstance().setActionAcknowledgmentTimeout(0);
+            isClickOK=obj.click();
+            obj.click();
+            obj.click();
+            obj.click();
+            Configurator.getInstance().setActionAcknowledgmentTimeout(timeout);
+        }
+        catch(UiObjectNotFoundException e)
+        {
+            isClickOK=false;        	
+            if(isXXX)
+            {
+                outPutScript("doublePlay_notExit " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin_notExit" + isClickOK + "    NotFound");
+            }
+            else
+            {
+                outPutScript("doublePlay " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin" + isClickOK + "    NotFound");
+            }
+            isXXX=false;
+            return;
+        }
+        if(isXXX)
+        {
+            isXXX=false;
+            outPutScript("doublePlay_notExit " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin_notExit" + isClickOK);
+        }
+        else
+        {
+            outPutScript("doublePlay " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin" + isClickOK);
+        }
+        //return isClickOK;
+    }
+    
+    private void killApp(String arg_package)
+    {
+        isExecOK=true;
+        BufferedReader br=null;
+        Process p=null;
+        try
+        {
+            p=Runtime.getRuntime().exec("am force-stop " + arg_package);
+            InputStream stdin=p.getInputStream();
+            InputStreamReader isr=new InputStreamReader(stdin,"gb2312");
+            br=new BufferedReader(isr);
+            String line=br.readLine();
+            while(line!=null)
+            {
+                line=br.readLine();
+                outPutScript(line);
+                if(line!=null)
+                {
+                    if(line.startsWith("error:") || line.contains("offline"))
+                    {
+                        isExecOK=false;
+                    }
+                }
+            }
+            p.waitFor();
+        }
+        catch(IOException e)
+        {
+        }
+        catch(InterruptedException e)
+        {
+        }
+        finally
+        {
+            try
+            {
+                p.getErrorStream().close();
+                p.getInputStream().close();
+                p.getOutputStream().close();
+                br.close();
+            }
+            catch(IOException e)
+            {
+            }
+        }
+        outPutScript("killApp=" + arg_package + "     princekin" + isExecOK);
+    }
+    
+    /*
+    private void clearData(String arg_package)
+    {
+        isExecOK=true;
+        BufferedReader br=null;
+        Process p=null;
+        try
+        {
+            p=Runtime.getRuntime().exec("pm clear " + arg_package);
+            InputStream stdin=p.getInputStream();
+            InputStreamReader isr=new InputStreamReader(stdin,"gb2312");
+            br=new BufferedReader(isr);
+            String line=br.readLine();
+            while(line!=null)
+            {
+                line=br.readLine();
+                outPutScript(line);
+                if(line!=null)
+                {
+                    if(line.toUpperCase().contains("SUCCESS"))
+                    {
+                        isExecOK=true;
+                    }
+                    if(line.toUpperCase().contains("FAILED"))
+                    {
+                        isExecOK=false;
+                    }
+                }
+            }
+            p.waitFor();
+        }
+        catch(IOException e)
+        {
+        }
+        catch(InterruptedException e)
+        {
+        }
+        finally
+        {
+            try
+            {
+                p.getErrorStream().close();
+                p.getInputStream().close();
+                p.getOutputStream().close();
+                br.close();
+            }
+            catch(IOException e)
+            {
+            }
+        }
+        outPutScript("clearData=" + arg_package + "     princekin" + isExecOK);
+    }
+*/
+    
+    
+    
+    private void clearData(String arg_package)
+    {
+        isExecOK=true;
+        BufferedReader br=null;
+        Process p=null;
+        try
+        {
+            p=Runtime.getRuntime().exec("pm clear " + arg_package);
+            InputStream stdin=p.getInputStream();
+            InputStreamReader isr=new InputStreamReader(stdin,"gb2312");
+            br=new BufferedReader(isr);
+            String line=br.readLine();
+            while(line!=null)
+            {
+                line=br.readLine();
+                outPutScript(line);
+                if(line!=null)
+                {
+                }
+            }
+            p.waitFor();
+        }
+        catch(IOException e)
+        {
+        }
+        catch(InterruptedException e)
+        {
+        }
+        finally
+        {
+            try
+            {
+                p.getErrorStream().close();
+                p.getInputStream().close();
+                p.getOutputStream().close();
+                br.close();
+            }
+            catch(IOException e)
+            {
+            }
+        }
+        outPutScript("clearData=" + arg_package);
+    }
+    
+    
+    private void doubleClick_notExit(String arg_Text)
+    {
+        isXXX=true;
+        doubleClick(arg_Text);
+    }
+    private void doubleClick_notExit(String arg_Text,int arg_index)
+    {
+        isXXX=true;
+        doubleClick(arg_Text,arg_index);
+    }
+    private void doubleClick(String arg_Text)
+    {
+        try
+        {
+            if(isXXX)
+            {
+                outPutScript("doubleClick_notExit " + arg_Text);
+            }
+            else
+            {
+                outPutScript("doubleClick " + arg_Text);
+            }
+            selector=getResourceIdSelector(arg_Text);
+            obj=getObj(selector);
+            long timeout =Configurator.getInstance().getActionAcknowledgmentTimeout();
+            Configurator.getInstance().setActionAcknowledgmentTimeout(0);
+            isClickOK=obj.click();
+            obj.click();
+            obj.click();
+            Configurator.getInstance().setActionAcknowledgmentTimeout(timeout);
+        }
+        catch(UiObjectNotFoundException e)
+        {
+            isClickOK=false;
+            if(isXXX)
+            {
+                outPutScript("doubleClick_notExit " + arg_Text + "    princekin_notExit" + isClickOK + "    NotFound");
+            }
+            else
+            {
+                outPutScript("doubleClick " + arg_Text + "    princekin" + isClickOK + "    NotFound");
+            }
+            isXXX=false;
+            return;
+        }
+        if(isXXX)
+        {
+            isXXX=false;
+            outPutScript("doubleClick_notExit " + arg_Text + "    princekin_notExit" + isClickOK);
+        }
+        else
+        {
+            outPutScript("doubleClick " + arg_Text + "    princekin" + isClickOK);
+        }
+        //return isClickOK;
+    }
+    private void doubleClick(String arg_Text,int arg_index)
+    {
+        try
+        {
+            if(isXXX)
+            {
+                outPutScript("doubleClick_notExit " + arg_Text + "    " + String.valueOf(arg_index));
+            }
+            else
+            {
+                outPutScript("doubleClick " + arg_Text + "    " + String.valueOf(arg_index));
+            }
+            selector=getResourceIdSelector(arg_Text,arg_index);
+            obj=getObj(selector);
+            long timeout =Configurator.getInstance().getActionAcknowledgmentTimeout();
+            Configurator.getInstance().setActionAcknowledgmentTimeout(0);
+            isClickOK=obj.click();
+            obj.click();
+            obj.click();
+            Configurator.getInstance().setActionAcknowledgmentTimeout(timeout);
+        }
+        catch(UiObjectNotFoundException e)
+        {
+            isClickOK=false;        	
+            if(isXXX)
+            {
+                outPutScript("doubleClick_notExit " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin_notExit" + isClickOK + "    NotFound");
+            }
+            else
+            {
+                outPutScript("doubleClick " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin" + isClickOK + "    NotFound");
+            }
+            isXXX=false;
+            return;
+        }
+        if(isXXX)
+        {
+            isXXX=false;
+            outPutScript("doubleClick_notExit " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin_notExit" + isClickOK);
+        }
+        else
+        {
+            outPutScript("doubleClick " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin" + isClickOK);
+        }
+        //return isClickOK;
+    }
+    
+    
+    private void checkId_notExit(String arg_Text)
+    {
+        isXXX=true;
+        checkId(arg_Text);
+    }
+    private void checkId_notExit(String arg_Text,int arg_index)
+    {
+        isXXX=true;
+        checkId(arg_Text,arg_index);
+    }
+    private void checkId(String arg_Text)
+    {
+        selector=getResourceIdSelector(arg_Text);
+        obj=getObj(selector);
+        isCheckOK=obj.exists();
+        if(isXXX)
+        {
+            isXXX=false;
+            outPutScript("checkId_notExit " + arg_Text + "    princekin_notExit" + isCheckOK);
+        }
+        else
+        {
+            outPutScript("checkId " + arg_Text + "    princekin" + isCheckOK);
+        }
+        //return isCheckOK;  
+    }
+    private void checkId(String arg_Text,int arg_index)
+    {
+        selector=getResourceIdSelector(arg_Text,arg_index);
+        obj=getObj(selector);
+        isCheckOK=obj.exists();
+        if(isXXX)
+        {
+            isXXX=false;
+            outPutScript("checkId_notExit " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin_notExit" + isCheckOK);
+        }
+        else
+        {
+            outPutScript("checkId " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin" + isCheckOK);
+        }
+        //return isCheckOK;  
+    }
+    
+    
+
+
+    
+
+    
+    
+    
+    
     private final String crashStr1="ERROR: PROCESS CRASHED";
     private final String crashStr2="CRASH";
     private final String nullStr1="JAVA.LANG.NULLPOINTEREXCEPTION";
@@ -3447,6 +3970,7 @@
     private boolean isUninstallOK=false;
     private boolean isOK1=false;
     private boolean isOK2=false;
+    private boolean isExecOK=false;
     
     
     private final String strCancel="取消";
@@ -3469,5 +3993,5 @@
     private final SimpleDateFormat fmt1=new SimpleDateFormat("yyyyMMdd");
     private final SimpleDateFormat fmt2=new SimpleDateFormat("HH-mm-ss");
 
-}
 
+}

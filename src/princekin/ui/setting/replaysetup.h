@@ -17,12 +17,12 @@ class ReplaySetup;
 
 typedef struct __signalReplayData_s
 {
-    bool isMemCheck;
+    /*bool isMemCheck;
     bool isCpuCheck;
     bool isBatteryCheck;
     bool isCpuTempCheck;
     bool isWifiCheck;
-    bool isMobileCheck;
+    bool isMobileCheck;*/
     QString memThres;
     QString cpuThres;
     QString batteryThres;

@@ -22,8 +22,8 @@ private:
     Ui::tempDetail *ui;
 
 public slots:
-    void RecieveCpuTempResult(QString numStr, QString time);
-    void RecieveBatteryResult(QString numStr, QString time);
+    void RecieveCpuTempResult(QString numStr, QString time,QString max,QString min,QString ave);
+    void RecieveBatteryResult(QString numStr, QString time,QString max,QString min,QString ave);
     void WriteEdit();
 };
 

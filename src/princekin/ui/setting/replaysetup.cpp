@@ -12,7 +12,7 @@ ReplaySetup::ReplaySetup(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    this->setFixedWidth(400);
+    this->setFixedWidth(270);
     ui->statCBox->setChecked(false);
 
     signalReplayData_s signalReplayData;
@@ -39,12 +39,12 @@ ReplaySetup::ReplaySetup(QWidget *parent) :
 
 void ReplaySetup::initUI()
 {
-    ui->memCBtn->setChecked(gisMemCheck);
+    /*ui->memCBtn->setChecked(gisMemCheck);
     ui->cpuCBtn->setChecked(gisCpuCheck);
     ui->batteryCBtn->setChecked(gisBatteryCheck);
     ui->cpuTempCBtn->setChecked(gisCpuTempCheck);
     ui->wifiCBtn->setChecked(gisWifiCheck);
-    ui->mobileCBtn->setChecked(gisMobileCheck);
+    ui->mobileCBtn->setChecked(gisMobileCheck);*/
 
     ui->memLineEdit->setText(gMemThres);
     ui->cpuLineEdit->setText(gCpuThres);
@@ -52,6 +52,11 @@ void ReplaySetup::initUI()
     ui->cpuTempLineEdit->setText(gCpuTempThres);
     ui->wifiLineEdit->setText(gWifiThres);
     ui->mobileLineEdit->setText(gMobileThres);
+
+    ui->wifiLabel->setEnabled(gWifiNet);
+    ui->wifiLineEdit->setEnabled(gWifiNet);
+    ui->mobileLabel->setEnabled(!gWifiNet);
+    ui->mobileLineEdit->setEnabled(!gWifiNet);
 
 }
 
@@ -84,12 +89,12 @@ void ReplaySetup::closeEvent(QCloseEvent *event)
 
     signalReplayData_s signalReplayData;
 
-    signalReplayData.isMemCheck=ui->memCBtn->isChecked();
+    /*signalReplayData.isMemCheck=ui->memCBtn->isChecked();
     signalReplayData.isCpuCheck=ui->cpuCBtn->isChecked();
     signalReplayData.isBatteryCheck=ui->batteryCBtn->isChecked();
     signalReplayData.isCpuTempCheck=ui->cpuTempCBtn->isChecked();
     signalReplayData.isWifiCheck=ui->wifiCBtn->isChecked();
-    signalReplayData.isMobileCheck=ui->mobileCBtn->isChecked();
+    signalReplayData.isMobileCheck=ui->mobileCBtn->isChecked();*/
     signalReplayData.memThres=ui->memLineEdit->text();
     signalReplayData.cpuThres=ui->cpuLineEdit->text();
     signalReplayData.batteryThres=ui->batteryLineEdit->text();
@@ -273,11 +278,11 @@ void ReplaySetup::on_statCBox_clicked()
     gReplayNumber=0;
     if(ui->statCBox->isChecked())
     {
-        this->setFixedWidth(784);
+        this->setFixedWidth(652);
     }
     else
     {
-        this->setFixedWidth(400);
+        this->setFixedWidth(270);
         //取消埋点统计测试，把xmltree选中的勾都去掉
         QTreeWidgetItemIterator item(ui->xmlTreeWidget);
         while(*item)

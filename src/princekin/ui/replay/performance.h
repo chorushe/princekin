@@ -5,7 +5,6 @@
 #include "cpucontroller.h"
 #include "batterytempcontroller.h"
 #include "cputempcontroller.h"
-#include "netstatecontroller.h"
 #include "trafficcontroller.h"
 #include "execmd.h"
 #include "writeresult.h"
@@ -29,7 +28,6 @@ using namespace CpuController;
 using namespace BatteryTempController;
 using namespace CpuTempController;
 using namespace TrafficController;
-using namespace NetStateController;
 using namespace ReplayHtmlController;
 
 class Performance : public QObject
@@ -134,8 +132,6 @@ private:
 
     WriteResult *qWriteResultInstance;
 
-
-    QHash<QString,NetStateController::Controller*> qNetState_Controller_Hash;
     QHash<QString,MemController::Controller*> qMem_Controller_Hash;
     QHash<QString,CpuController::Controller*> qCpu_Controller_Hash;
     QHash<QString,BatteryTempController::Controller*> qBatteryTemp_Controller_Hash;

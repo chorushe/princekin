@@ -82,8 +82,8 @@ void AllSetting::closeEvent(QCloseEvent *e)
     {
         QMessageBox::StandardButton bt;
         bt = QMessageBox::question(this, tr("提示"),
-                                       QString(tr("收件邮箱地址为空，是否继续？")),
-                                       QMessageBox::Yes|QMessageBox::No,QMessageBox::Yes);
+                                   QString(tr("收件邮箱地址为空，是否继续？")),
+                                   QMessageBox::Yes|QMessageBox::No,QMessageBox::Yes);
         if(bt==QMessageBox::No)
             e->ignore();
         else if(bt==QMessageBox::Yes)
@@ -111,6 +111,7 @@ void AllSetting::closeEvent(QCloseEvent *e)
 
 void AllSetting::on_wifiCBtn_clicked()
 {
+
     isWifiCheck=ui->wifiCBtn->isChecked();
 }
 
@@ -157,4 +158,28 @@ void AllSetting::ReadEmailAdd()
     }
     f.close();
     ui->emailLineEdit->setText(emailAdds);
+}
+
+void AllSetting::on_wifiRBtn_clicked()
+{
+    gNetState="currentStateWifi";
+    gWifiNet=true;
+    ui->mobileCBtn->setEnabled(false);
+    ui->mobileLineEdit->setEnabled(false);
+    ui->wifiCBtn->setEnabled(true);
+    ui->wifiLineEdit->setEnabled(true);
+    ui->label_7->setEnabled(false);
+    ui->label_8->setEnabled(true);
+}
+
+void AllSetting::on_mobileRBtn_clicked()
+{
+    gNetState="currentStateMobile";
+    gWifiNet=false;
+    ui->mobileCBtn->setEnabled(true);
+    ui->mobileLineEdit->setEnabled(true);
+    ui->wifiCBtn->setEnabled(false);
+    ui->wifiLineEdit->setEnabled(false);
+    ui->label_7->setEnabled(true);
+    ui->label_8->setEnabled(false);
 }

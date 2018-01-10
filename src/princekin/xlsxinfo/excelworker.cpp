@@ -154,7 +154,7 @@ void Worker::setMeasureVector(QVector<MeasureReport> arg_vector)
 
 void Worker::doWork()
 {
-    qDebug()<<"nnnnnnnnnnnnnnnnnnnnnnnnnn";
+    qDebug()<<"qMark";
     qDebug()<<qMark;
     if(qMark.startsWith("base-"))
     {
@@ -179,6 +179,9 @@ void Worker::createExcel(const QString &arg_mark)
         writeInfo(arg_mark);
 
         getValues(arg_mark);
+
+        createTravelMail();
+        qSubject=qAppChineseName+"遍历测试报告-"+Helper::getTime2("yyyyMMdd");
         chart();
     }
     if(arg_mark=="behaviour")
@@ -189,6 +192,8 @@ void Worker::createExcel(const QString &arg_mark)
         writeInfo(arg_mark);
 
         getValues(arg_mark);
+        createBehaviourMail();
+        qSubject=qAppChineseName+"埋点统计测试报告-"+Helper::getTime2("yyyyMMdd");
         chart();
     }
 
@@ -200,6 +205,9 @@ void Worker::createExcel(const QString &arg_mark)
         writeInfo(arg_mark);
 
         getValues(arg_mark);
+
+        createMonkeyMail();
+        qSubject=qAppChineseName+"稳定性测试报告-"+Helper::getTime2("yyyyMMdd");
         chart();
     }
 
@@ -210,15 +218,23 @@ void Worker::createExcel(const QString &arg_mark)
         writeInfo(arg_mark);
 
         getValues(arg_mark);
+        createInterfaceMail();
+        qSubject=qAppChineseName+"接口测试报告-"+Helper::getTime2("yyyyMMdd");
         chart();
     }
 
     else if(arg_mark=="performance")
     {
-        getAppInfo2(arg_mark);
+        getAppInfo3(arg_mark);
         setAppInfo_universal();
+
+
+
         writeInfo(arg_mark);
         performanceHtml();
+
+        createPerformanceMail();
+        qSubject=qAppChineseName+"性能测试报告-"+Helper::getTime2("yyyyMMdd");
         chart2();
     }
 
@@ -528,6 +544,7 @@ void Worker::getAppInfo1(const QString &arg_mark)
 
         if(file.exists())
         {
+
             qIconResPath=XlsxInfo::getIconResPath(apkName);
             qIconPath=XlsxInfo::getIconPath(apkName,qIconResPath);
             qAppChineseName=XlsxInfo::getAppChineseName(apkName);
@@ -631,6 +648,105 @@ void Worker::getAppInfo2(const QString &arg_mark)
     qMobileVmsize=XlsxInfo::getMobileVmsize(qDeviceId);
 }
 
+void Worker::getAppInfo3(const QString &arg_mark)
+{
+    QString sourceXlsx;
+
+    sourceXlsx=gConfigDir + QDir::separator() + arg_mark + "_report.xlsx";
+    qTargetXlsx=qXlsxSaveDir + QDir::separator() + "report_" + qStartTime + ".xlsx";
+    XlsxInfo::copyFile(sourceXlsx,qTargetXlsx);
+
+    if(qPackageName=="")
+    {
+        //没有选择应用
+        qIconPath="";//手机
+        qAppChineseName="";
+        qAppVersion="";
+        qAppSize="";
+        qAppSize2="";
+    }
+    else
+    {
+        //如果选择应用
+        if(qPackageName==gOldPackageName)
+        {
+            QString apkName;
+            QString filePath;
+
+            apkName=XlsxInfo::getApkName();
+            filePath=gApkDir + QDir::separator() + apkName;
+            QFile file(filePath);
+
+            if(file.exists())
+            {
+                qIconResPath=XlsxInfo::getIconResPath(apkName);
+                qIconPath=XlsxInfo::getIconPath(apkName,qIconResPath);
+                qAppChineseName=XlsxInfo::getAppChineseName(apkName);
+                qAppVersion=XlsxInfo::getAppVersion(apkName);
+                qAppSize=XlsxInfo::getAppSize(apkName);
+
+            }
+            else
+            {
+                qIconPath="";
+                qAppChineseName="";
+                qAppVersion="";
+                qAppSize="";
+            }
+            getXXX();
+        }
+        else
+        {
+            if(qPackageName.contains(gOldPackageName))
+            {
+                QString apkName;
+                QString filePath;
+
+                apkName=XlsxInfo::getApkName();
+                filePath=gApkDir + QDir::separator() + apkName;
+                QFile file(filePath);
+
+                if(file.exists())
+                {
+                    qIconResPath=XlsxInfo::getIconResPath(apkName);
+                    qIconPath=XlsxInfo::getIconPath(apkName,qIconResPath);
+                    qAppChineseName=XlsxInfo::getAppChineseName(apkName);
+                    qAppVersion=XlsxInfo::getAppVersion(apkName);
+                    qAppSize=XlsxInfo::getAppSize(apkName);
+
+                }
+                else
+                {
+                    qIconPath="";
+                    qAppChineseName="";
+                    qAppVersion="";
+                    qAppSize="";
+                }
+                getXXX();
+            }
+            else
+            {
+                qIconPath="";
+                qAppChineseName=qPackageName;
+                qAppVersion="";
+                qAppSize="";
+                qAppSize2="";
+            }
+
+        }
+    }
+
+
+    //qLaunchTime="0";
+    qTestDate=XlsxInfo::getDate();
+    qPlatform=XlsxInfo::getPlatform();
+
+    qMobileBrand=XlsxInfo::getMobileBrand(qDeviceId);
+    qMobileModel=XlsxInfo::getMobileModel(qDeviceId);
+    qMobileVersion=XlsxInfo::getMobileVersion(qDeviceId);
+    qMobileVmsize=XlsxInfo::getMobileVmsize(qDeviceId);
+}
+
 
 
 //*****************20170505*************************//
@@ -657,8 +773,10 @@ void Worker::sendMail()
         QString senderKey=list.at(1);
         QString cmdLine;
 
+        QString mailContentFile=gConfigDir + QDir::separator() + "mailContent.txt";
         QString receiver=gConfigDir + QDir::separator() + "email.txt";
-        cmdLine="cmd /c java -jar " + gConfigDir + QDir::separator() + "sendmail.jar" + " " + senderName + " " + senderKey + " " + receiver +  " 测试报告" + " " + qTargetXlsx;
+        //cmdLine="cmd /c java -jar " + gConfigDir + QDir::separator() + "sendmail.jar" + " " + senderName + " " + senderKey + " " + receiver +  " 测试报告" + " " + qTargetXlsx;
+        cmdLine="cmd /c java -jar " + gConfigDir + QDir::separator() + "sendmail2.jar" + " " + senderName + " " + senderKey + " " + receiver +  " " + qSubject + " " + mailContentFile + " " + qTargetXlsx;
         ExeCmd::runCmd(cmdLine);
     }
 }
@@ -729,5 +847,354 @@ void Worker::createBaseExcel(const QString &arg_mark)
 }
 //*****************20170630**********//
 
+void Worker::createPerformanceMail()
+{
+    QString tempValue;
+    QFile file;
+    file.setFileName(gConfigDir+QDir::separator() + "mailContent.txt");
+    QTextStream outStream(&file);
+    if(!file.open(QIODevice::WriteOnly))
+    {
+        file.close();
+    }
+
+    outStream.setCodec(qtc);
+    QString tempStr;
+
+    tempStr="To All:";
+    outStream<<tempStr<<endl;
+
+    if(gIsThread)
+    {
+        qAppChineseName=qAppChineseName+"("+gPackageThreadName+")";
+    }
+    tempStr="APP名称: " + qAppChineseName;
+    outStream<<tempStr<<endl;
+    qDebug()<<tempStr;
+
+    tempStr="测试平台: android";
+    outStream<<tempStr<<endl;
+
+    tempStr="测试设备: " + qMobileBrand+qMobileModel;
+    outStream<<tempStr<<endl;
+
+    tempStr="系统版本: " + qMobileVersion;
+    outStream<<tempStr<<endl;
+
+    tempValue=QString::number(gMemAve,10,2);
+    tempStr="内存均值: " + tempValue + "M";
+    outStream<<tempStr<<endl;
+
+    tempValue=QString::number(gCpuAve,10,2);
+    tempStr="CPU均值: " + tempValue + "%";
+    outStream<<tempStr<<endl;
+
+    tempValue=QString::number(gCpuTempAve,10,2);
+    tempStr="CPU温度均值: " + tempValue + "℃";
+    outStream<<tempStr<<endl;
+
+    tempValue=QString::number(gBatteryAve,10,2);
+    tempStr="电池温度均值: " + tempValue + "℃";
+    outStream<<tempStr<<endl;
+
+    tempValue=QString::number(gPerformanceWifi);
+    tempStr="Wifi流量消耗(总): " + tempValue + "M";
+    outStream<<tempStr<<endl;
+
+    tempValue=QString::number(gPerformanceMobile);
+    tempStr="Mobile流量消耗(总): " + tempValue + "M";
+    outStream<<tempStr<<endl;
+
+    tempValue=gPerformanceStartTime;
+    tempStr="测试开始时间: " + tempValue;
+    outStream<<tempStr<<endl;
+
+    tempValue= Helper::getTime2("yyyy-MM-dd_hh:mm:ss");
+    tempStr="测试结束时间: " + tempValue;
+    outStream<<tempStr<<endl;
+
+
+    tempStr="------------------------------------------------------";
+    outStream<<tempStr<<endl;
+
+    tempStr="Brs";
+    outStream<<tempStr<<endl;
+
+    tempStr="小王子团队";
+    outStream<<tempStr<<endl;
+
+    tempStr="Tel: 何畅022-65303756 OR 周朝彬010-56602399";
+    outStream<<tempStr<<endl;
+
+    tempStr="Email: changhe@sohu-inc.com OR chaobinzhou@sohu-inc.com";
+    outStream<<tempStr<<endl;
+
+    tempStr="QQ: 周朝彬1787072341";
+    outStream<<tempStr<<endl;
+    file.close();
+
+}
+
+void Worker::createTravelMail()
+{
+    QString tempValue;
+    QFile file;
+    file.setFileName(gConfigDir+QDir::separator() + "mailContent.txt");
+    QTextStream outStream(&file);
+    if(!file.open(QIODevice::WriteOnly))
+    {
+        file.close();
+    }
+
+    outStream.setCodec(qtc);
+    QString tempStr;
+
+    tempStr="To All:";
+    outStream<<tempStr<<endl;
+    QFile file2(gTravelReport);
+    QTextStream inStream(&file2);
+    if(!file2.open(QIODevice::ReadOnly))
+    {
+        file2.close();
+    }
+    while(!inStream.atEnd())
+    {
+        tempValue=inStream.readLine();
+        tempValue.remove("\r");
+        if(!tempValue.contains("-----------------------------") && !tempValue.trimmed().isNull())
+        {
+            outStream<<tempValue<<endl;
+        }
+    }
+    file2.close();
+
+    tempStr="------------------------------------------------------";
+    outStream<<tempStr<<endl;
+
+    tempStr="Brs";
+    outStream<<tempStr<<endl;
+
+    tempStr="小王子团队";
+    outStream<<tempStr<<endl;
+
+    tempStr="Tel: 何畅022-65303756 OR 周朝彬010-56602399";
+    outStream<<tempStr<<endl;
+
+    tempStr="Email: changhe@sohu-inc.com OR chaobinzhou@sohu-inc.com";
+    outStream<<tempStr<<endl;
+
+    tempStr="QQ: 周朝彬1787072341";
+    outStream<<tempStr<<endl;
+    file.close();
+}
+
+
+void Worker::createMonkeyMail()
+{
+    QString tempValue;
+    QFile file;
+    file.setFileName(gConfigDir+QDir::separator() + "mailContent.txt");
+    QTextStream outStream(&file);
+    if(!file.open(QIODevice::WriteOnly))
+    {
+        file.close();
+    }
+
+    outStream.setCodec(qtc);
+    QString tempStr;
+
+    tempStr="To All:";
+    outStream<<tempStr<<endl;
+    QFile file2(gMonkeyReport);
+    QTextStream inStream(&file2);
+    if(!file2.open(QIODevice::ReadOnly))
+    {
+        file2.close();
+    }
+    while(!inStream.atEnd())
+    {
+        tempValue=inStream.readLine();
+        if(!tempValue.contains("-----------------------------"))
+        {
+            outStream<<tempValue<<endl;
+        }
+    }
+    file2.close();
+
+    tempStr="------------------------------------------------------";
+    outStream<<tempStr<<endl;
+
+    tempStr="Brs";
+    outStream<<tempStr<<endl;
+
+    tempStr="小王子团队";
+    outStream<<tempStr<<endl;
+
+    tempStr="Tel: 何畅022-65303756 OR 周朝彬010-56602399";
+    outStream<<tempStr<<endl;
+
+    tempStr="Email: changhe@sohu-inc.com OR chaobinzhou@sohu-inc.com";
+    outStream<<tempStr<<endl;
+
+    tempStr="QQ: 周朝彬1787072341";
+    outStream<<tempStr<<endl;
+    file.close();
+}
+
+void Worker::createInterfaceMail()
+{
+    QString tempValue;
+    QFile file;
+    file.setFileName(gConfigDir+QDir::separator() + "mailContent.txt");
+    QTextStream outStream(&file);
+    if(!file.open(QIODevice::WriteOnly))
+    {
+        file.close();
+    }
+
+    outStream.setCodec(qtc);
+    QString tempStr;
+
+    tempStr="To All:";
+    outStream<<tempStr<<endl;
+
+    tempStr="APP名称: " + qAppChineseName;
+    outStream<<tempStr<<endl;
+    qDebug()<<tempStr;
+
+    tempStr="测试平台: android";
+    outStream<<tempStr<<endl;
+
+    tempStr="测试设备: " + qMobileBrand+qMobileModel;
+    outStream<<tempStr<<endl;
+
+    tempStr="系统版本: " + qMobileVersion;
+    outStream<<tempStr<<endl;
+
+    tempValue=QString::number(gInterfaceTotalNum);
+    tempStr="接口检测总数: " + tempValue;
+    outStream<<tempStr<<endl;
+
+    tempValue=QString::number(gInterfaceAveReponseTime);
+    tempStr="平均响应时间: " + tempValue + "ms";
+    outStream<<tempStr<<endl;
+
+    tempValue=QString::number(gInterfaceMinTime);
+    tempStr="最快响应时间: " + tempValue + "ms";;
+    outStream<<tempStr<<endl;
+
+    tempValue=QString::number(gInterfaceMaxTime);
+    tempStr="最慢响应时间: " + tempValue + "ms";;
+    outStream<<tempStr<<endl;
+
+
+    tempValue=QString::number(gInterfaceTimeWarning);
+    tempStr="响应时间预警值: " + tempValue + "ms";;
+    outStream<<tempStr<<endl;
+
+    tempValue=QString::number(gInterfaceTimeOutRate);
+    tempStr="总体超时率: " + tempValue  + "%";;
+    outStream<<tempStr<<endl;
+
+
+    tempValue=gInterfaceStartTime;
+    tempStr="测试开始时间: " + tempValue;
+    outStream<<tempStr<<endl;
+
+    tempValue= Helper::getTime2("yyyy-MM-dd_hh:mm:ss");
+    tempStr="测试结束时间: " + tempValue;
+    outStream<<tempStr<<endl;
+
+
+    tempStr="------------------------------------------------------";
+    outStream<<tempStr<<endl;
+
+    tempStr="Brs";
+    outStream<<tempStr<<endl;
+
+    tempStr="小王子团队";
+    outStream<<tempStr<<endl;
+
+    tempStr="Tel: 何畅022-65303756 OR 周朝彬010-56602399";
+    outStream<<tempStr<<endl;
+
+    tempStr="Email: changhe@sohu-inc.com OR chaobinzhou@sohu-inc.com";
+    outStream<<tempStr<<endl;
+
+    tempStr="QQ: 周朝彬1787072341";
+    outStream<<tempStr<<endl;
+    file.close();
+
+}
+
+
+void Worker::createBehaviourMail()
+{
+    QString tempValue;
+    QFile file;
+    file.setFileName(gConfigDir+QDir::separator() + "mailContent.txt");
+    QTextStream outStream(&file);
+    if(!file.open(QIODevice::WriteOnly))
+    {
+        file.close();
+    }
+
+    outStream.setCodec(qtc);
+    QString tempStr;
+
+    tempStr="To All:";
+    outStream<<tempStr<<endl;
+
+    tempStr="APP名称: " + qAppChineseName;
+    outStream<<tempStr<<endl;
+
+    tempStr="测试平台: android";
+    outStream<<tempStr<<endl;
+
+    tempStr="测试设备: " + qMobileBrand+qMobileModel;
+    outStream<<tempStr<<endl;
+
+    tempStr="系统版本: " + qMobileVersion;
+    outStream<<tempStr<<endl;
+
+    tempValue=QString::number(qUrlTotalNum);
+    tempStr="测试上报个数: " + tempValue;
+    outStream<<tempStr<<endl;
+
+    tempValue=QString::number(qUrlSuccessNum);
+    tempStr="上报通过个数: " + tempValue;
+    outStream<<tempStr<<endl;
+
+    /*
+    tempValue=gInterfaceStartTime;
+    tempStr="测试开始时间: " + tempValue;
+    outStream<<tempStr<<endl;
+
+    tempValue= Helper::getTime2("yyyy-MM-dd_hh:mm:ss");
+    tempStr="测试结束时间: " + tempValue;
+    outStream<<tempStr<<endl;
+    */
+
+
+    tempStr="------------------------------------------------------";
+    outStream<<tempStr<<endl;
+
+    tempStr="Brs";
+    outStream<<tempStr<<endl;
+
+    tempStr="小王子团队";
+    outStream<<tempStr<<endl;
+
+    tempStr="Tel: 何畅022-65303756 OR 周朝彬010-56602399";
+    outStream<<tempStr<<endl;
+
+    tempStr="Email: changhe@sohu-inc.com OR chaobinzhou@sohu-inc.com";
+    outStream<<tempStr<<endl;
+
+    tempStr="QQ: 周朝彬1787072341";
+    outStream<<tempStr<<endl;
+    file.close();
+
+}
 
 }

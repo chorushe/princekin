@@ -8,6 +8,7 @@
 #include <QtXlsx>
 #include <QImage>
 #include <QUrl>
+#include <QDateTime>
 
 #include "helper.h"
 #include "globalvar.h"
@@ -39,10 +40,12 @@ private:
     QString getCputempAveValue(const QString &,QStringList);
 
     QString getWifiMobile(const QString &);
+    QString gettesttime(const QString &,const QString &);
 
     QImage getImage();
     Format getNormalFormat();
     Format getHyperlinkFormat();
+    QTextCodec *qtc=QTextCodec::codecForName("gb2312");
 
 private slots:
     void receiveCrashResult(const QString &,const QString &,const QString &,const QString &,const QString &,const QString &,QStringList);

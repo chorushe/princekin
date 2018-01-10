@@ -14,7 +14,7 @@ int gInterfaceTotalNum;
 int gInterfaceAveReponseTime;
 int gInterfaceMaxTime;
 int gInterfaceMinTime;
-
+int gMemOption;
 
 double memMin;
 double memMax;
@@ -100,6 +100,7 @@ QString gNewWorkSpaceDir;
 QString gNewScriptDir;
 QString gNewDisk;
 QString gOldPackageName;
+QString gPackageThreadName;
 QString gIconPath;
 QString gStartTextDate;
 QString gDatePath;
@@ -110,6 +111,10 @@ QString gDaily_SystemVersion;
 QString gDaily_ModuleBaseName;
 QString gCrashModuleList;
 QString gDetailedPath;
+QString gPerformanceStartTime;
+QString gInterfaceStartTime;
+QString gMonkeyReport;
+QString gTravelReport;
 QStringList gPvStringList;
 QStringList gPvStringList2;
 QStringList gVvStringList;
@@ -153,7 +158,7 @@ QHash<QString,QString> gData_Traffic_Hash;
 
 QHash<QString,QProcess *> gHashProc;
 QMap<QString,bool> gmap;
-
+QMap<QString,int> gxmlNum;
 QVector<double> memNum;
 QVector<double> cpuNum;
 QVector<double> memTimeInt;
@@ -183,3 +188,6 @@ QVector<QString> cpuTempTime;
 QVector<QString> wifiTime;
 QVector<QString> mobileTime;
 QVector<QString> gExcelFilePath;
+
+bool gWifiNet;
+bool gIsThread;

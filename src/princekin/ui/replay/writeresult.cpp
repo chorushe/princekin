@@ -182,10 +182,27 @@ void WriteResult::receiveMinMax_memory(const QString &arg_deviceId, int arg_min,
     writeStyle(xlsxDoc,deviceIdCell,arg_deviceId,format);
 
     minMemCell="B" + startRowIndex;
-    writeStyle(xlsxDoc,minMemCell,minValue,format);
+    if(minValue.trimmed().isEmpty())
+    {
+        writeStyle(xlsxDoc,minMemCell,"-",format);
+    }
+    else
+    {
+        writeStyle(xlsxDoc,minMemCell,minValue,format);
+    }
+
 
     maxMemCell="C" + startRowIndex;
-    writeStyle(xlsxDoc,maxMemCell,maxValue,format);
+    if(maxValue.trimmed().isEmpty())
+    {
+        writeStyle(xlsxDoc,maxMemCell,"-",format);
+    }
+    else
+    {
+        writeStyle(xlsxDoc,maxMemCell,maxValue,format);
+    }
+
+
 
     setxxx(xlsxDoc,false);
     xlsxDoc.save();
@@ -222,10 +239,30 @@ void WriteResult::receiveMinMax_cpu(const QString &arg_deviceId, int arg_min, in
     writeStyle(xlsxDoc,deviceIdCell,arg_deviceId,format);
 
     minMemCell="D" + startRowIndex;
-    writeStyle(xlsxDoc,minMemCell,minValue,format);
+    if(minValue.trimmed().isEmpty())
+    {
+        writeStyle(xlsxDoc,minMemCell,"-",format);
+    }
+    else
+    {
+        writeStyle(xlsxDoc,minMemCell,minValue,format);
+    }
 
-    maxMemCell="E" + startRowIndex;
-    writeStyle(xlsxDoc,maxMemCell,maxValue,format);
+
+
+
+    maxMemCell="E" + startRowIndex;    
+    if(maxValue.trimmed().isEmpty())
+    {
+        writeStyle(xlsxDoc,maxMemCell,"-",format);
+    }
+    else
+    {
+        writeStyle(xlsxDoc,maxMemCell,maxValue,format);
+    }
+
+
+
 
     setxxx(xlsxDoc,false);
     xlsxDoc.save();
@@ -263,10 +300,28 @@ void WriteResult::receiveMinMax_battery(const QString &arg_deviceId, int arg_min
     writeStyle(xlsxDoc,deviceIdCell,arg_deviceId,format);
 
     minMemCell="J" + startRowIndex;
-    writeStyle(xlsxDoc,minMemCell,minValue,format);
+    if(minValue.trimmed().isEmpty())
+    {
+        writeStyle(xlsxDoc,minMemCell,"-",format);
+    }
+    else
+    {
+        writeStyle(xlsxDoc,minMemCell,minValue,format);
+    }
+
+
 
     maxMemCell="K" + startRowIndex;
-    writeStyle(xlsxDoc,maxMemCell,maxValue,format);
+    if(maxValue.trimmed().isEmpty())
+    {
+        writeStyle(xlsxDoc,maxMemCell,"-",format);
+    }
+    else
+    {
+        writeStyle(xlsxDoc,maxMemCell,maxValue,format);
+    }
+
+
 
     setxxx(xlsxDoc,false);
     xlsxDoc.save();
@@ -304,10 +359,27 @@ void WriteResult::receiveMinMax_cpuTemp(const QString &arg_deviceId, int arg_min
     writeStyle(xlsxDoc,deviceIdCell,arg_deviceId,format);
 
     minMemCell="L" + startRowIndex;
-    writeStyle(xlsxDoc,minMemCell,minValue,format);
+    if(minValue.trimmed().isEmpty())
+    {
+        writeStyle(xlsxDoc,minMemCell,"-",format);
+    }
+    else
+    {
+        writeStyle(xlsxDoc,minMemCell,minValue,format);
+    }
+
+
 
     maxMemCell="M" + startRowIndex;
-    writeStyle(xlsxDoc,maxMemCell,maxValue,format);
+
+    if(maxValue.trimmed().isEmpty())
+    {
+        writeStyle(xlsxDoc,maxMemCell,"-",format);
+    }
+    else
+    {
+        writeStyle(xlsxDoc,maxMemCell,maxValue,format);
+    }
 
     setxxx(xlsxDoc,false);
 
@@ -458,17 +530,57 @@ void WriteResult::receiveTraffic(const QString &arg_deviceId,QHash<QString,QStri
     writeStyle(xlsxDoc,deviceIdCell,arg_deviceId,format);
 
     lrxWifiCell="F" + startRowIndex;
-    writeStyle(xlsxDoc,lrxWifiCell,lrxWifi,format);
+
+    if(lrxWifi.trimmed().isEmpty())
+    {
+        writeStyle(xlsxDoc,lrxWifiCell,"-",format);
+    }
+    else
+    {
+        writeStyle(xlsxDoc,lrxWifiCell,lrxWifi,format);
+    }
+
 
 
     ltxWifiCell="G" + startRowIndex;
-    writeStyle(xlsxDoc,ltxWifiCell,ltxWifi,format);
+
+    if(ltxWifi.trimmed().isEmpty())
+    {
+        writeStyle(xlsxDoc,ltxWifiCell,"-",format);
+    }
+    else
+    {
+        writeStyle(xlsxDoc,ltxWifiCell,ltxWifi,format);
+    }
+
+
+
 
     lrxMobileCell="H" + startRowIndex;
-    writeStyle(xlsxDoc,lrxMobileCell,lrxMobile,format);
+
+    if(lrxMobile.trimmed().isEmpty())
+    {
+        writeStyle(xlsxDoc,lrxMobileCell,"-",format);
+    }
+    else
+    {
+        writeStyle(xlsxDoc,lrxMobileCell,lrxMobile,format);
+    }
+
+
 
     ltxMobileCell="I" + startRowIndex;
-    writeStyle(xlsxDoc,ltxMobileCell,ltxMobile,format);
+
+    if(ltxMobile.trimmed().isEmpty())
+    {
+        writeStyle(xlsxDoc,ltxMobileCell,"-",format);
+    }
+    else
+    {
+        writeStyle(xlsxDoc,ltxMobileCell,ltxMobile,format);
+    }
+
+
 
     setxxx(xlsxDoc,false);
 
@@ -556,6 +668,8 @@ void WriteResult::receiveBaseInfoResult(QString arg_info)
         //deviceNumber=splistResult.at(3);
         platform=splistResult.at(4);
         testDate=splistResult.at(5);
+        splistResult=testDate.split(" ");
+        testDate=splistResult.at(0);
     }
 
     QString strCell;

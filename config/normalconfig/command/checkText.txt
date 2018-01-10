@@ -14,3 +14,11 @@ checkTextSelected 纪录片
 
 5、checkTextChecked:检查文字Checked属性是否true
 checkTextChecked 自媒体
+
+6、checkId ：通过控件id检查某个控件是否存在
+checkId com.sohu.sohuvideo:id/player_container
+checkId_notExit com.sohu.sohuvideo:id/player_container
+或
+str=com.sohu.sohuvideo:id/player_container
+checkId=str
+checkId_notExit=str

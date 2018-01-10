@@ -72,3 +72,8 @@ clickIdOrClass android.widget.ImageView 2
 class=android.widget.ImageView
 index=2
 clickIdOrClass=class=index
+
+7、clickxy :点击具体坐标
+例：点击坐标为（300,400）位置的控件
+clickxy 300 400
+注意：但不同分辨率手机的具体坐标不一致，通过坐标点击控件的脚本不能通用

@@ -74,8 +74,6 @@ SOURCES += main.cpp\
     ui/setting/replaysetup.cpp \
     utils/replaymeasurehelp.cpp \
     ui/record/newwidget.cpp \
-    thread/block/blockcontroller.cpp \
-    thread/block/blockworker.cpp \
     ui/record/newscriptwidget.cpp \
     ui/setting/performancesetup.cpp \
     ui/behavior/behaviourwidget.cpp \
@@ -97,8 +95,6 @@ SOURCES += main.cpp\
     thread/devices/devicesworker.cpp \
     thread/memory/memcontroller.cpp \
     thread/memory/memworker.cpp \
-    thread/netstate/netstatecontroller.cpp \
-    thread/netstate/netstateworker.cpp \
     thread/replay/replaycontroller.cpp \
     thread/replay/replayworker.cpp \
     thread/trafficstats/trafficcontroller.cpp \
@@ -232,8 +228,6 @@ HEADERS  += princekin.h \
     ui/setting/replaysetup.h \
     utils/replaymeasurehelp.h \
     ui/record/newwidget.h \
-    thread/block/blockcontroller.h \
-    thread/block/blockworker.h \
     ui/record/newscriptwidget.h \
     ui/setting/performancesetup.h \
     ui/behavior/behaviourwidget.h \
@@ -255,8 +249,6 @@ HEADERS  += princekin.h \
     thread/devices/devicesworker.h \
     thread/memory/memcontroller.h \
     thread/memory/memworker.h \
-    thread/netstate/netstatecontroller.h \
-    thread/netstate/netstateworker.h \
     thread/replay/replaycontroller.h \
     thread/replay/replayworker.h \
     thread/trafficstats/trafficcontroller.h \
@@ -379,7 +371,6 @@ INCLUDEPATH += ui/run\
     thread/temperature\
     thread/trafficstats\
     thread/trafficstats2\
-    thread/netstate\
     thread/replay\
     thread/chart \
     thread/frames \

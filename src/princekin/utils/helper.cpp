@@ -335,7 +335,7 @@ void Helper::loadRepository2(const QString &arg_repositoryDir)//运行时涉及�
     {
         gModuleDir2=arg_repositoryDir;
         qDebug()<<"gModuleDir2: "<<gModuleDir2;
-        QMessageBox::information(0,"提示","所选路径不是脚本库路径！");
+        //QMessageBox::information(0,"提示","所选路径不是脚本库路径！");
         return;
     }
 

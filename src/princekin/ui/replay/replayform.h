@@ -7,6 +7,7 @@
 #include <QListWidgetItem>
 #include <QStandardItemModel>
 #include <QMenu>
+#include <QLabel>
 #include <QMenuBar>
 #include <QAction>
 #include <QDir>
@@ -113,7 +114,7 @@ private:
     void mailTimer();
     void runexe(const QString &,const QString &);
 
-    void createDaily(const QString &,QStringList,QStringList,const QString &,QStringList);
+    void createDaily(const QString &,QStringList,QStringList,const QString &,QStringList,QStringList);
     void createPerformance(const QString &,QStringList,QStringList);
     QString getMinMaxMemory(const QString &,QHash<QString,int>);
     QString getMinMaxCpu(const QString &,QHash<QString,int>);
@@ -157,7 +158,7 @@ private slots:
     void getDeviceSlot();
     void recieveData(QVariant var);
     void receiveRunScriptResult(const QString &);
-    void receiveReplayResult(const QString &,const QString &,QStringList,QStringList,int,QStringList,const QString &);
+    void receiveReplayResult(const QString &,const QString &,QStringList,QStringList,int,QStringList,const QString &,QStringList);
     void receiveCrashResult(const QString &,const QString &,const QString &,const QString &);
     void receiveProcFinished(const QString &);
     void receiveInitEnvFinished();
@@ -173,6 +174,8 @@ private slots:
     void on_scriptTreeWidget_itemChanged(QTreeWidgetItem *item, int column);
 
     void on_scriptTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
+
+    void recieveOneScriptFinish(const QString &arg_scriptline,bool flag);
 
 private:
     Ui::ReplayForm *ui;
@@ -239,6 +242,7 @@ private:
     QString qAppVersion;
     QString qAppName;
     QString qMailContent;
+    QString qStartTime;
     QStringList qMobileInfoList;
 
 
@@ -250,6 +254,8 @@ private:
     QStringList qModuleNameList;
     QStringList xmlPaths;
     QStringList qStatisticsDataList;
+    QStringList qRunResultList;
+    QStringList qCrashList;
 
     QHash<QString,int> qModule_FileCount_Hash;
     QHash<QString,QString> qDevice_TopIndex_Hash;
@@ -277,6 +283,9 @@ private:
     QString qTempDeviceId;
     QString qTempDeviceModelIdName;
     QStringList qTempSplitResult;
+    QTextCodec *qtc=QTextCodec::codecForName("gb2312");
+    QMap<QString,QMap<QString,int>> suiteResForEveScript;//记录测试套内每个脚本的运行情况；
+    QMap<QString,bool> suiteRes;//记录每个测试套文件内最后的结果，暂时没有用，以备后患
 };
 
 #endif // REPLAYFORM_H

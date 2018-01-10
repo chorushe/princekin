@@ -653,6 +653,7 @@ void GenerateXlsx::sendMail()
         QString receiver=gConfigDir + QDir::separator() + "email.txt";
         cmdLine="cmd /c java -jar " + gConfigDir + QDir::separator() + "sendmail.jar" + " " + senderName + " " + senderKey + " " + receiver +  " 测试报告" + " " + qTargetXlsx;
         qDebug()<<cmdLine;
+        qDebug()<<"9999999999999999999999";
         ExeCmd::runCmd(cmdLine);
     }
 }

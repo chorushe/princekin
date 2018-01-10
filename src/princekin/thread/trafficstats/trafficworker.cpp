@@ -90,7 +90,7 @@ void Worker::startWorker()
 
             if(strLine.contains("wlan0"))
             {
-                splitResult=strLine.split(" ");
+                splitResult=strLine.split(" ",QString::SkipEmptyParts);
                 count=splitResult.size();
 
                 if(count>=8)
@@ -106,7 +106,7 @@ void Worker::startWorker()
             }
             if(strLine.contains("rmnet0"))
             {
-                splitResult=strLine.split(" ");
+                splitResult=strLine.split(" ",QString::SkipEmptyParts);
                 count=splitResult.size();
                 if(count>=8)
                 {
@@ -141,23 +141,28 @@ void Worker::startWorker()
         }
 
         doubleValue=double_lrxWifi - firstValueHash.value("lrxWifi");
-        double_lrxWifi_M=(double)doubleValue/1024;
+        doubleValue=qAbs(doubleValue);
+        double_lrxWifi_M=doubleValue/1024;
         str_lrxWifi=QString::number(double_lrxWifi_M,'f',2);
 
         doubleValue=double_ltxWifi-firstValueHash.value("ltxWifi");
-        double_ltxWifi_M=(double)doubleValue/1024;
+        doubleValue=qAbs(doubleValue);
+        double_ltxWifi_M=doubleValue/1024;
         str_ltxWifi=QString::number(double_ltxWifi_M,'f',2);
 
         doubleValue=double_lrxMobile-firstValueHash.value("lrxMobile");
-        double_lrxMobile_M=(double)doubleValue/1024;
+        doubleValue=qAbs(doubleValue);
+        double_lrxMobile_M=doubleValue/1024;
         str_lrxMobile=QString::number(double_lrxMobile_M,'f',2);
 
         doubleValue=double_ltxMobile-firstValueHash.value("ltxMobile");
-        double_ltxMobile_M=(double)doubleValue/1024;
+        doubleValue=qAbs(doubleValue);
+        double_ltxMobile_M=doubleValue/1024;
         str_ltxMobile=QString::number(double_ltxMobile_M,'f',2);
 
-        netState=gNetStateHash.value(qDeviceId);
+        //netState=gNetStateHash.value(qDeviceId);
 
+        netState=gNetState;
         if(netState=="currentStateWifi" || netState=="currentStateMobile")
         {
             strTemp=qDeviceId + "=" + netState;

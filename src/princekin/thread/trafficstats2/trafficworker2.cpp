@@ -54,6 +54,7 @@ void Worker::startWorker()
 
 
 
+        c=1;
     int count;
 
     double doubleValue;
@@ -111,10 +112,10 @@ void Worker::startWorker()
         double_lrxMobile=0.0;
         double_ltxMobile=0.0;
 
-        double_first_lrxWifi=0.0;
-        double_first_ltxWifi=0.0;
-        double_first_lrxMobile=0.0;
-        double_first_ltxMobile=0.0;
+        //double_first_lrxWifi=0.0;
+        //double_first_ltxWifi=0.0;
+        //double_first_lrxMobile=0.0;
+        //double_first_ltxMobile=0.0;
 
 
 
@@ -134,7 +135,7 @@ void Worker::startWorker()
 
             if(strLine.contains("wlan0"))
             {
-                splitResult=strLine.split(" ");
+                splitResult=strLine.split(" ",QString::SkipEmptyParts);
                 count=splitResult.size();
 
                 if(count>=8)
@@ -150,7 +151,7 @@ void Worker::startWorker()
             }
             if(strLine.contains("rmnet0"))
             {
-                splitResult=strLine.split(" ");
+                splitResult=strLine.split(" ",QString::SkipEmptyParts);
                 count=splitResult.size();
                 if(count>=8)
                 {
@@ -168,26 +169,34 @@ void Worker::startWorker()
         proc.close();
 
 
-        double_lrxWifi_M=(double)double_lrxWifi/1024/1024;
+        double_lrxWifi_M=double_lrxWifi/1024/1024;
         str_lrxWifi=QString::number(double_lrxWifi_M,'f',2);
 
-        double_ltxWifi_M=(double)double_ltxWifi/1024/1024;
+        double_ltxWifi_M=double_ltxWifi/1024/1024;
         str_ltxWifi=QString::number(double_ltxWifi_M,'f',2);
 
-        double_lrxMobile_M=(double)double_lrxMobile/1024/1024;
+        double_lrxMobile_M=double_lrxMobile/1024/1024;
         str_lrxMobile=QString::number(double_lrxMobile_M,'f',2);
 
-        double_ltxMobile_M=(double)double_ltxMobile/1024/1024;
+        double_ltxMobile_M=double_ltxMobile/1024/1024;
         str_ltxMobile=QString::number(double_ltxMobile_M,'f',2);
 
 
-        netState=gNetStateHash.value(qDeviceId);
+        //netState=gNetStateHash.value(qDeviceId);
+        netState=gNetState;
         if(c==1)
         {
+
             double_first_lrxWifi=double_lrxWifi;
             double_first_ltxWifi=double_ltxWifi;
             double_first_lrxMobile=double_lrxMobile;
             double_first_ltxMobile=double_ltxMobile;
+
+            double_current_lrxWifi=double_lrxWifi;
+            double_current_ltxWifi=double_ltxWifi;
+            double_current_lrxMobile=double_lrxMobile;
+            double_current_ltxMobile=double_ltxMobile;
+
 
             if(netState=="currentStateWifi")
             {
@@ -205,40 +214,56 @@ void Worker::startWorker()
         }
         else
         {
+
             doubleValue=double(double_lrxWifi-double_current_lrxWifi)/1024;
+            doubleValue=qAbs(doubleValue);
             srw=QString::number(doubleValue,'f',2);
 
             doubleValue=double(double_ltxWifi-double_current_ltxWifi)/1024;
+            doubleValue=qAbs(doubleValue);
             stw=QString::number(doubleValue,'f',2);
 
             doubleValue=double(double_lrxMobile-double_current_lrxMobile)/1024;
+            doubleValue=qAbs(doubleValue);
             srm=QString::number(doubleValue,'f',2);
 
             doubleValue=double(double_ltxMobile-double_current_ltxMobile)/1024;
+            doubleValue=qAbs(doubleValue);
             stm=QString::number(doubleValue,'f',2);
 
 
+
             doubleValue=double(double_lrxWifi-double_first_lrxWifi)/1024/1024;
+            doubleValue=qAbs(doubleValue);
             str1=QString::number(doubleValue,'f',2);
 
-
             doubleValue=double(double_ltxWifi-double_first_ltxWifi)/1024/1024;
+            doubleValue=qAbs(doubleValue);
             str2=QString::number(doubleValue,'f',2);
 
             doubleValue=double(double_lrxMobile-double_first_lrxMobile)/1024/1024;
+            doubleValue=qAbs(doubleValue);
             str3=QString::number(doubleValue,'f',2);
 
             doubleValue=double(double_ltxMobile-double_first_ltxMobile)/1024/1024;
+            doubleValue=qAbs(doubleValue);
             str4=QString::number(doubleValue,'f',2);
+
+
+
+            double_current_lrxWifi=double_lrxWifi;
+            double_current_ltxWifi=double_ltxWifi;
+            double_current_lrxMobile=double_lrxMobile;
+            double_current_ltxMobile=double_ltxMobile;
 
             if(netState=="currentStateWifi")
             {
-                sss=str_lrxWifi+"=" + str_ltxWifi+"=" + srw+"=" + stw+"=" + str1+"=" + str2;
+                sss=str_lrxWifi + "=" + str_ltxWifi + "=" + srw + "=" + stw + "=" + str1 + "=" + str2;
                 emit sendResult_wifi2(str_lrxWifi,sss);
             }
             else if(netState=="currentStateMobile")
             {
-                sss=str_lrxMobile+"=" + str_ltxMobile+"=" + srm+"=" + stm+"=" + str3+"=" + str4;
+                sss=str_lrxMobile + "=" + str_ltxMobile + "=" + srm+ "=" + stm + "=" + str3 + "=" + str4;
                 emit sendResult_mobile2(str_lrxMobile,sss);
             }
             else
@@ -247,11 +272,12 @@ void Worker::startWorker()
             }
         }
 
+        /*
         double_current_lrxWifi=double_lrxWifi;
         double_current_ltxWifi=double_ltxWifi;
         double_current_lrxMobile=double_lrxMobile;
         double_current_ltxMobile=double_ltxMobile;
-
+        */
         Sleep(qSec);
 
     }//while(true)

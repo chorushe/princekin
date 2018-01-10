@@ -50,12 +50,12 @@ public:
     ~AutoTravelWidget();
     void showInit();
 
+    void addPackagesList();
+
 private slots:
     void on_equipBtn_clicked();
 
     void RecieveDevicesSigal(QStringList devicesList);
-
-    void on_packageCombo_currentIndexChanged(int index);
 
     void on_equipListView_clicked(const QModelIndex &index);
 
@@ -94,6 +94,8 @@ private slots:
     void receiveWorkerResult1(const QString&,const QString&);
     void receiveWorkerResult2(const QString&,const QString&);
 
+
+    void on_packageLineEdit_textChanged(const QString &arg1);
 
 signals:
     void sendSettingSig( bool isMemCheck, bool isCpuCheck, bool isBatteryCheck, bool isCpuTempCheck, bool isWifiCheck, bool isMobileCheck, QString memThres, QString cpuThres, QString batteryThres, QString cpuTempThres, QString wifiThres, QString mobileThres);
@@ -164,7 +166,7 @@ private:
     QString idBlackString="";
     QStringList logKeyWordList;
     QStringList idBlackList;
-
+    QTextCodec *qtc=QTextCodec::codecForName("gb2312");
     QStringList xmlPaths;
     bool isDebug;
     QString IP;
@@ -179,7 +181,8 @@ private:
     void closeEvent(QCloseEvent *e);
     void stopAutoTravel();
     bool copyFileToPath(QString sourceDir ,QString toDir, bool coverFileIfExist);
-
+    void writeFile(const QString&);
+    void createTravelMail(const QString&);
     //*****************20170331*****************//
     void createExcel();
 
@@ -198,6 +201,7 @@ private:
     QString qClickNumber;
     QString qErrorNumber;
     QString qTravelActivityNumber;
+
     //*****************20170331*****************//
 
     //*****************20170505*************************//

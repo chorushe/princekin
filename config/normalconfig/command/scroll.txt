@@ -53,3 +53,13 @@ locateClassName android.widget.ListView
 //再滑动到指定类或id
 scrollIdOrClass com.sohu.sohuvideo:id/iv_comments_comment
 scrollIdOrClass com.sohu.sohuvideo:id/iv_comments_comment 3
+
+8、
+flingForward
+flingBackward
+分别为快速向前向后滑动，不用接参数
+
+9、
+scrollForward
+scrollForward
+分别为向前向后滑动，仅滑动一次，不用接参数，不能设置步数

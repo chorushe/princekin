@@ -1,0 +1,23 @@
+1、doublePause ：播放视频时，双击暂停.后面参数只能是id
+doublePause com.sohu.sohuvideo:id/player_container
+doublePause_notExit com.sohu.sohuvideo:id/player_container
+或
+str=com.sohu.sohuvideo:id/player_container
+doublePause=str
+doublePause_notExit=str
+
+2、doublePlay ：播放暂停后，双击开始播放.后面参数只能是id
+doublePlay com.sohu.sohuvideo:id/player_container
+doublePlay_notExit com.sohu.sohuvideo:id/player_container
+或
+str=com.sohu.sohuvideo:id/player_container
+doublePlay=str
+doublePlay_notExit=str
+
+3、doubleClick ：双击命令，后面参数只能是id
+doubleClick com.sohu.sohuvideo:id/player_container
+doubleClick_notExit com.sohu.sohuvideo:id/player_container
+或
+str=com.sohu.sohuvideo:id/player_container
+doubleClick=str
+doubleClick_notExit=str

@@ -12,6 +12,7 @@
 #include <stdlib.h>
 
 
+
 void getDisk();
 void initEnv();
 
@@ -49,7 +50,7 @@ void initEnv()
     Helper::initEvent();
     Helper::copyXml();
 
-    QString currentVersion="2.11.2";
+    QString currentVersion="3.1.1";
     bool d=Helper::isCopyConfig(currentVersion);
 
     if(d)
@@ -63,6 +64,7 @@ void initEnv()
             Helper::copyModify(gtempConfigDir + QDir::separator() + "lib",gNewConfigDir, false);
         }
     }
+
 
     Helper::getWorkspace();
     Helper::initConfig();

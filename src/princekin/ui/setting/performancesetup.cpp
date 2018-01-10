@@ -57,6 +57,7 @@ void PerformanceSetup::closeEvent(QCloseEvent *event)
     signalData.mobileThres=ui->mobileLineEdit->text();
     signalData.xmlPaths=xmlFilePaths;
     signalData.isDebug=isDebug;
+    signalData.memIndex=ui->memCombo->currentIndex();
     QVariant var;
     var.setValue(signalData);
     emit SendData(var);
@@ -125,6 +126,11 @@ void PerformanceSetup::recieveSettingSig(QString memThres,QString cpuThres, QStr
     this->cpuTempThres=cpuTempThres;
     this->wifiThres=wifiThres;
     this->mobileThres=mobileThres;
+
+    ui->wifiLabel->setEnabled(gWifiNet);
+    ui->wifiLineEdit->setEnabled(gWifiNet);
+    ui->mobileLabel->setEnabled(!gWifiNet);
+    ui->mobileLineEdit->setEnabled(!gWifiNet);
 }
 
 
@@ -240,7 +246,7 @@ void PerformanceSetup::on_statCBox_clicked()
     gPerformanceNumber=0;
     if(ui->statCBox->isChecked())
     {
-        this->setFixedWidth(642);
+        this->setFixedWidth(630);
     }
     else
     {
@@ -259,4 +265,12 @@ void PerformanceSetup::on_statCBox_clicked()
             ++item;
         }
     }
+}
+
+void PerformanceSetup::on_memCombo_currentIndexChanged(int index)
+{
+    if(index==1)
+        ui->memLabel->setText("仅Java层内存占用");
+    else
+        ui->memLabel->setText("所有内存占用");
 }

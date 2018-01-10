@@ -79,15 +79,31 @@ void CreateCrashReport::receiveCrashResult(const QString &arg_deviceId,const QSt
 
 
     strCell="C1";
+    if(appName.trimmed().isEmpty())
+    {
+        appName="-";
+    }
     writeStyle(xlsxDoc,strCell,appName,format);
 
     strCell="C2";
+    if(fileSize.trimmed().isEmpty())
+    {
+        fileSize="-";
+    }
     writeStyle(xlsxDoc,strCell,fileSize,format);
 
     strCell="E1";
+    if(appVersion.trimmed().isEmpty())
+    {
+        appVersion="-";
+    }
     writeStyle(xlsxDoc,strCell,appVersion,format);
 
     strCell="E2";
+    if(platform.trimmed().isEmpty())
+    {
+        platform="-";
+    }
     writeStyle(xlsxDoc,strCell,platform,format);
 
     QString brand;
@@ -104,35 +120,78 @@ void CreateCrashReport::receiveCrashResult(const QString &arg_deviceId,const QSt
         {
             brand=splitResult.at(1);
             strCell="A5";
+            if(brand.trimmed().isEmpty())
+            {
+                brand="-";
+            }
             writeStyle(xlsxDoc,strCell,brand,format);
 
             model=splitResult.at(2);
             strCell="B5";
+            if(model.trimmed().isEmpty())
+            {
+                model="-";
+            }
             writeStyle(xlsxDoc,strCell,model,format);
 
             version=splitResult.at(3);
             strCell="C5";
+            if(version.trimmed().isEmpty())
+            {
+                version="-";
+            }
             writeStyle(xlsxDoc,strCell,version,format);
 
             wmsize=splitResult.at(4);
             strCell="D5";
+            if(wmsize.trimmed().isEmpty())
+            {
+                wmsize="-";
+            }
             writeStyle(xlsxDoc,strCell,wmsize,format);
         }
     }
 
-    QString crashTime=Helper::getTime2("yyyyMMdd_hhmmss");
+    QString crashTime=Helper::getTime2("yyyy-MM-dd hh:mm:ss");
 
     strCell="A8";
-    writeStyle(xlsxDoc,strCell,arg_moduleBaseName,format);
+    if(arg_moduleBaseName.trimmed().isEmpty())
+    {
+        writeStyle(xlsxDoc,strCell,"-",format);
+    }
+    else
+    {
+        writeStyle(xlsxDoc,strCell,arg_moduleBaseName,format);
+    }
+
 
     strCell="B8";
-    writeStyle(xlsxDoc,strCell,arg_scriptBaseName+".txt",format);
+    if(arg_scriptBaseName.trimmed().isEmpty())
+    {
+        writeStyle(xlsxDoc,strCell,"-",format);
+    }
+    else
+    {
+        writeStyle(xlsxDoc,strCell,arg_scriptBaseName+".txt",format);
+    }
+
 
     strCell="C8";
+    if(crashTime.trimmed().isEmpty())
+    {
+        crashTime="-";
+    }
     writeStyle(xlsxDoc,strCell,crashTime,format);
 
+    QString str1=gettesttime(testDate,crashTime);
     strCell="D8";
-    writeStyle(xlsxDoc,strCell,testDate,format);
+    //writeStyle(xlsxDoc,strCell,testDate,format);
+    if(str1.trimmed().isEmpty())
+    {
+        str1="-";
+    }
+    writeStyle(xlsxDoc,strCell,str1,format);
+
 
     Format hyperlinkFormat;
     hyperlinkFormat=getHyperlinkFormat();
@@ -159,53 +218,110 @@ void CreateCrashReport::receiveCrashResult(const QString &arg_deviceId,const QSt
 
     perValue=getMinMaxMemory(arg_deviceId,gMin_Mem_Hash);
     strCell="C11";
-    writeStyle(xlsxDoc,strCell,perValue,format);
+    if(perValue.trimmed().isEmpty())
+    {
+        writeStyle(xlsxDoc,strCell,"-",format);
+    }
+    else
+    {
+        writeStyle(xlsxDoc,strCell,perValue,format);
+    }
+
+
+
+
+
+
 
     perValue=getMinMaxMemory(arg_deviceId,gMax_Mem_Hash);
     strCell="D11";
+    if(perValue.trimmed().isEmpty())
+    {
+        perValue="-";
+    }
     writeStyle(xlsxDoc,strCell,perValue,format);
 
     aveValue=getMemoryAveValue(arg_deviceId,gMemValue_list);
     strCell="E11";
+    if(aveValue.trimmed().isEmpty())
+    {
+        aveValue="-";
+    }
     writeStyle(xlsxDoc,strCell,aveValue,format);
 
 
     perValue=getMinMaxCpu(arg_deviceId,gMin_Cpu_Hash);
     strCell="C12";
+    if(perValue.trimmed().isEmpty())
+    {
+        perValue="-";
+    }
     writeStyle(xlsxDoc,strCell,perValue,format);
 
     perValue=getMinMaxCpu(arg_deviceId,gMax_Cpu_Hash);
     strCell="D12";
+    if(perValue.trimmed().isEmpty())
+    {
+        perValue="-";
+    }
     writeStyle(xlsxDoc,strCell,perValue,format);
 
     aveValue=getCpuAveValue(arg_deviceId,gCpuValue_list);
     strCell="E12";
+    if(aveValue.trimmed().isEmpty())
+    {
+        aveValue="-";
+    }
     writeStyle(xlsxDoc,strCell,aveValue,format);
 
 
     perValue=getMinMaxBatterytemp(arg_deviceId,gMin_Batterytemp_Hash);
     strCell="C13";
+    if(perValue.trimmed().isEmpty())
+    {
+        perValue="-";
+    }
     writeStyle(xlsxDoc,strCell,perValue,format);
 
     perValue=getMinMaxBatterytemp(arg_deviceId,gMax_Batterytemp_Hash);
     strCell="D13";
+    if(perValue.trimmed().isEmpty())
+    {
+        perValue="-";
+    }
     writeStyle(xlsxDoc,strCell,perValue,format);
 
     aveValue=getBatterytempAveValue(arg_deviceId,gBatteryTempValue_list);
     strCell="E13";
+    if(aveValue.trimmed().isEmpty())
+    {
+        aveValue="-";
+    }
     writeStyle(xlsxDoc,strCell,aveValue,format);
 
 
     perValue=getMinMaxCputemp(arg_deviceId,gMin_Cputemp_Hash);
     strCell="C14";
+    if(perValue.trimmed().isEmpty())
+    {
+        perValue="-";
+    }
     writeStyle(xlsxDoc,strCell,perValue,format);
 
     perValue=getMinMaxCputemp(arg_deviceId,gMax_Cputemp_Hash);
     strCell="D14";
+    if(perValue.trimmed().isEmpty())
+    {
+        perValue="-";
+    }
     writeStyle(xlsxDoc,strCell,perValue,format);
 
     aveValue=getCputempAveValue(arg_deviceId,gCpuTempValue_list);
     strCell="E14";
+    if(aveValue.trimmed().isEmpty())
+    {
+        aveValue="-";
+    }
     writeStyle(xlsxDoc,strCell,aveValue,format);
 
 
@@ -215,8 +331,17 @@ void CreateCrashReport::receiveCrashResult(const QString &arg_deviceId,const QSt
     QString mobileValue=splitResult.at(1);
 
     strCell="C15";
+    if(wifiValue.trimmed().isEmpty())
+    {
+        wifiValue="-";
+    }
     writeStyle(xlsxDoc,strCell,wifiValue,format);
+
     strCell="E15";
+    if(mobileValue.trimmed().isEmpty())
+    {
+        mobileValue="-";
+    }
     writeStyle(xlsxDoc,strCell,mobileValue,format);
 
 
@@ -231,6 +356,7 @@ void CreateCrashReport::receiveCrashResult(const QString &arg_deviceId,const QSt
         file.close();
     }
 
+    outStream.setCodec(qtc);
     QString tempStr;
 
     tempStr="To All:";
@@ -563,4 +689,18 @@ Format CreateCrashReport::getHyperlinkFormat()
     format.setFontUnderline(Format::FontUnderlineSingle);
     format.setFontName("Verdana");
     return format;
+}
+
+QString CreateCrashReport::gettesttime(const QString &arg_testDate, const QString &arg_crashTime)
+{
+    QDateTime dd1=QDateTime::fromString(arg_testDate,"yyyy-MM-dd hh:mm:ss");
+    QDateTime dd2=QDateTime::fromString(arg_crashTime,"yyyy-MM-dd hh:mm:ss");
+    qint64 tt=0;
+    tt=dd1.msecsTo(dd2)/1000;
+    int hours=tt/3600;
+    int re=tt%3600;
+    int minutes=re/60;
+    int seconds=re%60;
+    QString times=QString::number(hours)+"时"+QString::number(minutes)+"分"+QString::number(seconds)+"秒";
+    return times;
 }

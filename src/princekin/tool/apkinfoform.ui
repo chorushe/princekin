@@ -27,6 +27,9 @@
        <pointsize>12</pointsize>
       </font>
      </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::ExtendedSelection</enum>
+     </property>
     </widget>
    </item>
    <item row="1" column="0">

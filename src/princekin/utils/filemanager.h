@@ -71,6 +71,7 @@ public:
     void createIntBoolNotExit(const QString &,const QString &,const QString &);
 
 
+
     void createNoParameter(const QString &,const QString &);
     void createNoParameterNotExit(const QString &);
 
@@ -93,8 +94,22 @@ public:
     QStringList getSpaceLine(const QString &);
     QStringList getSplist(const QString &,const QString &);
 
+    void doublePause(const QString &,const QString &,const QString &,const QString &);
+    void doublePauseNotExit(const QString &,const QString &,const QString &);
+
+    void doublePlay(const QString &,const QString &,const QString &,const QString &);
+    void doublePlayNotExit(const QString &,const QString &,const QString &);
 
 
+    void doubleClick(const QString &,const QString &,const QString &,const QString &);
+    void doubleClickNotExit(const QString &,const QString &,const QString &);
+
+
+
+    void killApp(const QString &,const QString &,const QString &,const QString &);
+    void clearData(const QString &,const QString &,const QString &,const QString &);
+    void clearData(const QString &,const QString &,const QString &);
+    void clickxy(const QString &);
     //*************************事件处理***************************//
 
 public:
@@ -111,6 +126,7 @@ public:
     QString strInstallOK="isInstallOK";
     QString strUninstallOK="isUninstallOK";
     QString strOK="isOK";
+    QString strExecOK="isExecOK";
 
     QTextCodec *tc=QTextCodec::codecForName("gb2312");
 

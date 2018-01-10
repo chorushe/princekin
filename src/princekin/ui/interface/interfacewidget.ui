@@ -93,39 +93,36 @@ border-style: flat;</string>
         </property>
        </widget>
        <widget class="QWidget" name="widget_3" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>50</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>50</height>
+         </size>
+        </property>
         <property name="styleSheet">
          <string notr="true">background-color: #f9fafd;</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
          <item row="0" column="0">
-          <widget class="QComboBox" name="packageCombo">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>36</height>
-            </size>
+          <widget class="QLineEdit" name="packageLineEdit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
-           <property name="maximumSize">
-            <size>
-             <width>258</width>
-             <height>36</height>
-            </size>
-           </property>
-           <item>
-            <property name="text">
-             <string>第三方应用</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>全部应用</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>系统应用</string>
-            </property>
-           </item>
           </widget>
          </item>
         </layout>

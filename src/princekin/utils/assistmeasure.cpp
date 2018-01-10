@@ -91,19 +91,14 @@ void AssistMeasure::getMemory()
 
     if(packageName!="")
     {
-        cmdStrGetMem="adb -s "+deviceName+" shell top -n 1 | grep "+packageName;
+        cmdStrGetMem="adb -s "+deviceName+" shell dumpsys meminfo "+packageName + " | grep TOTAL";
         res=ExeCmd::runCmd(cmdStrGetMem).trimmed();
-        if(res=="")
-        {
+        qDebug()<<res;
+        if(res!="")
+            memRes=res.split(" ",QString::SkipEmptyParts).at(1);
+        else
             return;
-        }
-        QStringList resList=res.split(" ",QString::SkipEmptyParts);
-        if(resList.count()>7)
-        {
-            memRes=resList.at(memIndex);
-            memRes=memRes.left(memRes.length()-1);
-        }
-        qDebug()<<memRes;
+        qDebug()<<"MEMRES"<<memRes;
     }
     else
     {
@@ -189,12 +184,16 @@ void AssistMeasure::getCPU()
         {
             return;
         }
-        QStringList resList=res.split(" ",QString::SkipEmptyParts);
-        if(resList.count()>7)
+        QStringList resList=res.split("\r\n",QString::SkipEmptyParts);
+        int cpu=0;
+        for(int i=0;i<resList.count();i++)
         {
-            cpuRes=resList.at(cpuIndex);
-            cpuRes=cpuRes.left(cpuRes.length()-1);
+            QStringList resListSub=resList[i].split(" ",QString::SkipEmptyParts);
+            QString cpuStr=resListSub.at(cpuIndex);
+            cpuStr=cpuStr.left(cpuStr.length()-1);
+            cpu+=cpuStr.toInt();
         }
+        cpuRes=QString::number(cpu);
         qDebug()<<cpuRes;
     }
     else

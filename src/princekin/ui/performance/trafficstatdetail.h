@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QVector>
 #include <QScrollBar>
-
+#include <QDebug>
 namespace Ui {
 class TrafficStatDetail;
 }

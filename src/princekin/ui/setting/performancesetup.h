@@ -28,6 +28,7 @@ typedef struct __signalData_s
   QStringList xmlPaths;
   QString port;
   bool isDebug;
+  int memIndex;//0-total ;1-java heap
 }signalData_s;
 Q_DECLARE_METATYPE(signalData_s)
 
@@ -60,6 +61,8 @@ private:
     QStringList xmlFilePaths;
     QString filePath;//xml文件夹地址
 
+
+
 protected:
     void closeEvent(QCloseEvent *event);
 
@@ -86,6 +89,7 @@ private slots:
     void on_selectXmlBtn_clicked();
     void treeItemChanged(QTreeWidgetItem *item, int column);
     void on_statCBox_clicked();
+    void on_memCombo_currentIndexChanged(int index);
 };
 
 #endif // PERFORMANCESETUP_H

@@ -1,4 +1,4 @@
-startApp,启动应用,应用参数可在工具箱模块中apk信息提取功能获取
+1、startApp,启动应用,应用参数可在工具箱模块中apk信息提取功能获取
 
 例：
 startApp com.sohu.sohu/.com.sohu.sohuvideo/com.sohu.sohuvideo.FirstNavigationActivityGroup
@@ -8,3 +8,16 @@ startApp=app
 
 备注：用 isStartOK 判断是否启动成功
       无 startApp_notExit
+
+2、killApp ，杀死进程，后面参数是包名，am force-stop命令
+killApp com.sohu.sohuvideo
+或
+str=com.sohu.sohuvideo
+killApp=str
+
+
+3、clearData ，清空数据，后面参数是包名，会关闭应用，相当于安装后第一次启动，pm clear命令
+clearData com.sohu.sohuvideo
+或
+str=com.sohu.sohuvideo
+clearData=str

@@ -19,6 +19,7 @@ extern int gInterfaceTotalNum;
 extern int gInterfaceAveReponseTime;
 extern int gInterfaceMaxTime;
 extern int gInterfaceMinTime;
+extern int gMemOption;
 
 extern double memMin;
 extern double memMax;
@@ -48,7 +49,7 @@ extern bool gisBatteryCheck;
 extern bool gisWifiCheck;
 extern bool gisMobileCheck;
 extern bool gIsStopTrafficService;
-
+extern bool gIsThread;
 extern QString gAppDir;
 extern QString gConfigDir;
 extern QString gtempConfigDir;
@@ -104,6 +105,7 @@ extern QString gNewWorkSpaceDir;
 extern QString gNewScriptDir;
 extern QString gNewDisk;
 extern QString gOldPackageName;
+extern QString gPackageThreadName;
 extern QString gIconPath;
 extern QString gStartTextDate;
 extern QString gDatePath;
@@ -114,6 +116,11 @@ extern QString gDaily_SystemVersion;
 extern QString gDaily_ModuleBaseName;
 extern QString gCrashModuleList;
 extern QString gDetailedPath;
+extern QString gPerformanceStartTime;
+extern QString gInterfaceStartTime;
+extern QString gMonkeyReport;
+extern QString gTravelReport;
+
 extern QStringList gPvStringList;
 extern QStringList gPvStringList2;
 extern QStringList gVvStringList;
@@ -147,7 +154,7 @@ extern QHash<QString,int> gMin_Batterytemp_Hash;
 extern QHash<QString,int> gMax_Batterytemp_Hash;
 extern QHash<QString,int> gMin_Cputemp_Hash;
 extern QHash<QString,int> gMax_Cputemp_Hash;
-
+extern QMap<QString,int> gxmlNum;
 extern QHash<QString,QString> gUidHash;
 extern QHash<QString,QString> gNetStateHash;
 extern QHash<QString,QString> gDeviceDir;
@@ -188,5 +195,7 @@ extern QVector<QString> cpuTempTime;
 extern QVector<QString> wifiTime;
 extern QVector<QString> mobileTime;
 extern QVector<QString> gExcelFilePath;
+
+extern bool gWifiNet;
 
 #endif // GLOBALVAR

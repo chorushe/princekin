@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>390</width>
-    <height>454</height>
+    <height>491</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -53,9 +53,9 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>150</y>
+     <y>200</y>
      <width>351</width>
-     <height>221</height>
+     <height>211</height>
     </rect>
    </property>
    <property name="title">
@@ -219,6 +219,9 @@
     </property>
    </widget>
    <widget class="QLabel" name="label_7">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>140</x>
@@ -232,6 +235,9 @@
     </property>
    </widget>
    <widget class="QLineEdit" name="mobileLineEdit">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>240</x>
@@ -242,6 +248,9 @@
     </property>
    </widget>
    <widget class="QCheckBox" name="mobileCBtn">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>40</x>
@@ -318,7 +327,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>380</y>
+     <y>420</y>
      <width>351</width>
      <height>51</height>
     </rect>
@@ -334,6 +343,48 @@
       <width>331</width>
       <height>20</height>
      </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_5">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>140</y>
+     <width>351</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>手机流量测试项</string>
+   </property>
+   <widget class="QRadioButton" name="wifiRBtn">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>20</y>
+      <width>89</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>WiFi</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="mobileRBtn">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>20</y>
+      <width>89</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Mobile流量</string>
     </property>
    </widget>
   </widget>

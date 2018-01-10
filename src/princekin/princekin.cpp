@@ -7,6 +7,9 @@ Princekin::Princekin(QWidget *parent) :QMainWindow(parent),ui(new Ui::Princekin)
 {
     ui->setupUi(this);
     this->setMouseTracking(true);
+    gWifiNet=true;//设置默认网络状态链接是WiFi
+
+    gNetState="currentStateWifi";
 
     centralWidget()->setMouseTracking(true);
     ui->widget->setMouseTracking(true);

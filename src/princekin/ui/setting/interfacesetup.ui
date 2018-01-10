@@ -168,7 +168,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>警戒值(M)：</string>
+     <string>警戒值(℃)：</string>
     </property>
    </widget>
    <widget class="QLabel" name="cpuTempLabel">
@@ -181,7 +181,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>警戒值(%)：</string>
+     <string>警戒值(℃)：</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="wifiCBtn">

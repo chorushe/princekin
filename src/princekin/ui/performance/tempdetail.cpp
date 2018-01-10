@@ -11,6 +11,13 @@ tempDetail::tempDetail(QWidget *parent) :
                                                             "QScrollBar::handle:vertical {background: grey;border: 3px solid grey;border-radius:5px;min-height: 20px;}");
     ui->cpuTempTextEdit->verticalScrollBar()->setStyleSheet("QScrollBar:vertical {border:0px solid grey;width: 10px;}"
                                                         "QScrollBar::handle:vertical {background: grey;border: 3px solid grey;border-radius:5px;min-height: 20px;}");
+
+    ui->cpuTempAveLabel->setText("");
+    ui->cpuTempMaxLabel->setText("");
+    ui->cpuTempMinLabel->setText("");
+    ui->batteryAveLabel->setText("");
+    ui->batteryMaxLabel->setText("");
+    ui->batteryMinLabel->setText("");
 }
 
 tempDetail::~tempDetail()
@@ -33,18 +40,24 @@ void tempDetail::WriteEdit()
     }
 }
 
-void tempDetail::RecieveBatteryResult(QString numStr, QString time)
+void tempDetail::RecieveBatteryResult(QString numStr, QString time,QString max,QString min,QString ave)
 {
     if(this->isActiveWindow())
     {
         ui->batteryTextEdit->append(QString::number( numStr.toDouble()/10 )+"     "+time);
+        ui->batteryAveLabel->setText(ave);
+        ui->batteryMaxLabel->setText(max);
+        ui->batteryMinLabel->setText(min);
     }
 }
 
-void tempDetail::RecieveCpuTempResult(QString numStr, QString time)
+void tempDetail::RecieveCpuTempResult(QString numStr, QString time,QString max,QString min,QString ave)
 {
     if(this->isActiveWindow())
     {
         ui->cpuTempTextEdit->append(numStr+"     "+time);
+        ui->cpuTempAveLabel->setText(ave);
+        ui->cpuTempMaxLabel->setText(max);
+        ui->cpuTempMinLabel->setText(min);
     }
 }

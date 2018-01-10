@@ -134,10 +134,21 @@ void ApkInfoForm::on_pushButton_3_clicked()
         QString apkName;
         QString filePath;
 
+        int count=ui->listWidget->selectedItems().count();
+        for(int i=0;i<count;i++)
+        {
+            apkName=ui->listWidget->selectedItems().at(i)->text();
+            filePath=gConfigDir + QDir::separator() + "apk" + QDir::separator() + apkName;
+            QFile file(filePath);
+            file.remove();
+        }
+
+        /*
         apkName=ui->listWidget->selectedItems().at(0)->text();
         filePath=gConfigDir + QDir::separator() + "apk" + QDir::separator() + apkName;
         QFile file(filePath);
         file.remove();
+        */
         refreshApk();
     }
 }

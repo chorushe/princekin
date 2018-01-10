@@ -24,11 +24,6 @@ AutoTravelWidget::AutoTravelWidget(QWidget *parent) :
                                        "QListView::item:selected:active{background:#e4e4e4;color:#000000;padding-left:8px;}"
                                        "QListView::item:selected{background:#e4e4e4;color:#000000;padding-left:8px;}"
                                        "QListView::item{height:30px;color:#4d4d4d}");
-    ui->packageCombo->setStyleSheet("QComboBox QAbstractItemView::item{height:25px;}"
-                                    "QComboBox {border: 1px solid #e4e4e4;  border-radius: 3px;padding: 1px 2px 1px 2px;min-width: 9em;}"
-                                    "QComboBox::drop-down{ width: 40px; border-left-style: none;border-top-right-radius: 3px;  border-bottom-right-radius: 3px;}"
-                                    "QComboBox::down-arrow{image:url(:/arrow.png);}");
-    ui->packageCombo->setView(new QListView());
 
     ui->equipListView->verticalScrollBar()->setStyleSheet("QScrollBar:vertical {border:0px solid grey;width: 10px;}"
                                                           "QScrollBar::handle:vertical {background: grey;border: 3px solid grey;border-radius:5px;min-height: 20px;}");
@@ -130,8 +125,6 @@ void AutoTravelWidget::RecieveDevicesSigal(QStringList devicesList)
     int row=equipList.indexOf(currentDevice);
     if(row==-1)
     {
-        //ui->packageCombo->setItemText(0,"");
-        //ui->packageCombo->setCurrentIndex(0);
         packageModel->setStringList( QStringList());
         ui->packageListView->setModel(packageModel);
         deviceName="";
@@ -147,8 +140,6 @@ void AutoTravelWidget::RecieveDevicesSigal(QStringList devicesList)
         index=equipModel->index(0);
         ui->equipListView->setCurrentIndex(index);
         on_equipListView_clicked(index);
-        if(deviceName!="")
-            on_packageCombo_currentIndexChanged(0);
     }
 }
 
@@ -186,98 +177,63 @@ void AutoTravelWidget::on_equipBtn_clicked()
 
     ui->equipListView->setModel(equipModel);
     deviceName="";//点击设备按钮后，还没选择设备，此时情况设备名
-    //ui->packageCombo->setItemText(0,"");//在没关设备的情况下给包名的第一个清空
 
     QModelIndex indexEquip=ui->equipListView->model()->index(0,0);
     ui->equipListView->setCurrentIndex(indexEquip);
 
     deviceName=ExeCmd::getDeviceSN(indexEquip.data().toString());
-    ui->packageCombo->setCurrentIndex(0);
-    on_packageCombo_currentIndexChanged(0);
-   // ui->packageCombo->setItemText(0,indexEquip.data().toString());
+    if(deviceName!="")
+    {
+        addPackagesList();
+        on_packageLineEdit_textChanged("");
+    }
 }
 
-void AutoTravelWidget::on_packageCombo_currentIndexChanged(int index)
+void AutoTravelWidget::addPackagesList()
 {
-    if(deviceName=="")
-    {
-        QMessageBox::information(this,tr("提示"),tr("请选择一个设备"));
-        return ;
-    }
+    packageList.clear();
 
-    QString cmdStrAllPackages="adb -s "+deviceName+" shell pm list packages\n";
     QString cmdStrThirdPackages="adb -s "+deviceName+" shell pm list packages -3\n";
-    QString cmdStrSystemPackages="adb -s "+deviceName+" shell pm list packages -s\n";
-
-    int flag=0;//flag的作用是：选择包名时，第一项不需要process，为了区分第一项与其他三项
-
     QProcess p(0);
     p.setReadChannelMode(QProcess::MergedChannels);
-
-    QString mStr;
-    QStringList mSplitResult;
-
-    packageList.clear();
-    packageModel->setStringList (packageList);
-
-    switch(ui->packageCombo->currentIndex())
+    p.start(cmdStrThirdPackages);
+    p.waitForStarted();
+    while(p.waitForFinished()==false)
     {
-    /*case 0:
-        flag=0;
-        break;*/
-    case 1:
-        p.start(cmdStrAllPackages);
-        flag=1;
-        break;
-    case 0:
-        p.start(cmdStrThirdPackages);
-        flag=1;
-        break;
-    case 2:
-        p.start(cmdStrSystemPackages);
-        flag=1;
-        break;
-    default:
-        flag=0;
-        break;
     }
-    if(flag==1)
-    {
-        p.waitForStarted();
-        while(p.waitForFinished()==false)
-        {
-        }
 
-        while(p.canReadLine())
+    while(p.canReadLine())
+    {
+        QString mStr=p.readLine();
+        if(mStr.contains("package:"))
         {
-            mStr=p.readLine();
-            if(mStr.contains("package:"))
-            {
-                mSplitResult=mStr.split("package:");
-                packageList.append(mSplitResult.at(1).trimmed());
-                packageModel->setStringList(packageList);
-            }
+            QStringList mSplitResult=mStr.split("package:");
+            packageList.append(mSplitResult.at(1).trimmed());
         }
     }
+
     p.close();
+    qSort(packageList.begin(),packageList.end());
+    packageModel->setStringList(packageList);
     ui->packageListView->setModel(packageModel);
-    packageName="";
 }
 
 void AutoTravelWidget::on_equipListView_clicked(const QModelIndex &index)
 {
     QModelIndex indexEquip=ui->equipListView->currentIndex();
     deviceName=ExeCmd::getDeviceSN(indexEquip.data().toString());
-    //ui->packageCombo->setCurrentIndex(0);
-   // ui->packageCombo->setItemText(0,indexEquip.data().toString());
     if(deviceName!="")
-        on_packageCombo_currentIndexChanged(ui->packageCombo->currentIndex());
+    {
+        addPackagesList();
+        on_packageLineEdit_textChanged("");
+    }
 }
 
 void AutoTravelWidget::on_packageListView_clicked(const QModelIndex &index)
 {
     QModelIndex indexPackage=ui->packageListView->currentIndex();
     packageName=indexPackage.data().toString();
+    ui->packageLineEdit->setText(packageName);
 }
 
 void AutoTravelWidget::on_startBtn_clicked()
@@ -318,7 +274,7 @@ void AutoTravelWidget::on_startBtn_clicked()
         emit sendStateChange(true);
         ui->equipBtn->setEnabled(false);
         ui->equipListView->setEnabled(false);
-        ui->packageCombo->setEnabled(false);
+        ui->packageLineEdit->setEnabled(false);
         ui->packageListView->setEnabled(false);
         settingButton->setEnabled(false);
 
@@ -713,6 +669,7 @@ void AutoTravelWidget::CreateReportFile()
 
     reportFilePath=logPath + QDir::separator() + "autotravel_report_" + current_date_time.toString("yyyy-MM-dd_hh-mm-ss")+".txt";
 
+    gTravelReport=reportFilePath;
    // logcatFilePath=logPath + QDir::separator() + "report_" + current_date_time.toString("yyyy-MM-dd_hh-mm-ss")+".txt";
 
     logFile=new QFile(logFilePath);
@@ -722,8 +679,12 @@ void AutoTravelWidget::CreateReportFile()
 
     QString tempstr="手机型号： "+ui->equipListView->currentIndex().data().toString()+"\r\n";
     reportFile->write(tempstr.toStdString().c_str());
+
+
     tempstr="系统版本： Android "+systemStr;
     reportFile->write(tempstr.toStdString().c_str());
+
+
     tempstr="测试项目： "+ui->packageListView->currentIndex().data().toString()+"\r\n";
     reportFile->write(tempstr.toStdString().c_str());
 }
@@ -771,6 +732,7 @@ void AutoTravelWidget::closeEvent(QCloseEvent *e)
     }
 }
 
+
 void AutoTravelWidget::stopAutoTravel()
 {
     emit travelStop();
@@ -782,6 +744,8 @@ void AutoTravelWidget::stopAutoTravel()
         reportFile->write(errorStr.toStdString().c_str());
     logFile->close();
     reportFile->close();
+
+    //createTravelMail(gTravelReport);
 
     if(isCpuTempCheck||isBatteryCheck||isMemCheck||isCpuCheck||isWifiCheck||isMobileCheck)
     {
@@ -814,7 +778,7 @@ void AutoTravelWidget::stopAutoTravel()
     emit sendStateChange(false);
     ui->equipBtn->setEnabled(true);
     ui->equipListView->setEnabled(true);
-    ui->packageCombo->setEnabled(true);
+    ui->packageLineEdit->setEnabled(true);
     ui->packageListView->setEnabled(true);
     settingButton->setEnabled(true);
 
@@ -1088,5 +1052,58 @@ void AutoTravelWidget::receiveWorkerResult2(const QString&arg_str,const QString&
         int dec=qLunchTime.toInt(&ok, 10);
         float floattime=dec*0.001;
         qLunchTime=QString::number(floattime, 'f', 2);
+    }
+}
+
+void AutoTravelWidget::createTravelMail(const QString &arg_)
+{
+    QString tempValue;
+    QFile file;
+
+    file.setFileName(gConfigDir+QDir::separator() + "mailContent2.txt");
+    QTextStream outStream(&file);
+    file.open(QIODevice::WriteOnly);
+
+    outStream.setCodec(qtc);
+    QString tempStr;
+
+    tempStr="To All:";
+    outStream<<tempStr<<endl;
+    QFile file2(arg_);
+
+    QTextStream inStream(&file2);
+    if(!file2.open(QIODevice::ReadOnly))
+    {
+        file2.close();
+    }
+    while(!inStream.atEnd())
+    {
+        tempValue=inStream.readLine();
+        outStream<<tempValue<<endl;
+    }
+    file2.close();
+}
+
+
+void AutoTravelWidget::on_packageLineEdit_textChanged(const QString &arg1)
+{
+    QString text=ui->packageLineEdit->text();
+    bool isFind=false;
+    for(int i=0;i<packageList.count();i++)
+    {
+        if(packageList.at(i).startsWith(text))
+        {
+            QModelIndex index=ui->packageListView->model()->index(i,0);
+            ui->packageListView->setCurrentIndex(index);
+            packageName=ui->packageListView->currentIndex().data().toString();//有匹配项时，包名直接等于匹配项
+            isFind=true;
+            break;
+        }
+    }
+    if(!isFind)//没有匹配项时清除选项
+    {
+        QModelIndex index=ui->packageListView->model()->index(-1,0);
+        ui->packageListView->setCurrentIndex(index);
+        packageName=ui->packageLineEdit->text();
     }
 }

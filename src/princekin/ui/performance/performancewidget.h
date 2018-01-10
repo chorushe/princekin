@@ -31,8 +31,6 @@
 #include "trafficcontroller2.h"
 #include "trafficworker2.h"
 #include "execmd.h"
-#include "netstatecontroller.h"
-#include "netstateworker.h"
 #include "trafficstatdetail.h"
 #include "performancedetail.h"
 #include "tempdetail.h"
@@ -77,10 +75,7 @@ private:
 
     void getTraffic(const QString &uid);
     QString getUid();
-    void getNetState();
-    void startService();
     void stopTraffic();
-    void stopService();
 
     void compareBcak();
 
@@ -94,16 +89,18 @@ private:
 
     void getMemoryCpuIndex();
 
+    void addPackagesList();
+
 signals:
     void SendMemPlotSignal(QString numStr,double min,double max);
     void SendMemStopSignal();
     void SendCpuPlotSignal(QString numStr,double min,double max);
     void SendCpuStopSignal();
 
-    void SendMemWriteEdit(QString numStr,QString time);
-    void SendCpuWriteEdit(QString numStr,QString time);
-    void SendBatteryWriteEdit(QString numStr,QString time);
-    void SendCpuTempWriteEdit(QString numStr,QString time);
+    void SendMemWriteEdit(QString numStr,QString time,QString max,QString min,QString ave);
+    void SendCpuWriteEdit(QString numStr,QString time,QString max,QString min,QString ave);
+    void SendBatteryWriteEdit(QString numStr,QString time,QString max,QString min,QString ave);
+    void SendCpuTempWriteEdit(QString numStr,QString time,QString max,QString min,QString ave);
 
     void SendBatteryPlotSignal(QString numStr,double min,double max);
     void SendBatteryStopSignal();
@@ -126,7 +123,8 @@ private slots:
     void ShowSetupWindow();
     void RecieveData(QVariant var);
 
-    void getMemoryCpu();
+    void getMemory();
+    void getCpu();
     void getBatteryTemp();
     void getCPUTemp();
 
@@ -142,8 +140,6 @@ private slots:
     void RecieveDevicesSigal(QStringList devicesList);
 
     void on_equipBtn_clicked();
-
-    void on_packageCombo_currentIndexChanged(const QString &arg1);
 
     void on_equipListView_clicked(const QModelIndex &index);
 
@@ -193,6 +189,7 @@ private slots:
     void receiveWorkerResult1(const QString&,const QString&);
     void receiveWorkerResult2(const QString&,const QString&);
 
+    void on_packageLineEdit_textChanged(const QString &arg1);
 
 private:
     Ui::PerformanceWidget *ui;
@@ -285,6 +282,8 @@ private:
     QString qFrames;
     QString qOldPackageName;
     QStringList qStatisticsDataList;
+
+    int memOption=0;
 
 };
 

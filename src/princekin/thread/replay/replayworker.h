@@ -40,11 +40,11 @@ private:
 signals:
     void sendProcFinished(const QString &);
     void sendRunOneScriptResult(const QString &);
-    void sendReplayResult(const QString &,const QString &,QStringList,QStringList,int,QStringList,const QString &);
+    void sendReplayResult(const QString &,const QString &,QStringList,QStringList,int,QStringList,const QString &,QStringList);
     void sendCrashResult(const QString &,const QString &,const QString &,const QString &);
     void sendErrorResult(const QString &,const QString &);
 
-
+    void oneScriptFinish(const QString &,bool flag);//当一个脚本执行结束后发送一个信号
 
 public slots:
     void receiveStopReplay();
@@ -85,8 +85,10 @@ private:
     //QTextCodec *qTc=QTextCodec::codecForName("gb2312");
     QTextCodec *qTc=QTextCodec::codecForName("UTF-8");
 
+    QStringList elist;
 
 
+    bool iserror=false;
 };
 }
 

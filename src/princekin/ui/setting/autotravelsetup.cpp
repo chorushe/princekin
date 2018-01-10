@@ -95,6 +95,13 @@ void AutoTravelSetup::recieveSettingSig( bool isMemCheck, bool isCpuCheck, bool 
     ui->cpuTempLineEdit->setText(cpuTempThres);
     ui->wifiLineEdit->setText(wifiThres);
     ui->mobileLineEdit->setText(mobileThres);
+
+    ui->wifiCBtn->setEnabled(gWifiNet);
+    ui->wifiLabel->setEnabled(gWifiNet);
+    ui->wifiLineEdit->setEnabled(gWifiNet);
+    ui->mobileCBtn->setEnabled(!gWifiNet);
+    ui->mobileLabel->setEnabled(!gWifiNet);
+    ui->mobileLineEdit->setEnabled(!gWifiNet);
 }
 
 void AutoTravelSetup::stateChanged(bool state)

@@ -39,6 +39,10 @@ private slots:
 
     void on_androidBtn_clicked();
 
+    void on_wifiRBtn_clicked();
+
+    void on_mobileRBtn_clicked();
+
 private:
     Ui::AllSetting *ui;
 

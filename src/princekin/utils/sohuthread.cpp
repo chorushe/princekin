@@ -365,6 +365,8 @@ void SohuThread::getABS_X(const QString &arg_x)
     QString test=tempList.at(tempList.size()-1);
     int result=test.toInt(0,16);
     absX=result;
+    qDebug()<<absX;
+    qDebug()<<1080-absX;
 }
 void SohuThread::getABS_Y(const QString &arg_y)
 {
@@ -372,6 +374,7 @@ void SohuThread::getABS_Y(const QString &arg_y)
     QString test=tempList.at(tempList.size()-1);
     int result=test.toInt(0,16);
     absY=result;
+    qDebug()<<absY;
 }
 
 

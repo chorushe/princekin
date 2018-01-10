@@ -140,6 +140,28 @@ QString StaticticsHerper::getBasePath(QTreeWidgetItem *itemfile)
 
 }
 
+QString StaticticsHerper::getBasePathForXml(QTreeWidgetItem *itemfile)
+{
+    /*得到文件路径*/
+    QStringList filepath;
+    //QTreeWidgetItem *itemfile=xmlTreeWidget->currentItem(); //获取被点击的item
+    while(itemfile!=NULL)
+    {
+        filepath<<itemfile->text(0); //获取itemfile名称
+        itemfile=itemfile->parent(); //将itemfile指向父item
+    }
+    QString strpath;
+    //size-2的原因是，xml列表多了一个xml的总的选项框，那么获取其总路径时要把这个xml层去掉
+    for(int i=(filepath.size()-2);i>=0;i--) //QStringlist类filepath反向存着初始item的路径
+    { //将filepath反向输出，相应的加入’/‘
+        strpath+=filepath.at(i);
+        if(i!=0)
+            strpath+=QDir::separator();
+    }
+    return strpath;
+
+}
+
 QString StaticticsHerper::getTreeRootText(QTreeWidgetItem *item)//寻找根路径的名称
 {
     QString rootText;

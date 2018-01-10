@@ -107,6 +107,13 @@ void Worker::startWorker()
             qModuleBaseName=splitResult.at(0);
             qScriptBaseName=splitResult.at(1);
 
+            qDebug()<<"rrrrrrrrrrrrrrrrrrrr";
+            qDebug()<<qScriptLine;
+            qDebug()<<qModuleBaseName;
+            qDebug()<<qScriptBaseName;
+
+
+
             jarName=qModuleBaseName + ".jar";
             cmdLine=qAdbDevice + " shell uiautomator runtest /sdcard/" + jarName + " -c com.sohu.test." + qScriptBaseName + " -e checkStat no -e appname " + gPackageName;
 
@@ -137,9 +144,21 @@ void Worker::startWorker()
             qActualList.append(qScriptLine + "=" + QString::number(qLooping) + "=" + qDeviceId);
             */
             eventLoop.exec();
+
+            QThread::msleep(2000);
+            QStringList tempList=qErrorList.filter(qScriptLine + "=");
+            if(tempList.count()>0)
+            {
+                emit oneScriptFinish(qScriptLine,false);
+            }
+            else
+            {
+                emit oneScriptFinish(qScriptLine,true);
+            }
         }
     }//for(int i=0;i<loopNumber;i++)
-    emit sendReplayResult(qDeviceId,qSecondLevelDirName,qActualList,qErrorList,qSec,qCrashModuleList,startRunTime);
+    QThread::msleep(2000);
+    emit sendReplayResult(qDeviceId,qSecondLevelDirName,qActualList,qErrorList,qSec,qCrashModuleList,startRunTime,elist);
 }
 
 void Worker::receiveProcFinished(int exitCode,QProcess::ExitStatus exitStatus)
@@ -181,7 +200,13 @@ void Worker::receiveRunOneScriptResult()
 
         if(qDataLine.contains("princekinfalse"))
         {
-            QString ss1=QString::number(qLooping)+"="+qDeviceId + "=" + qScriptLine;
+
+            QString ss1;
+
+
+            ss1=QString::number(qLooping)+"="+qDeviceId + "=" + qScriptLine;
+            elist.append(ss1);
+
             if(qMarkList.indexOf(ss1)==-1)
             {
                 QStringList tempList=qErrorList.filter(qScriptLine + "=");
@@ -199,6 +224,7 @@ void Worker::receiveRunOneScriptResult()
         else if(qDataLine.contains("java.lang.RuntimeException",Qt::CaseInsensitive) || qDataLine.contains("error:" ,Qt::CaseInsensitive) )
         {
             QString ss1=QString::number(qLooping)+"="+qDeviceId + "=" + qScriptLine;
+            elist.append(ss1);
             if(qMarkList.indexOf(ss1)==-1)
             {
                 QStringList tempList=qErrorList.filter(qScriptLine + "=");
@@ -216,6 +242,7 @@ void Worker::receiveRunOneScriptResult()
         else if(qDataLine.contains("monitorError"))
         {
             QString ss1=QString::number(qLooping)+"="+qDeviceId + "=" + qScriptLine;
+            elist.append(ss1);
             if(qMarkList.indexOf(ss1)==-1)
             {
                 QStringList tempList=qErrorList.filter(qScriptLine + "=");
@@ -279,7 +306,7 @@ void Worker::doMonitorCrash()
     monitorLogFile=qLogcatDir + QDir::separator()  + "monitor-" + currentTime + ".txt";
     monitorLogFile=QDir::toNativeSeparators(monitorLogFile);
 
-    cmdLine=qAdbDevice + " logcat -n 10000 -d";
+    cmdLine=qAdbDevice + " logcat -n 20000 -d";
     ExeCmd::runCmd(cmdLine,monitorLogFile);
 
 
@@ -291,6 +318,16 @@ void Worker::doMonitorCrash()
     qCrashModuleList.append(qDeviceId+"="+qModuleBaseName);
     emit sendCrashResult(qDeviceId,qSecondLevelDirName,qModuleBaseName,qScriptBaseName);
 
+
+    for(int i=0;i<10;i++)
+    {
+        currentTime=Helper::getTime();
+        monitorLogFile=qLogcatDir + QDir::separator()  + "monitor-" + currentTime + ".txt";
+        monitorLogFile=QDir::toNativeSeparators(monitorLogFile);
+        cmdLine=qAdbDevice + " logcat -n 20000 -d";
+        ExeCmd::runCmd(cmdLine,monitorLogFile);
+        QThread::sleep(0.8);
+    }
 }
 
 void Worker::pullTakeScreen2()

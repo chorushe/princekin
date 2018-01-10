@@ -73,6 +73,7 @@ UrlToXml::UrlToXml(QWidget *parent) :
     ui->uniqueLabel->setText("<font color=gray>未设置唯一识别值</font>");
 
     xmlPath = gWorkSpace+QDir::separator()+"StatisticalXML";
+    rightXmlPath = gWorkSpace+QDir::separator()+"StatisticalXML";
     QDir *temp=new QDir;
     bool exist=temp->exists(xmlPath);
     if(!exist)
@@ -611,7 +612,8 @@ void UrlToXml::on_importExcelBtn_clicked()
 void UrlToXml::readExcelData(QString fileName)
 {
     repeatFlag=false;//是否有重复，有重复只提示一次
-    fileInfoHash.clear();
+    fileInfoList.clear();
+    fileNameList.clear();
 
     if(fileName=="")
         return;
@@ -656,7 +658,7 @@ void UrlToXml::readExcelData(QString fileName)
             cellValue1=var[1].toString();
             if(var[2].toString()!="")
                 cellValue1+="="+var[2].toString();
-            if(fileInfoHash.contains(cellValue))
+            if(fileNameList.contains(cellValue))
             {
                 if(!repeatFlag)
                 {
@@ -667,7 +669,12 @@ void UrlToXml::readExcelData(QString fileName)
             else
             {
                 if(cellValue!=""&&cellValue1!="")
-                    fileInfoHash.insert(cellValue,cellValue1);
+                {
+                    fileNameList.append(cellValue);
+                    filepair.first=cellValue;
+                    filepair.second=cellValue1;
+                    fileInfoList.append(filepair);
+                }
             }
         }
     }
@@ -678,19 +685,17 @@ void UrlToXml::ShowFileInfo()
 {
     ui->fileTableWidget->clearContents();
     disconnect(ui->fileTableWidget,SIGNAL(itemChanged(QTableWidgetItem*)),this,SLOT(on_fileTableWidget_itemChanged(QTableWidgetItem*)));
-    ui->fileTableWidget->setRowCount(fileInfoHash.count()+1);
+    ui->fileTableWidget->setRowCount(fileInfoList.count()+1);
     int num=0;
-    QHash<QString,QString>::const_iterator i = fileInfoHash.constBegin();
-    while(i!=fileInfoHash.constEnd())
+    for(int m=0;m<fileInfoList.count();m++)
     {
-        QStringList valueList=i.value().split("=");
-        ui->fileTableWidget->setItem(num,0,new QTableWidgetItem(i.key()));
+        QStringList valueList=fileInfoList.at(m).second.split("=");
+        ui->fileTableWidget->setItem(num,0,new QTableWidgetItem(fileInfoList.at(m).first));
         ui->fileTableWidget->setItem(num,1,new QTableWidgetItem(valueList[0]));
         if(valueList.length()>1)
             ui->fileTableWidget->setItem(num++,2,new QTableWidgetItem(valueList[1]));
         else
             ui->fileTableWidget->setItem(num++,2,new QTableWidgetItem(""));
-        ++i;
     }
     ui->fileTableWidget->setItem(num,0,new QTableWidgetItem(""));//前两栏的也new个实例
     ui->fileTableWidget->setItem(num,1,new QTableWidgetItem(""));
@@ -770,3 +775,34 @@ void UrlToXml::changeUnique(QString filePath,QString uniqueStr,QString value,QSt
     }
 }
 
+
+void UrlToXml::on_xmlPathLineEdit_textChanged(const QString &arg1)
+{
+    if(ui->xmlPathLineEdit->text()!="")
+        connect(ui->xmlPathLineEdit,SIGNAL(editingFinished()),this,SLOT(on_xmlPathLineEdit_editingFinished()));
+}
+
+void UrlToXml::on_xmlPathLineEdit_editingFinished()
+{
+    disconnect(ui->xmlPathLineEdit,SIGNAL(editingFinished()),this,SLOT(on_xmlPathLineEdit_editingFinished()));
+    ui->xmlPathLineEdit->selectAll();
+    if(!ui->xmlPathLineEdit->text().contains(rightXmlPath))
+    {
+        QMessageBox::StandardButton bt;
+        bt = QMessageBox::question(this, tr("提示"),
+                                       QString(tr("所选路径不在工作路径内，是否继续？")),
+                                       QMessageBox::Yes|QMessageBox::No,QMessageBox::Yes);
+        if(bt==QMessageBox::No)
+            ui->xmlPathLineEdit->clear();
+        else if(bt==QMessageBox::Yes)
+        {
+
+        }
+    }
+}
+
+
+void UrlToXml::on_xmlPathLineEdit_returnPressed()
+{
+
+}

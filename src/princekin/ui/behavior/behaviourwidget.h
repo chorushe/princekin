@@ -98,13 +98,14 @@ private:
     QToolButton *addScriptButton;
 
     QList<DataClass> xmlData;
-    QMap<QString,QList<DataClass> > allXmlData;
+    QMap<QString,QList<DataClass> > allXmlData;//所有xml文件的信息
+    QMap<QString,int> xmlNum;//记录xml文件后的出现次数
     BehaviourSetup *setupDialog;
     QString currentPath;
     QString revelantHead;
     QString unique;
     QList<QString> urlList;
-    QList<bool> urlErrorList;
+    QList<bool> urlErrorList;//以上两个list必须保持个数一直，一个添加新item另一个也要添加
 
     int focusFlag;//0-url 1-statistics
     bool isSuccess;//所检测的url与xml文件对比，完全符合true，不符合false
@@ -160,7 +161,7 @@ private:
     QThread *processThread=NULL;
 
     QVector<ServerControl*> server;
-    QMap<QString,QString> xmlMatch;
+    QMap<QString,QString> xmlMatch;//服务器模式用
 
     QSettings *iniContent;
 
@@ -183,12 +184,13 @@ private:
     QStringList statRes;
     QMap<QString, bool> statResForScript;//用来统计每个脚本中统计点的对错情况
     bool tempFlagForStat=true;
-
+    QMap<QString,QMap<QString,int>> suiteResForEveScript;//记录测试套内每个脚本的运行情况；
+    QMap<QString,bool> suiteRes;//记录每个测试套文件内最后的结果，暂时没有用，以备后患
     QString ParseURLForCheck(QString url,QList<DataClass> xmlData, bool isLatest);
     void GetFourSecData();
     bool FindMatchUrl(QString xmlFile);
 
-    QList<int> lineNumberList;
+    QMap<int,int> lineNumberUrlMap;
 
     void closeEvent(QCloseEvent *e);
 

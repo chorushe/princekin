@@ -203,6 +203,7 @@ void BehaviourWidget::createToolBar()
 
 void BehaviourWidget::ScriptSwitch(bool state)
 {
+    on_clearBtn_clicked();
     if(state)
     {
         scriptLabel->setText("脚本模式 ");
@@ -257,7 +258,7 @@ void BehaviourWidget::on_xmlTreeWidget_itemClicked(QTreeWidgetItem *item, int co
         QMap<QString,QList<DataClass> >::iterator it;
         for(it=allXmlData.begin();it!=allXmlData.end();++it)
         {
-            if(it.key()== StaticticsHerper::getBasePath(ui->xmlTreeWidget->currentItem()) )
+            if(it.key()== StaticticsHerper::getBasePathForXml(ui->xmlTreeWidget->currentItem()) )
             {
                 uniqueTemp=it.value()[0].UniqueIdenti;
                 break;
@@ -289,14 +290,20 @@ void BehaviourWidget::on_xmlTreeWidget_itemChanged(QTreeWidgetItem *item, int co
             QLabel *tmplabel=new QLabel;
             tmplabel->setText("<font color=orange>...</font>");
             ui->xmlTreeWidget->setItemWidget(item,1,tmplabel);
-            QString xmlFilePath=currentPath+"/"+ StaticticsHerper::getBasePath(item);//!!!!!!!!!
+            QString xmlFilePath=currentPath+"/"+ StaticticsHerper::getBasePathForXml(item);//!!!!!!!!!
             QList<DataClass> tempData = GetXML(xmlFilePath);
             if(tempData.isEmpty())
             {
                 item->setCheckState(0,Qt::Unchecked);
                 return;
             }
-            allXmlData.insert(StaticticsHerper::getBasePath(item),tempData);
+            QString xmlPath=StaticticsHerper::getBasePathForXml(item);
+            allXmlData.insert(xmlPath,tempData);
+            xmlNum.insert(xmlPath,0);
+            gxmlNum=xmlNum;
+            QLabel *numlabel=new QLabel;
+            numlabel->setText("<font color=black>&nbsp;0</font>");
+            ui->xmlTreeWidget->setItemWidget(item,2,numlabel);
             xmlCount++;
 
         }
@@ -312,16 +319,23 @@ void BehaviourWidget::on_xmlTreeWidget_itemChanged(QTreeWidgetItem *item, int co
             xmlCount--;
             //删除allXMLData数据
             QMap<QString,QList<DataClass> >::iterator it;
-            it=allXmlData.find(StaticticsHerper::getBasePath(item) );
+            QString xmlPath=StaticticsHerper::getBasePathForXml(item);
+            it=allXmlData.find( xmlPath );
             allXmlData.erase(it);
+            xmlNum[xmlPath]=0;
+            gxmlNum=xmlNum;
+            QLabel *numlabel=new QLabel;
+            numlabel->setText("<font color=black>&nbsp;</font>");
+            ui->xmlTreeWidget->setItemWidget(item,2,numlabel);
         }
     }
 
     int width=ui->xmlTreeWidget->width();
 
-    ui->xmlTreeWidget->setColumnCount(2); //设置列数
-    ui->xmlTreeWidget->setColumnWidth(0,width*0.88);
+    ui->xmlTreeWidget->setColumnCount(3); //设置列数
+    ui->xmlTreeWidget->setColumnWidth(0,width*0.8);
     ui->xmlTreeWidget->setColumnWidth(1,width*0.08);
+    ui->xmlTreeWidget->setColumnWidth(2,width*0.08);
 }
 
 void BehaviourWidget::on_urlListWidget_itemPressed(QListWidgetItem *item)//urlListClicked()
@@ -338,7 +352,10 @@ void BehaviourWidget::on_urlListWidget_itemPressed(QListWidgetItem *item)//urlLi
         if(!scriptPatternFlag)
             ParseURL(url,true);
         else
-            ParseURLForCheck(url,allXmlDataForCheck.at(row),true);
+        {
+            if(allXmlDataForCheck.count()>row)
+                ParseURLForCheck(url,allXmlDataForCheck.at(row),true);
+        }
     }
 }
 
@@ -346,7 +363,7 @@ void BehaviourWidget::on_xmlTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, 
 {
     if(ui->xmlTreeWidget->currentItem()->childCount()==0)
     {
-        QString xmlFilePath=currentPath+QDir::separator()+ StaticticsHerper::getBasePath(ui->xmlTreeWidget->currentItem());//!!!!!!!!!!
+        QString xmlFilePath=currentPath+QDir::separator()+ StaticticsHerper::getBasePathForXml(ui->xmlTreeWidget->currentItem());//!!!!!!!!!!
         XmlEditDialog *editXMLDialog=new XmlEditDialog(0,xmlFilePath);
         editXMLDialog->show();
     }
@@ -415,7 +432,7 @@ void BehaviourWidget::exportReport()
             {
                 if(!urlErrorList.isEmpty())
                 {
-                    if(urlErrorList[i]==false)
+                    if(urlErrorList[i]==false&&urlList[i].trimmed()!="")
                     {
                         f1.write("/***ERROR***/");
                         f1.write("\r\n");
@@ -467,6 +484,8 @@ void BehaviourWidget::on_clearBtn_clicked()
     ui->statisticsListWidget->clear();
     ui->scriptTextEdit->clear();
     allXmlData.clear();
+    xmlNum.clear();
+    gxmlNum.clear();
     xmlData.clear();
     xmlMatch.clear();
     revelantHead="";
@@ -477,9 +496,24 @@ void BehaviourWidget::on_clearBtn_clicked()
     urlListFour.clear();
     allXmlDataForCheck.clear();//装载所有要检测的xml信息，为了点击之前的url时对其进行解析
     statRes.clear();
-    qScriptList.clear();
+    //qScriptList.clear();
 
-    lineNumberList.clear();
+    lineNumberUrlMap.clear();
+
+    //测试套结果数据清空
+    QMap<QString,QMap<QString,int>>::const_iterator it;
+    for(it=suiteResForEveScript.constBegin();it!=suiteResForEveScript.constEnd();it++)
+    {
+        QMap<QString,int>temp=it.value();
+        QMap<QString,int>::const_iterator i;
+        for(i=it.value().constBegin();i!=it.value().constEnd();i++)
+        {
+            QString key=i.key();
+            temp[key]=0;
+        }
+        suiteResForEveScript[it.key()]=temp;
+    }
+    suiteRes.clear();
 
     //清空是把之前的检测结果恢复初始状态
     QTreeWidgetItemIterator item(ui->xmlTreeWidget);
@@ -494,10 +528,14 @@ void BehaviourWidget::on_clearBtn_clicked()
                 tmplabel->setText("<font color=orange>...</font>");
                 ui->xmlTreeWidget->setItemWidget((*item),1,tmplabel);
 
-                QString xmlFilePath=currentPath+"/"+ StaticticsHerper::getBasePath((*item));//!!!!!!!!!
+                QLabel *numlabel=new QLabel;
+                numlabel->setText("<font color=black>&nbsp;0</font>");
+                ui->xmlTreeWidget->setItemWidget((*item),2,numlabel);
+
+                QString xmlFilePath=currentPath+"/"+ StaticticsHerper::getBasePathForXml((*item));//!!!!!!!!!
                 QList<DataClass> tempData = GetXML(xmlFilePath);
                 if(!tempData.isEmpty())
-                    allXmlData.insert(StaticticsHerper::getBasePath((*item)),tempData);
+                    allXmlData.insert(StaticticsHerper::getBasePathForXml((*item)),tempData);
             }
         }
         else
@@ -510,12 +548,13 @@ void BehaviourWidget::on_clearBtn_clicked()
         ++item;
     }
 
+
     QTreeWidgetItemIterator item1(ui->scriptTreeWidget);
     while(*item1)
     {
         if((*item1)->checkState(0) == Qt::Checked)
         {
-            if((*item1)->childCount()==0&&(*item)->parent()!=NULL)
+            if((*item1)->childCount()==0&&(*item1)->parent()!=NULL)
             {
                 //设置被选中的文件是...状态
                 QLabel *tmplabel=new QLabel;
@@ -523,7 +562,7 @@ void BehaviourWidget::on_clearBtn_clicked()
                 ui->scriptTreeWidget->setItemWidget((*item1),1,tmplabel);
 
                 QString tempStr=(*item1)->parent()->text(0)+"="+(*item1)->text(0).left((*item1)->text(0).length()-4);
-                qScriptList.append(tempStr);
+                //qScriptList.append(tempStr);
             }
         }
         else
@@ -536,6 +575,7 @@ void BehaviourWidget::on_clearBtn_clicked()
         ++item1;
     }
 }
+
 
 void BehaviourWidget::on_startBtn_clicked()
 {
@@ -651,6 +691,19 @@ void BehaviourWidget::on_startBtn_clicked()
         }
 
         ui->startBtn->setIcon(QIcon(":/stop.png"));
+        if(scriptPatternFlag)
+        {
+            addScriptButton->setEnabled(false);
+            ui->scriptTreeWidget->setEnabled(false);
+        }
+        else
+        {
+            addXmlButton->setEnabled(false);
+            // ui->xmlTreeWidget->setEnabled(false);//点击xml列表时可定位url，所以不能设为不可用
+        }
+        ui->equipListView->setEnabled(false);
+        scriptSC->setEnabled(false);
+
         isStartFlag=true;
         emit sendStateChange(true);//开始之后，设置中的内存温度等选项失效
 
@@ -958,22 +1011,30 @@ void BehaviourWidget::ShowURL(QString url,QString unique,QString key)
         QTreeWidgetItemIterator treeitem(ui->xmlTreeWidget);
         while(*treeitem)
         {
-            if(StaticticsHerper::getBasePath((*treeitem))==key)
+            if(StaticticsHerper::getBasePathForXml((*treeitem))==key)
             {
+                QLabel *numLabel=new QLabel;
+                int tmpnum=xmlNum[key];
+                xmlNum[key]=++tmpnum;
+                gxmlNum=xmlNum;
+                numLabel->setText("<font color=black>&nbsp;" + QString::number(tmpnum)+ "</font>");
+                ui->xmlTreeWidget->setItemWidget((*treeitem),2,numLabel);
                 //设置未成功的文件是X状态
                 QLabel *tmplabel=new QLabel;
                 if(isSuccess==false)//判断检测是否成功，不成功加X,成功加对号
                 {
-                    tmplabel->setText("<font color=red>X</font>");
+                    tmplabel->setText("<font color=red>&nbsp;X</font>");
                     ui->xmlTreeWidget->setItemWidget((*treeitem),1,tmplabel);
                     break;
                 }
                 else
                 {
-                    tmplabel->setText("<font color=green>√</font>");
+                    tmplabel->setText("<font color=green>&nbsp;√</font>");
                     ui->xmlTreeWidget->setItemWidget((*treeitem),1,tmplabel);
                     break;
                 }
+
+
             }
             ++treeitem;
         }
@@ -1310,22 +1371,29 @@ void BehaviourWidget::AddXmlBtnClicked()
         currentPath=filePath;
         ui->xmlTreeWidget->clear();
 
-        QTreeWidgetItem *fileItem = new QTreeWidgetItem();
-        StaticticsHerper::LoadFiles(filePath,ui->xmlTreeWidget,fileItem);
+        QTreeWidgetItem *fileItem = new QTreeWidgetItem(QStringList()<<"selectAll",0);
+        fileItem->setIcon(0,QIcon(":/folder.png"));
+        fileItem->setCheckState(0,Qt::Unchecked);
+        ui->xmlTreeWidget->addTopLevelItem(fileItem);
+
+        StaticticsHerper::LoadFiles(filePath,NULL,fileItem);
         QTreeWidgetItem *item=ui->xmlTreeWidget->itemAt(0,0);
         ui->xmlTreeWidget->setCurrentItem(item);
 
         //重新加载xml文件时所有东西清空。。。
-        ui->statisticsListWidget->clear();
+        /*ui->statisticsListWidget->clear();
         urlList.clear();
         urlErrorList.clear();
+
         ui->urlListWidget->clear();
-        revelantHead="";
+        revelantHead="";*/
         allXmlData.clear();
+        xmlNum.clear();
+        gxmlNum.clear();
         xmlData.clear();
         xmlMatch.clear();
 
-        QListWidgetItem *item1=new QListWidgetItem(ui->urlListWidget);
+        /*QListWidgetItem *item1=new QListWidgetItem(ui->urlListWidget);
         QLabel *tmpLabel=new QLabel;
         tmpLabel->setText("<font color=gray>URL列表</font>");
         ui->urlListWidget->setItemWidget(item1,tmpLabel);
@@ -1333,11 +1401,7 @@ void BehaviourWidget::AddXmlBtnClicked()
         QListWidgetItem *item2=new QListWidgetItem(ui->statisticsListWidget);
         QLabel *tmpLabel2=new QLabel;
         tmpLabel2->setText("<font color=gray>统计点列表</font>");
-        ui->statisticsListWidget->setItemWidget(item2,tmpLabel2);
-        if(isStartFlag)
-        {
-            stopRun();
-        }
+        ui->statisticsListWidget->setItemWidget(item2,tmpLabel2);*/
     }
     else//如果路径与之前一致，
     {
@@ -1547,6 +1611,18 @@ void BehaviourWidget::stopRun()
     isStartFlag=false;
     emit sendStopStatSignal();
     ui->startBtn->setIcon(QIcon(":/start.png"));
+    if(scriptPatternFlag)
+    {
+        addScriptButton->setEnabled(true);
+        ui->scriptTreeWidget->setEnabled(true);
+    }
+    else
+    {
+        addXmlButton->setEnabled(true);
+        // ui->xmlTreeWidget->setEnabled(true);
+    }
+    ui->equipListView->setEnabled(true);
+    scriptSC->setEnabled(true);
 
     ExeCmd::runCmd("taskkill /im mitmdump.exe /f");
 
@@ -1797,6 +1873,12 @@ void BehaviourWidget::on_scriptTreeWidget_itemChanged(QTreeWidgetItem *item, int
                     QString filePath=currentScriptPath+QDir::separator()+StaticticsHerper::getBasePath(item);
                     QStringList scriptList = EditScriptFileWidget::readSuiteFile(filePath);
                     qScriptList.append(scriptList);
+                    QMap<QString,int> eveSuiteMap;
+                    for(int i=0;i<scriptList.count();i++)
+                    {
+                        eveSuiteMap.insert(scriptList[i],0);
+                    }
+                    suiteResForEveScript.insert(item->text(0),eveSuiteMap);
                 }
             }
         }
@@ -1806,7 +1888,7 @@ void BehaviourWidget::on_scriptTreeWidget_itemChanged(QTreeWidgetItem *item, int
             //清除没有被选中的第二行标识
             QLabel *tmplabel=new QLabel;
             tmplabel->setText("");
-            ui->xmlTreeWidget->setItemWidget(item,1,tmplabel);
+            ui->scriptTreeWidget->setItemWidget(item,1,tmplabel);
 
             if(StaticticsHerper::getTreeRootText(item)!="suite")//不是测试套文件，正常删除
             {
@@ -1821,6 +1903,8 @@ void BehaviourWidget::on_scriptTreeWidget_itemChanged(QTreeWidgetItem *item, int
                 {
                     qScriptList.removeAt( qScriptList.indexOf(scriptList[i]) );
                 }
+                suiteResForEveScript.remove(item->text(0));
+                suiteRes.remove(item->text(0));
             }
 
         }
@@ -1962,6 +2046,7 @@ bool BehaviourWidget::FindMatchUrl(QString xmlFile)
     if(!isFind)
     {
         urlList<<"";
+        urlErrorList<<false;
         QLabel *tmpLabel=new QLabel;
         tmpLabel->setText("");
         tmpLabel->setWordWrap(true);
@@ -1992,7 +2077,7 @@ bool BehaviourWidget::FindMatchUrl(QString xmlFile)
             tempstr=xmlFile+"&√";
 
             int currentrow=ui->scriptTextEdit->document()->lineCount();
-            lineNumberList.append(currentrow);
+            lineNumberUrlMap.insert(currentrow,urlList.count()-1);
         }
         else
         {
@@ -2001,7 +2086,7 @@ bool BehaviourWidget::FindMatchUrl(QString xmlFile)
             tempstr=xmlFile+"&×";
             tempFlagForStat=false;//找不到xml文件时也要赋值false
             int currentrow=ui->scriptTextEdit->document()->lineCount();
-            lineNumberList.append(currentrow);
+            lineNumberUrlMap.insert(currentrow,urlList.count()-1);
         }
     }
     else
@@ -2012,7 +2097,7 @@ bool BehaviourWidget::FindMatchUrl(QString xmlFile)
         isFind=false;
         tempFlagForStat=false;
         int currentrow=ui->scriptTextEdit->document()->lineCount();
-        lineNumberList.append(currentrow);
+        lineNumberUrlMap.insert(currentrow,urlList.count()-1);
     }
     statRes.append(tempstr);
     return isFind;
@@ -2022,12 +2107,51 @@ void BehaviourWidget::recieveOneScriptFinish(const QString &arg_scriptline,bool 
 {
     statResForScript.insert(arg_scriptline,tempFlagForStat);//一个脚本执行结束，list中记录该时间段内的统计点统计情况，并把标志位清零
 
+    QString suiteName="";bool suiteNameRes;//suitename记录是不是有测试套内的所有文件都运行过了，如果是，不为空，记录名字，及状态，如果还没全部运行，则为空
+    //统计每个测试套文件内部情况
+    QMap<QString,QMap<QString,int>>::const_iterator it;
+    for(it=suiteResForEveScript.constBegin();it!=suiteResForEveScript.constEnd();it++)
+    {
+        if(it.value().contains(arg_scriptline))
+        {
+            QMap<QString,int >temp=it.value();
+            if(flag)
+                temp[arg_scriptline]=1;//正确是1
+            else
+                temp[arg_scriptline]=2;//错误是2
+            qDebug()<<"zhengquecuowu "<<temp[arg_scriptline];
+            suiteResForEveScript[it.key()]=temp;
+            QMap<QString,int>::const_iterator i;
+            bool allTag=true;//全部被标记标志
+            bool tfTag=true;//true false 标志
+            for(i=temp.constBegin();i!=temp.constEnd();i++)
+            {
+                if(i.value()==0)
+                {
+                    allTag=false;
+                    break;
+                }
+                else if(i.value()==2)
+                    tfTag=false;
+            }
+            qDebug()<<"alltag"<<allTag;
+            if(allTag)//测试套内的所有文件都运行过了，记录状态
+            {
+                suiteName=it.key();
+                suiteNameRes=tfTag;
+                qDebug()<<"suitename"<<suiteName<<suiteNameRes;
+                suiteRes.insert(suiteName,allTag);
+            }
+        }
+    }
+
     //清空是把之前的检测结果恢复初始状态
     QTreeWidgetItemIterator item(ui->scriptTreeWidget);
     while(*item)
     {
         if((*item)->childCount()==0&&(*item)->parent()!=NULL)
         {
+
             QString tempStr=(*item)->parent()->text(0)+"="+(*item)->text(0).left((*item)->text(0).length()-4);
             if(tempStr==arg_scriptline)
             {
@@ -2041,13 +2165,37 @@ void BehaviourWidget::recieveOneScriptFinish(const QString &arg_scriptline,bool 
                     tmplabel->setText("<font color=red>×</font>");
                 }
                 ui->scriptTreeWidget->setItemWidget((*item),1,tmplabel);
-                break;
+                if(suiteName=="")//如果测试套没有内容，跳出循环
+                    break;
+            }
+            if(suiteName!="")//如果测试套内文件全部运行完毕，修改测试套文件内容
+            {
+                QString tempstr = StaticticsHerper::getTreeRootText((*item));
+                if(tempstr=="suite")
+                {
+                    if(suiteName==(*item)->text(0))
+                    {
+                        QLabel *tmplabel=new QLabel;
+                        if(suiteNameRes)
+                        {
+                            tmplabel->setText("<font color=green>√</font>");
+                        }
+                        else
+                        {
+                            tmplabel->setText("<font color=red>×</font>");
+                        }
+                        ui->scriptTreeWidget->setItemWidget((*item),1,tmplabel);
+                        break;
+                    }
+                }
             }
         }
         ++item;
     }
 
     tempFlagForStat=true;
+
+
 }
 
 QString BehaviourWidget::ParseURLForCheck(QString url, QList<DataClass> xmlData, bool isLatest)//点击url列表时槽函数，解析url变成统计点
@@ -2408,14 +2556,13 @@ void BehaviourWidget::on_scriptTextEdit_cursorPositionChanged()
         QTextCursor tc = ui->scriptTextEdit->textCursor();
         tc.select(QTextCursor::LineUnderCursor);
         int currentrow = tc.blockNumber()+3;//list中加入行号时就大2行，所以这里获取到的真正行数加2行才能和list中一致
-        for(int i=0;i<lineNumberList.count();i++)
+
+        if(lineNumberUrlMap.contains(currentrow))
         {
-            if(currentrow==lineNumberList[i])
-            {
-                ui->urlListWidget->setCurrentRow(i);
-                ParseURLForCheck(urlList[i],allXmlDataForCheck[i],true);
-                break;
-            }
+            int index=lineNumberUrlMap[currentrow];
+            ui->urlListWidget->setCurrentRow(index);
+            if(urlList.count()>index&&allXmlDataForCheck.count()>index)
+                ParseURLForCheck(urlList[index],allXmlDataForCheck[index],true);
         }
     }
 }

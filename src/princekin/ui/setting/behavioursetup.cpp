@@ -303,6 +303,13 @@ void BehaviourSetup::recieveSettingSig(bool isMemCheck, bool isCpuCheck, bool is
     ui->wifiLineEdit->setText(wifiThres);
     ui->mobileLineEdit->setText(mobileThres);
 
+    ui->wifiCBtn->setEnabled(gWifiNet);
+    ui->wifiLabel->setEnabled(gWifiNet);
+    ui->wifiLineEdit->setEnabled(gWifiNet);
+    ui->mobileCBtn->setEnabled(!gWifiNet);
+    ui->mobileLabel->setEnabled(!gWifiNet);
+    ui->mobileLineEdit->setEnabled(!gWifiNet);
+
     //isCpuTempCheck=ui->cpuTempCBtn->isChecked();
 }
 

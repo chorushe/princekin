@@ -30,12 +30,6 @@ PerformanceWidget::PerformanceWidget(QWidget *parent) :
                                        "QListView::item:selected{background:#e4e4e4;color:#000000;padding-left:8px;}"
                                        "QListView::item{height:30px;color:#4d4d4d}");
 
-    ui->packageCombo->setStyleSheet("QComboBox QAbstractItemView::item{height:25px;}"
-                                    "QComboBox {border: 1px solid #e4e4e4;  border-radius: 3px;padding: 1px 2px 1px 2px;min-width: 9em;}"
-                                    "QComboBox::drop-down{ width: 40px; border-left-style: none;border-top-right-radius: 3px;  border-bottom-right-radius: 3px;}"
-                                    "QComboBox::down-arrow{image:url(:/arrow.png);}");
-    ui->packageCombo->setView(new QListView());
-
     ui->equipListView->verticalScrollBar()->setStyleSheet("QScrollBar:vertical {border:0px solid grey;width: 10px;}"
                                                           "QScrollBar::handle:vertical {background: grey;border: 3px solid grey;border-radius:5px;min-height: 20px;}");
     ui->packageListView->verticalScrollBar()->setStyleSheet("QScrollBar:vertical {border:0px solid grey;width: 10px;}"
@@ -79,8 +73,8 @@ PerformanceWidget::PerformanceWidget(QWidget *parent) :
     connect(this,SIGNAL(SendMemStopSignal()),this,SLOT(RecieveMemStopSignal()));
     connect(this,SIGNAL(SendCpuPlotSignal(QString,double,double)),this,SLOT(CpuPlotChart(QString,double,double)));
     connect(this,SIGNAL(SendCpuStopSignal()),this,SLOT(RecieveMemStopSignal()));
-    connect(this,SIGNAL(SendMemWriteEdit(QString,QString)),perforDetail,SLOT(RecieveMemResult(QString,QString)));
-    connect(this,SIGNAL(SendCpuWriteEdit(QString,QString)),perforDetail,SLOT(RecieveCpuResult(QString,QString)));
+    connect(this,SIGNAL(SendMemWriteEdit(QString,QString,QString,QString,QString)),perforDetail,SLOT(RecieveMemResult(QString,QString,QString,QString,QString)));
+    connect(this,SIGNAL(SendCpuWriteEdit(QString,QString,QString,QString,QString)),perforDetail,SLOT(RecieveCpuResult(QString,QString,QString,QString,QString)));
 
     connect(ui->memPlot,SIGNAL(mouseMove(QMouseEvent*)),this,SLOT(mouseMoveEvent(QMouseEvent*)));
     connect(ui->cpuPlot,SIGNAL(mouseMove(QMouseEvent*)),this,SLOT(mouseMoveEvent(QMouseEvent*)));
@@ -90,8 +84,8 @@ PerformanceWidget::PerformanceWidget(QWidget *parent) :
     connect(this,SIGNAL(SendCPUTempPlotSignal(QString,double,double)),this,SLOT(CPUTempPlotChart(QString,double,double)));
     connect(this,SIGNAL(SendCPUTempStopSignal()),this,SLOT(RecieveBatteryStopSignal()));
 
-    connect(this,SIGNAL(SendBatteryWriteEdit(QString,QString)),tempdetail,SLOT(RecieveBatteryResult(QString,QString)));
-    connect(this,SIGNAL(SendCpuTempWriteEdit(QString,QString)),tempdetail,SLOT(RecieveCpuTempResult(QString,QString)));
+    connect(this,SIGNAL(SendBatteryWriteEdit(QString,QString,QString,QString,QString)),tempdetail,SLOT(RecieveBatteryResult(QString,QString,QString,QString,QString)));
+    connect(this,SIGNAL(SendCpuTempWriteEdit(QString,QString,QString,QString,QString)),tempdetail,SLOT(RecieveCpuTempResult(QString,QString,QString,QString,QString)));
 
     connect(this,SIGNAL(SendWifiPlotSignal(QString,double,double)),this,SLOT(WifiPlotChart(QString,double,double)));
     connect(this,SIGNAL(SendMobilePlotSignal(QString,double,double)),this,SLOT(MobilePlotChart(QString,double,double)));
@@ -240,7 +234,6 @@ void PerformanceWidget::dataInit()
     ui->wifiPlot->graph(8)->setPen(QPen(QColor("#fadf97"),1));
     ui->mobilePlot->graph(8)->setPen(QPen(QColor("#fadf97"),1));
 
-
     //设置坐标轴标签名称
     ui->memPlot->yAxis->setLabel("内存(M)");
     ui->cpuPlot->yAxis->setLabel("CPU(%)");
@@ -295,7 +288,6 @@ void PerformanceWidget::dataInit()
     flagGetCPU=0;
 
     gTrafficInterval="6";
-
 }
 
 void PerformanceWidget::RecieveDevicesSigal(QStringList devicesList)
@@ -311,8 +303,7 @@ void PerformanceWidget::RecieveDevicesSigal(QStringList devicesList)
     int row=equipList.indexOf(currentDevice);
     if(row==-1)
     {
-        if(ui->packageCombo->count()==4)
-            ui->packageCombo->removeItem(0);//没有选中设备时，去掉第一项设备名称的显示，直接显示“第三方应用”
+        //没有选中设备时，去掉第一项设备名称的显示，直接显示“第三方应用”
         packageModel->setStringList( QStringList());
         ui->packageListView->setModel(packageModel);
         deviceName="";//当前没有选中的设备时，设备名字清空，否则在点击设备时会出问题；
@@ -375,84 +366,38 @@ void PerformanceWidget::on_equipBtn_clicked()//ShowEquip()
     qDebug()<<deviceName;
     if(deviceName!="")
     {
-        if(ui->packageCombo->count()==3)
-            ui->packageCombo->insertItem(0,"");
-        ui->packageCombo->setCurrentIndex(0);
-        ui->packageCombo->setItemText(0,indexEquip.data().toString());
+        addPackagesList();
+        on_packageLineEdit_textChanged("");
     }
 }
 
-void PerformanceWidget::on_packageCombo_currentIndexChanged(const QString &arg1)//ShowPackage()
+void PerformanceWidget::addPackagesList()
 {
-    if(numForPackageIndexChange<3)
-        numForPackageIndexChange++;
-    if(deviceName=="")
-    {
-        if(numForPackageIndexChange!=1)
-            QMessageBox::information(this,tr("提示"),tr("请选择一个设备"));
-        return ;
-    }
+    packageList.clear();
 
-    if(ui->packageCombo->currentIndex()==0)
-    {
-        packageName="";
-    }
-
-    QString cmdStrAllPackages="adb -s "+deviceName+" shell pm list packages\n";
     QString cmdStrThirdPackages="adb -s "+deviceName+" shell pm list packages -3\n";
-    QString cmdStrSystemPackages="adb -s "+deviceName+" shell pm list packages -s\n";
-
-    int flag=0;//flag的作用是：选择包名时，第一项不需要process，为了区分第一项与其他三项
-
     QProcess p(0);
     p.setReadChannelMode(QProcess::MergedChannels);
-
-    QString mStr;
-    QStringList mSplitResult;
-
-    packageList.clear();
-    packageModel ->setStringList(packageList);
-
-    switch(ui->packageCombo->currentIndex())
+    p.start(cmdStrThirdPackages);
+    p.waitForStarted();
+    while(p.waitForFinished()==false)
     {
-    case 0:
-        flag=0;
-        break;
-    case 2:
-        p.start(cmdStrAllPackages);
-        flag=1;
-        break;
-    case 1:
-        p.start(cmdStrThirdPackages);
-        flag=1;
-        break;
-    case 3:
-        p.start(cmdStrSystemPackages);
-        flag=1;
-        break;
-    default:
-        flag=0;
-        break;
     }
-    if(flag==1)
-    {
-        p.waitForStarted();
-        while(p.waitForFinished()==false)
-        {
-        }
 
-        while(p.canReadLine())
+    while(p.canReadLine())
+    {
+        QString mStr=p.readLine();
+        if(mStr.contains("package:"))
         {
-            mStr=p.readLine();
-            if(mStr.contains("package:"))
-            {
-                mSplitResult=mStr.split("package:");
-                packageList.append(mSplitResult.at(1).trimmed());
-                packageModel->setStringList(packageList);
-            }
+            QStringList mSplitResult=mStr.split("package:");
+            packageList.append(mSplitResult.at(1).trimmed());
         }
     }
+
     p.close();
+    qSort(packageList.begin(),packageList.end());
+    packageList.insert(0,ui->equipListView->currentIndex().data().toString());
+    packageModel->setStringList(packageList);
     ui->packageListView->setModel(packageModel);
 }
 
@@ -461,7 +406,6 @@ void PerformanceWidget::on_equipListView_clicked(const QModelIndex &index)//equi
     if((!ui->equipListView->currentIndex().data().toString().contains(deviceName))||deviceName=="")//如果没有换设备，不对当前界面操作
     {
         //更换设备时不需要开启监测其他参数，因为更换设备时，当前停止性能测试，一定要通过点击“开始”开启性能测试，但这里需要进行停止之前的其他参数监控操作。
-
         if(isStartFlag)
             emit SendMemStopSignal();
 
@@ -470,13 +414,15 @@ void PerformanceWidget::on_equipListView_clicked(const QModelIndex &index)//equi
         qDebug()<<deviceName;
         if(deviceName!="")
         {
-            if(ui->packageCombo->count()==3)
-                ui->packageCombo->insertItem(0,"");
-            ui->packageCombo->setCurrentIndex(0);
-            ui->packageCombo->setItemText(0,indexEquip.data().toString());
+            addPackagesList();
+            on_packageLineEdit_textChanged("");
         }
         else
-            ui->packageCombo->setCurrentIndex(0);
+        {
+            //没有选中设备时，去掉第一项设备名称的显示，直接显示“第三方应用”
+            packageModel->setStringList( QStringList());
+            ui->packageListView->setModel(packageModel);
+        }
     }
 }
 
@@ -484,31 +430,99 @@ void PerformanceWidget::on_packageListView_clicked(const QModelIndex &index)//pa
 {
     QModelIndex indexPackage=ui->packageListView->currentIndex();
     packageName=indexPackage.data().toString();
+    ui->packageLineEdit->setText(packageName);
 }
 
 void PerformanceWidget::on_startBtn_clicked()//StartMemMonitor()
 {
+
+    qDebug()<<"pckage"<<packageName;
+
+
     if(deviceName=="")
     {
         QMessageBox::information(this,"提示","请选择设备");
         return;
     }
+    if(ui->packageListView->currentIndex().row()==-1 && ui->packageLineEdit->text()=="")
+    {
+        QMessageBox::information(this,"提示","请选择测试项");
+        return;
+    }
+    if(packageName.contains(deviceName))
+    {
+        packageName="";
+    }
+    //如果测试进程的话，确认下进程是否在
+    if(ui->packageListView->currentIndex().row()==-1 && ui->packageLineEdit->text()!="")
+    {
+        QString cmdStrGetMem="adb -s "+deviceName+" shell dumpsys meminfo "+packageName;
+        QString res=ExeCmd::runCmd(cmdStrGetMem).trimmed();
+        if(res.contains("No process found"))
+        {
+            QMessageBox::information(this,"提示","该进程不存在，请启动进程后再测试");
+            return;
+        }
+    }
+
 
     if(!isStartFlag)
     {
         //*****************20170717*****************//
         qOldPackageName=Helper::getFirstLine(gConfigDir + QDir::separator() + "packageName.txt");
         gOldPackageName=qOldPackageName;
+        //gPackageThreadName=packageName;
+
+        /*
         bool b=Helper::isPackageName1(packageName);
         if(!b)
         {
             return;
         }
+        */
+
+        if(packageName.isEmpty())
+        {
+            QMessageBox::StandardButton jValue=QMessageBox::information(NULL, "提示", "所选应用与配置信息不一致,会导致(APP图标,启动时间,安装包大小,版本号)等信息获取为空.是否继续测试?", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+            if(jValue==QMessageBox::Yes)
+            {
+            }
+            else
+            {
+                return;
+            }
+        }
+        else
+        {
+            if(packageName.contains(qOldPackageName))
+            {
+
+                if(packageName==qOldPackageName)
+                {
+                    gIsThread=false;
+                }
+                else
+                {
+                    gIsThread=true;
+                }
+            }
+            else
+            {
+                QMessageBox::StandardButton jValue=QMessageBox::information(NULL, "提示", "所选应用与配置信息不一致,会导致(APP图标,启动时间,安装包大小,版本号)等信息获取为空.是否继续测试?", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+                if(jValue==QMessageBox::Yes)
+                {
+                }
+                else
+                {
+                    return;
+                }
+            }
+        }
         //*****************20170717*****************//
 
         ui->equipBtn->setEnabled(false);
         ui->equipListView->setEnabled(false);
-        ui->packageCombo->setEnabled(false);
+        ui->packageLineEdit->setEnabled(false);
         ui->packageListView->setEnabled(false);
         ui->startBtn->setIcon(QIcon(":/stop.png"));
         ui->dataCompareBtn->setEnabled(false);
@@ -519,6 +533,7 @@ void PerformanceWidget::on_startBtn_clicked()//StartMemMonitor()
         isStartFlag=true;
         flagError=false;
 
+        gPerformanceStartTime=Helper::getTime2("yyyy-MM-dd_hh:mm:ss");
         startTime=QDateTime::currentDateTime();
         if(gWorkSpace=="")
             gWorkSpace=gNewDisk + QDir::separator() + "princekinWorkspace";
@@ -580,11 +595,11 @@ void PerformanceWidget::on_startBtn_clicked()//StartMemMonitor()
         timerThread=new QThread;
         timer->start(time);
         timer->moveToThread(timerThread);
-        connect( timer, SIGNAL(timeout()),this, SLOT(getMemoryCpu()),Qt::DirectConnection );
+        connect( timer, SIGNAL(timeout()),this, SLOT(getMemory()),Qt::DirectConnection );
+        connect( timer, SIGNAL(timeout()),this, SLOT(getCpu()),Qt::DirectConnection );
         connect( timer, SIGNAL(timeout()),this, SLOT(getBatteryTemp()),Qt::DirectConnection );
         connect( timer, SIGNAL(timeout()),this, SLOT(getCPUTemp()),Qt::DirectConnection );
         timerThread->start();
-
 
         if(packageName=="")
         {
@@ -595,15 +610,8 @@ void PerformanceWidget::on_startBtn_clicked()//StartMemMonitor()
         else
         {
             //以下是流量测试
-            QString mCmdLine;
-            mCmdLine="cmd /c adb -s " + deviceName + " shell pm list packages -3 | findstr com.sohu.trafficservice";
-            QString mStrService=ExeCmd::runCmd(mCmdLine);
-            if(mStrService.isEmpty())
-            {
-                mCmdLine="adb -s " + deviceName + " install -r " + gConfigDir + QDir::separator() + "apk" + QDir::separator() + "trafficService.apk";
-                ExeCmd::runCmd(mCmdLine);
-            }
 
+            QString mCmdLine;
             bool isok;
             dSec=time/1000;
             QString uid;
@@ -614,16 +622,12 @@ void PerformanceWidget::on_startBtn_clicked()//StartMemMonitor()
                 return;
             }
 
-            startService();
-            getNetState();
             getTraffic(uid);
         }
 
         //*****************20170505*************************//
         getXXX();
         //*****************20170505*************************//
-
-
     }
     else if(isStartFlag)
     {
@@ -639,6 +643,7 @@ void PerformanceWidget::ReadStatisticsData(QStringList statistics)
     {
         createExcel();
     }
+    gIsThread=false;
 }
 
 void PerformanceWidget::RecieveTrafficStopSignal()
@@ -646,7 +651,6 @@ void PerformanceWidget::RecieveTrafficStopSignal()
     if(packageName!="")
     {
         stopTraffic();
-        stopService();
     }
 }
 
@@ -657,7 +661,6 @@ void PerformanceWidget::exportReport()
     {
         createExcel();
     }
-    //createBaseData();
 }
 
 void PerformanceWidget::on_clearBtn_clicked()
@@ -717,7 +720,6 @@ void PerformanceWidget::on_clearBtn_clicked()
 
 void PerformanceWidget::ShowSetupWindow()
 {
-    //setupDialog->setWindowModality(Qt::ApplicationModal);
     setupDialog->setWindowState(Qt::WindowActive);
     setupDialog->show();
     setupDialog->raise();
@@ -738,6 +740,7 @@ void PerformanceWidget::RecieveData( QVariant var)
     this->strMobileThres=signalData.mobileThres;
     this->xmlPaths=signalData.xmlPaths;
     this->isDebug=signalData.isDebug;
+    this->memOption=signalData.memIndex;
 
 }
 
@@ -757,8 +760,7 @@ void PerformanceWidget::getMemoryCpuIndex()
         }
     }
 }
-
-void PerformanceWidget::getMemoryCpu()
+void PerformanceWidget::getMemory()
 {
     if(deviceName=="")
     {
@@ -771,16 +773,28 @@ void PerformanceWidget::getMemoryCpu()
     flagError=false;
 
     QString res="";
-    QString cmdStrGetMem,cmdStrGetCPU;
+    QString cmdStrGetMem;
     int num;
     QString tmp="";
     QString memRes="";
-    QString cpuRes="";
     if(packageName!="")
     {
-        cmdStrGetMem="adb -s "+deviceName+" shell top -n 1 | grep "+packageName;
-        res=ExeCmd::runCmd(cmdStrGetMem).trimmed();
-        qDebug()<<res;
+        if(memOption==1)
+        {
+            gMemOption=1;
+            cmdStrGetMem="adb -s "+deviceName+" shell dumpsys meminfo "+packageName + " | grep Dalvik";
+            res=ExeCmd::runCmd(cmdStrGetMem).trimmed();
+            if(res!="")
+                memRes=res.split(" ",QString::SkipEmptyParts).at(6);
+        }
+        else if(memOption==0)
+        {
+            gMemOption=0;
+            cmdStrGetMem="adb -s "+deviceName+" shell dumpsys meminfo "+packageName + " | grep TOTAL";
+            res=ExeCmd::runCmd(cmdStrGetMem).trimmed();
+            if(res!="")
+                memRes=res.split(" ",QString::SkipEmptyParts).at(1);
+        }
         if(res=="")
         {
             flagGetMem=flagGetMem+1;
@@ -797,24 +811,24 @@ void PerformanceWidget::getMemoryCpu()
             return;
         }
         flagGetMem=0;
-        QStringList resList=res.split(" ",QString::SkipEmptyParts);
-        if(resList.count()>7)
-        {
-            memRes=resList.at(memIndex);
-            cpuRes=resList.at(cpuIndex);
-            cpuRes=cpuRes.left(cpuRes.length()-1);
-            memRes=memRes.left(memRes.length()-1);
-        }
     }
     else
     {
         //获取内存信息
+        if(memOption==0)
+        {
         cmdStrGetMem="adb -s "+deviceName+" shell dumpsys meminfo | grep Used\n";
         res=ExeCmd::runCmd(cmdStrGetMem);
-        qDebug()<<res;
+        }
+        else if(memOption==1)
+        {
+            cmdStrGetMem="adb -s "+deviceName+" shell dumpsys meminfo | grep Dalvik\n";
+            res=ExeCmd::runCmd(cmdStrGetMem);
+        }
+
         if(res=="")
         {
-            flagGetMemTotal++;qDebug()<<"ERROR";
+            flagGetMemTotal++;
             if(flagGetMemTotal==2)
             {
                 flagError=true;
@@ -828,33 +842,13 @@ void PerformanceWidget::getMemoryCpu()
 
         QStringList resList=res.split(" ",QString::SkipEmptyParts);
         if(resList.count()>2)
-            memRes=resList.at(2);
-
-        //获取CPU信息
-        cmdStrGetCPU="adb -s "+deviceName+" shell dumpsys cpuinfo | grep TOTAL\n";
-        res=ExeCmd::runCmd(cmdStrGetCPU);
-        if(res=="")//如果没有返回结果就继续
         {
-            flagGetCPUTotal++;
-            if(flagGetCPUTotal==2)
-            {
-                flagError=true;
-                flagGetCPUTotal=0;
-                emit SendCpuStopSignal();
-            }
-
-            return;
-        }
-        flagGetCPUTotal=0;
-
-        resList=res.split(" ",QString::SkipEmptyParts);
-        if(resList.count()>0)
-        {
-            cpuRes=resList.at(0);
-            cpuRes=cpuRes.left(cpuRes.length()-1);
+            if(memOption==0)
+                memRes=resList.at(2);
+            else if(memOption==1)
+                memRes=resList.at(0);
         }
     }
-
     QDateTime current_date_time = QDateTime::currentDateTime();
     QString currentTime = current_date_time.toString("yyyy-MM-dd hh:mm:ss");
 
@@ -876,13 +870,93 @@ void PerformanceWidget::getMemoryCpu()
         memMin=memNum[memNum.length()-1];
 
     memAve=(memAve*(memNum.count()-1)+memRes.toDouble()/1024)/memNum.count();
-
+    memAve=QString::number(memAve,'f',2).toDouble();
     //*****************20170606*****************//
     gMemAve=memAve;
     //*****************20170606*****************//
 
     emit SendMemPlotSignal(memRes,memMin,memMax);
-    emit SendMemWriteEdit(memRes,currentTime);
+    emit SendMemWriteEdit(memRes,currentTime,QString::number(memMax),QString::number(memMin),QString::number(memAve));
+}
+
+void PerformanceWidget::getCpu()
+{
+    if(deviceName=="")
+    {
+        if(timerThread->isRunning())
+        {
+            emit SendMemStopSignal();
+        }
+        return ;
+    }
+    flagError=false;
+
+    QString res="";
+    QString cmdStrGetCPU;
+    int num;
+    QString tmp="";
+    QString memRes="";
+    QString cpuRes="";
+    if(packageName!="")
+    {
+        cmdStrGetCPU="adb -s "+deviceName+" shell top -n 1 | grep "+packageName;
+        res=ExeCmd::runCmd(cmdStrGetCPU).trimmed();
+        if(res=="")
+        {
+            flagGetMem=flagGetMem+1;
+            if(flagGetMem==2)
+            {
+                flagError=true;
+                flagGetMem=0;
+
+                QString startApp="adb -s "+deviceName+" shell monkey -p "+packageName+" -c android.intent.category.LAUNCHER 1";
+                QString ti=ExeCmd::runCmd(startApp);
+                if( ti.contains("monkey aborted")||ti.contains("device not found"))
+                    emit SendMemStopSignal();
+            }
+            return;
+        }
+        flagGetMem=0;
+        QStringList resList=res.split("\r\n",QString::SkipEmptyParts);
+        int cpu=0;
+        for(int i=0;i<resList.count();i++)
+        {
+            QStringList resListSub=resList[i].split(" ",QString::SkipEmptyParts);
+            QString cpuStr=resListSub.at(cpuIndex);
+            cpuStr=cpuStr.left(cpuStr.length()-1);
+            cpu+=cpuStr.toInt();
+        }
+        cpuRes=QString::number(cpu);
+    }
+    else
+    {
+        //获取CPU信息
+        cmdStrGetCPU="adb -s "+deviceName+" shell dumpsys cpuinfo | grep TOTAL\n";
+        res=ExeCmd::runCmd(cmdStrGetCPU);
+        if(res=="")//如果没有返回结果就继续
+        {
+            flagGetCPUTotal++;
+            if(flagGetCPUTotal==2)
+            {
+                flagError=true;
+                flagGetCPUTotal=0;
+                emit SendCpuStopSignal();
+            }
+
+            return;
+        }
+        flagGetCPUTotal=0;
+
+        QStringList resList=res.split(" ",QString::SkipEmptyParts);
+        if(resList.count()>0)
+        {
+            cpuRes=resList.at(0);
+            cpuRes=cpuRes.left(cpuRes.length()-1);
+        }
+    }
+
+    QDateTime current_date_time = QDateTime::currentDateTime();
+    QString currentTime = current_date_time.toString("yyyy-MM-dd hh:mm:ss");
 
     //统计CPU信息
     cpuTime.append(currentTime);
@@ -905,7 +979,7 @@ void PerformanceWidget::getMemoryCpu()
     }
 
     cpuAve=(cpuAve*(cpuNum.count()-1)+cpuRes.toDouble())/cpuNum.count();
-
+    cpuAve=QString::number(cpuAve,'f',2).toDouble();
     //*****************20170606*****************//
     gCpuAve=cpuAve;
     //*****************20170606*****************//
@@ -913,7 +987,7 @@ void PerformanceWidget::getMemoryCpu()
     if(cpuNum.length()>0)
     {
         emit SendCpuPlotSignal(cpuRes,cpuMin,cpuMax);
-        emit SendCpuWriteEdit(cpuRes,currentTime);
+        emit SendCpuWriteEdit(cpuRes,currentTime,QString::number(cpuMax),QString::number(cpuMin),QString::number(cpuAve));
     }
 }
 
@@ -931,7 +1005,7 @@ void PerformanceWidget::RecieveMemStopSignal()
         ui->startBtn->setIcon(QIcon(":/start.png"));
         ui->equipBtn->setEnabled(true);
         ui->equipListView->setEnabled(true);
-        ui->packageCombo->setEnabled(true);
+        ui->packageLineEdit->setEnabled(true);
         ui->packageListView->setEnabled(true);
         isStartFlag=false;
         ui->dataCompareBtn->setEnabled(true);
@@ -1037,13 +1111,14 @@ void PerformanceWidget::getBatteryTemp()
             batteryMin=batteryNum[batteryNum.length()-1];
 
         batteryAve=(batteryAve*(batteryNum.count()-1)+result.toDouble()/10)/batteryNum.count();
+        batteryAve=QString::number(batteryAve,'f',2).toDouble();
 
         //*****************20170606*****************//
         gBatteryAve=batteryAve;
         //*****************20170606*****************//
 
         emit SendBatteryPlotSignal(result,batteryMin,batteryMax);
-        emit SendBatteryWriteEdit(result,currentTime);
+        emit SendBatteryWriteEdit(result,currentTime,QString::number(batteryMax),QString::number(batteryMin),QString::number(batteryAve));
         flagErrorNumBattery=0;
     }
     else
@@ -1112,6 +1187,7 @@ void PerformanceWidget::getCPUTemp()
         }
 
         cpuTempAve=(cpuTempAve*(cpuTempNum.count()-1)+resNum)/cpuTempNum.count();
+        cpuTempAve=QString::number(cpuTempAve,'f',2).toDouble();
         //*****************20170606*****************//
         gCpuTempAve=cpuTempAve;
         //*****************20170606*****************//
@@ -1119,7 +1195,7 @@ void PerformanceWidget::getCPUTemp()
         if(cpuTempNum.length()>0)
         {
             emit SendCPUTempPlotSignal(QString::number(resNum),cpuTempMin,cpuTempMax);
-            emit SendCpuTempWriteEdit(QString::number(resNum),currentTime);
+            emit SendCpuTempWriteEdit(QString::number(resNum),currentTime,QString::number(cpuTempMax),QString::number(cpuTempMin),QString::number(cpuTempAve));
         }
         flagErrorNumCpu=0;
     }/**/
@@ -1208,7 +1284,7 @@ void PerformanceWidget::RecieveBatteryStopSignal()
         ui->startBtn->setIcon(QIcon(":/start.png"));
         ui->equipBtn->setEnabled(true);
         ui->equipListView->setEnabled(true);
-        ui->packageCombo->setEnabled(true);
+        ui->packageLineEdit->setEnabled(true);
         ui->packageListView->setEnabled(true);
         isStartFlag=false;
 
@@ -1329,18 +1405,17 @@ void PerformanceWidget::on_reportDetailBtn_clicked()
     ExeCmd::openFolder(fileNameForReport);
 }
 
-void PerformanceWidget::startService()
-{
-    QString cmdLine;
-    cmdLine="adb -s " + deviceName + " shell am startservice com.sohu.trafficservice/.TrafficService";
-    ExeCmd::runCmd(cmdLine);
-}
 
 QString PerformanceWidget::getUid()
 {
+    QString realPackage ;
+    if(packageName.contains(":"))
+        realPackage=packageName.left(packageName.indexOf(":"));
+    else
+        realPackage=packageName;
     QString uid;
     QString cmdLine;
-    cmdLine="cmd /c adb -s " + deviceName + " shell dumpsys package " + packageName + " | findstr userId=";
+    cmdLine="cmd /c adb -s " + deviceName + " shell dumpsys package " + realPackage + " | findstr userId=";
     uid=ExeCmd::runCmd_getUid(cmdLine);
     return uid;
 }
@@ -1372,30 +1447,6 @@ void PerformanceWidget::getTraffic(const QString &uid)
     pool->start(controllerInstance);
 }
 
-void PerformanceWidget::getNetState()
-{
-    QString cmdLine;
-
-    cmdLine="adb -s " + deviceName + " logcat -s TrafficService";
-    NetStateController::Controller *controllerInstance=new NetStateController::Controller;
-    //qNetState_Controller_Hash.insert(deviceId,controllerInstance);
-
-    //connect(controllerInstance,SIGNAL(sendProcFinished(const QString &)),this,SLOT(receiveNetStateProcFinished(const QString &) ) );
-    controllerInstance->setDeviceId(deviceName);
-    controllerInstance->setCmdLine(cmdLine);
-    controllerInstance->startController();
-}
-
-void PerformanceWidget::stopService()
-{
-    QString mCmdLine;
-    mCmdLine="adb -s " + deviceName + " shell am force-stop com.sohu.trafficservice";
-    //runCmd(mCmdLine);
-
-    AdbShellController::Controller *controller=new AdbShellController::Controller;
-    controller->setCmdLine(mCmdLine);
-    controller->doController();
-}
 
 void PerformanceWidget::stopTraffic()
 {
@@ -2321,3 +2372,36 @@ void PerformanceWidget::receiveWorkerResult2(const QString&arg_str,const QString
     }
 }
 
+
+void PerformanceWidget::on_packageLineEdit_textChanged(const QString &arg1)
+{
+  /*  if(ui->packageLineEdit->text()=="")
+    {
+        packageName="";
+        QModelIndex index=ui->packageListView->model()->index(-1,0);
+        ui->packageListView->setCurrentIndex(index);
+        ui->packageListView->scrollToTop();
+        return;
+    }*/
+    QString text=ui->packageLineEdit->text();
+    gPackageThreadName=text;
+    bool isFind=false;
+    for(int i=0;i<packageList.count();i++)
+    {
+        if(packageList.at(i).startsWith(text))
+        {
+            QModelIndex index=ui->packageListView->model()->index(i,0);
+            ui->packageListView->setCurrentIndex(index);
+            packageName=ui->packageListView->currentIndex().data().toString();//有匹配项时，包名直接等于匹配项
+            isFind=true;
+            break;
+        }
+    }
+    if(!isFind)//没有匹配项时清除选项
+    {
+        QModelIndex index=ui->packageListView->model()->index(-1,0);
+        ui->packageListView->setCurrentIndex(index);
+        packageName=ui->packageLineEdit->text();
+    }
+
+}

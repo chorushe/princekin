@@ -70,8 +70,6 @@ private slots:
 
     void on_packageListView_clicked(const QModelIndex &index);
 
-    void on_packageCombo_currentIndexChanged(const QString &arg1);
-
     void SetupBtnClicked();
 
     void RecieveData(QVariant var);
@@ -105,6 +103,8 @@ private slots:
     void RecieveStopSignal();
 
     void on_interDataTable_itemChanged(QTableWidgetItem *item);
+
+    void on_packageLineEdit_textChanged(const QString &arg1);
 
 private:
     Ui::InterfaceWidget *ui;
@@ -190,6 +190,8 @@ private:
 
     void ShowInterfaceData(interDataClass tempData);
     bool JudgeFilterRes(interDataClass tempData);
+
+    void addPackagesList();
 
     QString SPACE = "   ";
     QString orderFlag="time";

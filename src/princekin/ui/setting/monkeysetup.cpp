@@ -1012,6 +1012,13 @@ void MonkeySetUp::recieveSettingSig(bool isMemCheck, bool isCpuCheck, bool isBat
     wifiLineEdit->setText(wifiThres);
     mobileLineEdit->setText(mobileThres);
 
+    wifiCBtn->setEnabled(gWifiNet);
+    wifiLabel->setEnabled(gWifiNet);
+    wifiLineEdit->setEnabled(gWifiNet);
+    mobileCBtn->setEnabled(!gWifiNet);
+    mobileLabel->setEnabled(!gWifiNet);
+    mobileLineEdit->setEnabled(!gWifiNet);
+
 }
 
 void MonkeySetUp::debugRBtnClick()

@@ -68,7 +68,6 @@ void Performance::setWriteResult(WriteResult *arg_writeResultInstance)
 
 void Performance::startWatcher()
 {
-    qNetState_Controller_Hash.clear();
     qMem_Controller_Hash.clear();
     qCpu_Controller_Hash.clear();
     qBatteryTemp_Controller_Hash.clear();
@@ -131,7 +130,7 @@ void Performance::startWatcher()
 
 void Performance::getPerformance()
 {
-    getNetState();
+    //getNetState();
     getMemory();
     getCpu();
     getBatteryTemperature();
@@ -141,6 +140,7 @@ void Performance::getPerformance()
 
 void Performance::getNetState()
 {
+    /*
     QString cmdLine;
     foreach(QString deviceId,qDeviceIdList)
     {
@@ -153,6 +153,7 @@ void Performance::getNetState()
         controllerInstance->setCmdLine(cmdLine);
         controllerInstance->startController();
     }
+    */
 }
 
 void Performance::receiveNetStateProcFinished(const QString &arg_text)
@@ -443,6 +444,7 @@ void Performance::stopTraffic(const QString &arg_deviceId)
 
 void Performance::stopNetState(const QString &arg_deviceId)
 {
+    /*
     QList<QString> keyList=qNetState_Controller_Hash.keys();
     if(keyList.indexOf(arg_deviceId)==-1)
     {
@@ -460,7 +462,7 @@ void Performance::stopNetState(const QString &arg_deviceId)
         }
         qProcFinishedDeviceId="";
     }
-
+    */
 }
 
 

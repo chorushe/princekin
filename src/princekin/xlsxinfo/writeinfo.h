@@ -71,6 +71,8 @@ public:
     static Format getNormalFormat();
     static Format getHyperlinkFormat();
     static Format getErrorFormat();
+    static Format getBlueformat();
+
 
     static void mergeCells(Document &,const QString &);
     static void mergeCells(Document &,const QString &,Format);

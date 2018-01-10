@@ -52,65 +52,117 @@ WriteInfo::WriteInfo()
 void WriteInfo::setIconPath(const QString &arg_text)
 {
     qIconPath=arg_text;
+    if(qIconPath.trimmed().isEmpty())
+    {
+        qIconPath="-";
+    }
 }
 void WriteInfo::setAppChineseName(const QString &arg_text)
 {
     qAppChineseName=arg_text;
+    if(qAppChineseName.trimmed().isEmpty())
+    {
+        qAppChineseName="-";
+    }
 }
 
 void WriteInfo::setAppVersion(const QString &arg_text)
 {
     qAppVersion=arg_text;
+    if(qAppVersion.trimmed().isEmpty())
+    {
+        qAppVersion="-";
+    }
 }
 
 void WriteInfo::setAppSize(const QString &arg_text)
 {
     qAppSize=arg_text;
+    if(qAppSize.trimmed().isEmpty())
+    {
+        qAppSize="-";
+    }
 }
 
 void WriteInfo::setLaunchTime(const QString &arg_text)
 {
     qLaunchTime=arg_text;
+    if(qLaunchTime.trimmed().isEmpty())
+    {
+        qLaunchTime="-";
+    }
 }
 
 void WriteInfo::setPlatform(const QString &arg_text)
 {
     qPlatform=arg_text;
+    if(qPlatform.trimmed().isEmpty())
+    {
+        qPlatform="-";
+    }
 }
 
 void WriteInfo::setTestDate(const QString &arg_text)
 {
     qTestDate=arg_text;
+    if(qTestDate.trimmed().isEmpty())
+    {
+        qTestDate="-";
+    }
 }
 
 void WriteInfo::setMobileBrand(const QString &arg_text)
 {
     qMobileBrand=arg_text;
+    if(qMobileBrand.trimmed().isEmpty())
+    {
+        qMobileBrand="-";
+    }
 }
 
 void WriteInfo::setMobileModel(const QString &arg_text)
 {
     qMobileModel=arg_text;
+    if(qMobileModel.trimmed().isEmpty())
+    {
+        qMobileModel="-";
+    }
 }
 
 void WriteInfo::setMobileVersion(const QString &arg_text)
 {
     qMobileVersion=arg_text;
+    if(qMobileVersion.trimmed().isEmpty())
+    {
+        qMobileVersion="-";
+    }
 }
 
 void WriteInfo::setMobileVmsize(const QString &arg_text)
 {
     qMobileVmsize=arg_text;
+    if(qMobileVmsize.trimmed().isEmpty())
+    {
+        qMobileVmsize="-";
+    }
 }
 
 void WriteInfo::setAppSize2(const QString &arg_text)
 {
     qAppSize2=arg_text;
+    if(qAppSize2.trimmed().isEmpty())
+    {
+        qAppSize2="-";
+    }
 }
 
 void WriteInfo::setFrames(const QString &arg_text)
 {
     qFrames=arg_text;
+    if(qFrames.trimmed().isEmpty())
+    {
+        qFrames="-";
+    }
 }
 
 void WriteInfo::setXlsxSaveDir(const QString &arg_text)
@@ -120,8 +172,6 @@ void WriteInfo::setXlsxSaveDir(const QString &arg_text)
 
 void WriteInfo::setStatiList(QStringList arg_list)
 {
-    qDebug()<<"aaaaaaaaaaaaaaaa";
-    qDebug()<<arg_list;
     qStatiList=arg_list;
 }
 
@@ -349,19 +399,19 @@ void WriteInfo::writeAppInfo(Document &arg_xlsxDoc,const QString &arg_tag)
     if(arg_tag=="behaviour")
     {
         strCell="C1";
-        writeStyle(arg_xlsxDoc,strCell,"",format);
+        writeStyle(arg_xlsxDoc,strCell,"-",format);
 
         strCell="C2";
-        writeStyle(arg_xlsxDoc,strCell,"",format);
+        writeStyle(arg_xlsxDoc,strCell,"-",format);
 
         strCell="C3";
         if(qFrames=="手机")
         {
-            writeStyle(arg_xlsxDoc,strCell,"",format);
+            writeStyle(arg_xlsxDoc,strCell,"-",format);
         }
         else
         {
-            writeStyle(arg_xlsxDoc,strCell,"",format);
+            writeStyle(arg_xlsxDoc,strCell,"-",format);
         }
 
 
@@ -371,12 +421,16 @@ void WriteInfo::writeAppInfo(Document &arg_xlsxDoc,const QString &arg_tag)
 
 
         strCell="F1";
-        writeStyle(arg_xlsxDoc,strCell,"",format);
+        writeStyle(arg_xlsxDoc,strCell,"-",format);
 
         strCell="F2";
-        writeStyle(arg_xlsxDoc,strCell,"",format);
+        writeStyle(arg_xlsxDoc,strCell,"-",format);
 
         strCell="F3";
+        if(qLaunchTime.trimmed().isEmpty())
+        {
+            qLaunchTime="-";
+        }
         writeStyle(arg_xlsxDoc,strCell,qLaunchTime,format);
 
         strCell="F4";
@@ -384,6 +438,14 @@ void WriteInfo::writeAppInfo(Document &arg_xlsxDoc,const QString &arg_tag)
     }
     else
     {
+        if(arg_tag=="performance")
+        {
+            if(gIsThread)
+            {
+                qAppChineseName=qAppChineseName+"("+gPackageThreadName+")";
+            }
+        }
+
         strCell="C1";
         writeStyle(arg_xlsxDoc,strCell,qAppChineseName,format);
 
@@ -393,11 +455,19 @@ void WriteInfo::writeAppInfo(Document &arg_xlsxDoc,const QString &arg_tag)
         strCell="C3";
         if(qFrames=="手机")
         {
-            writeStyle(arg_xlsxDoc,strCell,"",format);
+            writeStyle(arg_xlsxDoc,strCell,"-",format);
         }
         else
         {
-            writeStyle(arg_xlsxDoc,strCell,qFrames,format);
+            if(qFrames.trimmed().isEmpty())
+            {
+                writeStyle(arg_xlsxDoc,strCell,"-",format);
+            }
+            else
+            {
+                writeStyle(arg_xlsxDoc,strCell,qFrames,format);
+            }
+
         }
 
 
@@ -415,11 +485,19 @@ void WriteInfo::writeAppInfo(Document &arg_xlsxDoc,const QString &arg_tag)
         strCell="F3";
         if(qLaunchTime=="手机")
         {
-            writeStyle(arg_xlsxDoc,strCell,"",format);
+            writeStyle(arg_xlsxDoc,strCell,"-",format);
         }
         else
         {
-            writeStyle(arg_xlsxDoc,strCell,qLaunchTime,format);
+            if(qLaunchTime.trimmed().isEmpty())
+            {
+                writeStyle(arg_xlsxDoc,strCell,"-",format);
+            }
+            else
+            {
+                writeStyle(arg_xlsxDoc,strCell,qLaunchTime,format);
+            }
+
         }
 
 
@@ -439,18 +517,41 @@ void WriteInfo::writeMobileInfo_Monkey(Document &arg_xlsxDoc,const QString &arg_
     rowIndexStr="7";
 
     strCell="A"+rowIndexStr;
+    if(qMobileBrand.trimmed().isEmpty())
+    {
+        qMobileBrand="-";
+    }
     writeStyle(arg_xlsxDoc,strCell,qMobileBrand,format);
 
+
+
+
     strCell="B"+rowIndexStr;
+    if(qMobileModel.trimmed().isEmpty())
+    {
+        qMobileModel="-";
+    }
     writeStyle(arg_xlsxDoc,strCell,qMobileModel,format);
 
     strCell="C"+rowIndexStr;
+    if(qMobileVersion.trimmed().isEmpty())
+    {
+        qMobileVersion="-";
+    }
     writeStyle(arg_xlsxDoc,strCell,qMobileVersion,format);
 
     strCell="D"+rowIndexStr;
+    if(qMobileVmsize.trimmed().isEmpty())
+    {
+        qMobileVmsize="-";
+    }
     writeStyle(arg_xlsxDoc,strCell,qMobileVmsize,format);
 
     strCell="E"+rowIndexStr;
+    if(qMonkeyTime.trimmed().isEmpty())
+    {
+        qMonkeyTime="-";
+    }
     writeStyle(arg_xlsxDoc,strCell,qMonkeyTime,format);
 
     strCell="F"+rowIndexStr;
@@ -458,44 +559,140 @@ void WriteInfo::writeMobileInfo_Monkey(Document &arg_xlsxDoc,const QString &arg_
 
 
     //*****************20170606*****************//
+    QString tempValue;
     rowIndexStr="9";
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qMemList.at(0),format);
+    tempValue=qMemList.at(0);
+    tempValue=tempValue.trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
+
     strCell="C"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qMemList.at(1),format);
+    tempValue=qMemList.at(1);
+    tempValue=tempValue.trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
+
+
     strCell="E"+rowIndexStr;
+    tempValue=qMemList.at(2);
+    tempValue=tempValue.trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
     writeStyle(arg_xlsxDoc,strCell,qMemList.at(2),format);
 
     rowIndexStr="10";
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuList.at(0),format);
+    tempValue=qCpuList.at(0);
+    tempValue=tempValue.trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
+
     strCell="C"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuList.at(1),format);
+    tempValue=qCpuList.at(1);
+    tempValue=tempValue.trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
     strCell="E"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuList.at(2),format);
+    tempValue=qCpuList.at(2);
+    tempValue=tempValue.trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
 
     rowIndexStr="11";
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qBatteryList.at(0),format);
+    tempValue=qBatteryList.at(0);
+    tempValue=tempValue.trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
+
     strCell="C"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qBatteryList.at(1),format);
+    tempValue=qBatteryList.at(1);
+    tempValue=tempValue.trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
+
+
     strCell="E"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qBatteryList.at(2),format);
+    tempValue=qBatteryList.at(2);
+    tempValue=tempValue.trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
 
     rowIndexStr="12";
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuTempList.at(0),format);
+    tempValue=qCpuTempList.at(0);
+    tempValue=tempValue.trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
+
     strCell="C"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuTempList.at(1),format);
+    tempValue=qCpuTempList.at(1);
+    tempValue=tempValue.trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
     strCell="E"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuTempList.at(2),format);
+    tempValue=qCpuTempList.at(2);
+    tempValue=tempValue.trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
 
 
     rowIndexStr="13";
     strCell="B"+rowIndexStr;
     if(qAllWifi==0)
     {
-        writeStyle(arg_xlsxDoc,strCell,"",format);
+        writeStyle(arg_xlsxDoc,strCell,"-",format);
     }
     else
     {
@@ -505,7 +702,7 @@ void WriteInfo::writeMobileInfo_Monkey(Document &arg_xlsxDoc,const QString &arg_
     strCell="E"+rowIndexStr;
     if(qAllMobile==0)
     {
-        writeStyle(arg_xlsxDoc,strCell,"",format);
+        writeStyle(arg_xlsxDoc,strCell,"-",format);
     }
     else
     {
@@ -529,17 +726,33 @@ void WriteInfo::writeMobileInfo(Document &arg_xlsxDoc)
     rowIndexStr="7";
 
     strCell="A"+rowIndexStr;
+    if(qMobileBrand.trimmed().isEmpty())
+    {
+        qMobileBrand="-";
+    }
     writeStyle(arg_xlsxDoc,strCell,qMobileBrand,format);
 
     strCell="B"+rowIndexStr;
+    if(qMobileModel.trimmed().isEmpty())
+    {
+        qMobileModel="-";
+    }
     writeStyle(arg_xlsxDoc,strCell,qMobileModel,format);
 
     strCell="C"+rowIndexStr;
+    if(qMobileVersion.trimmed().isEmpty())
+    {
+        qMobileVersion="-";
+    }
     writeStyle(arg_xlsxDoc,strCell,qMobileVersion,format);
     //strCell="C"+rowIndexStr+":"+"D"+rowIndexStr;
     //mergeCells(arg_xlsxDoc,strCell,format);
 
     strCell="E"+rowIndexStr;
+    if(qMobileVmsize.trimmed().isEmpty())
+    {
+        qMobileVmsize="-";
+    }
     writeStyle(arg_xlsxDoc,strCell,qMobileVmsize,format);
     //strCell="E"+rowIndexStr+":"+"F"+rowIndexStr;
     //mergeCells(arg_xlsxDoc,strCell,format);
@@ -558,27 +771,60 @@ void WriteInfo::writeMobileInfo_Travel(Document &arg_xlsxDoc,const QString &arg_
     rowIndexStr="9";
 
     strCell="B"+rowIndexStr;
+    if(qTravelStartTime.trimmed().isEmpty())
+    {
+        qTravelStartTime="-";
+    }
     writeStyle(arg_xlsxDoc,strCell,qTravelStartTime,format);
 
 
     strCell="D"+rowIndexStr;
+    if(qTravelEndTime.trimmed().isEmpty())
+    {
+        qTravelEndTime="-";
+    }
     writeStyle(arg_xlsxDoc,strCell,qTravelEndTime,format);
 
     strCell="F"+rowIndexStr;
+    if(qTravelTime.trimmed().isEmpty())
+    {
+        qTravelTime="-";
+    }
     writeStyle(arg_xlsxDoc,strCell,qTravelTime,format);
 
     rowIndexStr="10";
     strCell="B"+rowIndexStr;
+    if(qCheckNumber.trimmed().isEmpty())
+    {
+        qCheckNumber="-";
+    }
     writeStyle(arg_xlsxDoc,strCell,qCheckNumber,format);
+
+
     strCell="D"+rowIndexStr;
+    if(qClickNumber.trimmed().isEmpty())
+    {
+        qClickNumber="-";
+    }
     writeStyle(arg_xlsxDoc,strCell,qClickNumber,format);
+
     strCell="F"+rowIndexStr;
+    if(qErrorNumber.trimmed().isEmpty())
+    {
+        qErrorNumber="-";
+    }
     writeStyle(arg_xlsxDoc,strCell,qErrorNumber,format);
 
 
     rowIndexStr="11";
     strCell="B"+rowIndexStr;
+    if(qTravelActivityNumber.trimmed().isEmpty())
+    {
+        qTravelActivityNumber="-";
+    }
     writeStyle(arg_xlsxDoc,strCell,qTravelActivityNumber,format);
+
+
     strCell="F"+rowIndexStr;
     writeStyle(arg_xlsxDoc,strCell,"查看详情",format);
     //strCell="B"+rowIndexStr+":"+"D"+rowIndexStr;
@@ -587,43 +833,122 @@ void WriteInfo::writeMobileInfo_Travel(Document &arg_xlsxDoc,const QString &arg_
 
     //*****************20170606*****************//
     rowIndexStr="13";
+    QString tempValue;
+
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qMemList.at(0),format);
+    tempValue=qMemList.at(0).trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
     strCell="C"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qMemList.at(1),format);
+    tempValue=qMemList.at(1).trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
+
     strCell="E"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qMemList.at(2),format);
+    tempValue=qMemList.at(2).trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
 
     rowIndexStr="14";
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuList.at(0),format);
+    tempValue=qCpuList.at(0).trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
+
     strCell="C"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuList.at(1),format);
+    tempValue=qCpuList.at(1).trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
     strCell="E"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuList.at(2),format);
+    tempValue=qCpuList.at(2).trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
 
     rowIndexStr="15";
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qBatteryList.at(0),format);
+    tempValue=qBatteryList.at(0).trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
     strCell="C"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qBatteryList.at(1),format);
+    tempValue=qBatteryList.at(1).trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue.at(1),format);
+
+
     strCell="E"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qBatteryList.at(2),format);
+    tempValue=qBatteryList.at(2).trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
 
     rowIndexStr="16";
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuTempList.at(0),format);
+    tempValue=qCpuTempList.at(0).trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
     strCell="C"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuTempList.at(1),format);
+    tempValue=qCpuTempList.at(1).trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
     strCell="E"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuTempList.at(2),format);
+    tempValue=qCpuTempList.at(2).trimmed();
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
 
 
     rowIndexStr="17";
     strCell="B"+rowIndexStr;
     if(qAllWifi==0)
     {
-        writeStyle(arg_xlsxDoc,strCell,"",format);
+        writeStyle(arg_xlsxDoc,strCell,"-",format);
     }
     else
     {
@@ -633,7 +958,7 @@ void WriteInfo::writeMobileInfo_Travel(Document &arg_xlsxDoc,const QString &arg_
     strCell="E"+rowIndexStr;
     if(qAllMobile==0)
     {
-        writeStyle(arg_xlsxDoc,strCell,"",format);
+        writeStyle(arg_xlsxDoc,strCell,"-",format);
     }
     else
     {
@@ -650,20 +975,36 @@ void WriteInfo::writeMobileInfo_behaviour(Document &arg_xlsxDoc,const QString &a
 {
     QString strCell;
     QString rowIndexStr;
+    QString tempValue;
 
     Format format=getNormalFormat();
     Format hyperlinkFormat=getHyperlinkFormat();
 
     rowIndexStr="9";
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,QString::number(qUrlTotalNum),format);
+    tempValue=QString::number(qUrlTotalNum);
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
 
     strCell="E"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,QString::number(qUrlSuccessNum),format);
+    tempValue=QString::number(qUrlSuccessNum);
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
 
     rowIndexStr="10";
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,QString::number(qUrlErrorNum),format);
+    tempValue=QString::number(qUrlErrorNum);
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
 
     strCell="E"+rowIndexStr;
     writeStyle(arg_xlsxDoc,strCell,"查看详情",format);
@@ -672,42 +1013,116 @@ void WriteInfo::writeMobileInfo_behaviour(Document &arg_xlsxDoc,const QString &a
     //*****************20170606*****************//
     rowIndexStr="12";
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qMemList.at(0),format);
+    tempValue=qMemList.at(0);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
     strCell="C"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qMemList.at(1),format);
+    tempValue=qMemList.at(1);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
+
     strCell="E"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qMemList.at(2),format);
+    tempValue=qMemList.at(2);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
 
 
     rowIndexStr="13";
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuList.at(0),format);
+    tempValue=qCpuList.at(0);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
     strCell="C"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuList.at(1),format);
+    tempValue=qCpuList.at(1);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
+
     strCell="E"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuList.at(2),format);
+    tempValue=qCpuList.at(2);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
 
     rowIndexStr="14";
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qBatteryList.at(0),format);
+    tempValue=qBatteryList.at(0);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
     strCell="C"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qBatteryList.at(1),format);
+    tempValue=qBatteryList.at(1);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
     strCell="E"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qBatteryList.at(2),format);
+    tempValue=qBatteryList.at(2);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
 
     rowIndexStr="15";
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuTempList.at(0),format);
+    tempValue=qCpuTempList.at(0);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
     strCell="C"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuTempList.at(1),format);
+    tempValue=qCpuTempList.at(1);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
     strCell="E"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuTempList.at(2),format);
+    tempValue=qCpuTempList.at(2);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
 
     rowIndexStr="16";
     strCell="B"+rowIndexStr;
     if(qAllWifi==0)
     {
-        writeStyle(arg_xlsxDoc,strCell,"",format);
+        writeStyle(arg_xlsxDoc,strCell,"-",format);
     }
     else
     {
@@ -717,7 +1132,7 @@ void WriteInfo::writeMobileInfo_behaviour(Document &arg_xlsxDoc,const QString &a
     strCell="E"+rowIndexStr;
     if(qAllMobile==0)
     {
-        writeStyle(arg_xlsxDoc,strCell,"",format);
+        writeStyle(arg_xlsxDoc,strCell,"-",format);
     }
     else
     {
@@ -763,6 +1178,20 @@ Format WriteInfo::getHyperlinkFormat()
     QColor color(220,230,241,255);
     Format format;
     format.setFontColor(Qt::red);
+    format.setHorizontalAlignment(Format::AlignHCenter);
+    format.setVerticalAlignment(Format::AlignVCenter);
+    format.setPatternBackgroundColor(color);
+    format.setBorderStyle(Format::BorderThin);
+    format.setFontUnderline(Format::FontUnderlineSingle);
+    format.setFontName("Verdana");
+    return format;
+}
+
+Format WriteInfo::getBlueformat()
+{
+    QColor color(220,230,241,255);
+    Format format;
+    format.setFontColor(Qt::blue);
     format.setHorizontalAlignment(Format::AlignHCenter);
     format.setVerticalAlignment(Format::AlignVCenter);
     format.setPatternBackgroundColor(color);
@@ -854,6 +1283,31 @@ void WriteInfo::writeUrl(Document &arg_xlsx)
     //behaviour_pv_4001.xml&×&cv=6.6.0=5.8.0&sim=0=;
     //behaviour_pv_4001.xml&×&cv=6.6.0=5.8.0&sim=0=1;
     //behaviour_pv_4001.xml&×&cv=6.6.0=5.8.0&sim==1;
+
+    y=y+5;
+    if(gxmlNum.count()==0)
+    {
+
+    }
+    else
+    {
+        Format blue=getBlueformat();
+        arg_xlsx.write("A"+QString::number(y),"文件名",blue);
+        arg_xlsx.write("B"+QString::number(y),"次数",blue);
+        y++;
+        int dnum;
+        QString tempValue;
+        QStringList keyList=gxmlNum.keys();
+        for(QString var:keyList)
+        {
+            dnum=gxmlNum.value(var);
+            tempValue=QString::number(dnum);
+
+            arg_xlsx.write("A"+QString::number(y),var);
+            arg_xlsx.write("B"+QString::number(y),tempValue);
+            y++;
+        }
+    }
 }
 
 //********************20170606***************//
@@ -888,46 +1342,120 @@ void WriteInfo::writeMobileInfo_Interface(Document &arg_xlsxDoc)
 {
     QString strCell;
     QString rowIndexStr;
+    QString tempValue;
 
     Format format=getNormalFormat();
 
     rowIndexStr="9";
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qMemList.at(0),format);
+    tempValue=qMemList.at(0);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
     strCell="C"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qMemList.at(1),format);
+    tempValue=qMemList.at(1);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
     strCell="E"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qMemList.at(2),format);
+    tempValue=qMemList.at(2);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
 
     rowIndexStr="10";
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuList.at(0),format);
+    tempValue=qCpuList.at(0);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
     strCell="C"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuList.at(1),format);
+    tempValue=qCpuList.at(1);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
     strCell="E"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuList.at(2),format);
+    tempValue=qCpuList.at(2);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
 
     rowIndexStr="11";
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qBatteryList.at(0),format);
+    tempValue=qBatteryList.at(0);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
     strCell="C"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qBatteryList.at(1),format);
+    tempValue=qBatteryList.at(1);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
     strCell="E"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qBatteryList.at(2),format);
+    tempValue=qBatteryList.at(2);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
 
     rowIndexStr="12";
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuTempList.at(0),format);
+    tempValue=qCpuTempList.at(0);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
     strCell="C"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuTempList.at(1),format);
+    tempValue=qCpuTempList.at(1);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
     strCell="E"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,qCpuTempList.at(2),format);
+    tempValue=qCpuTempList.at(2);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
 
     rowIndexStr="13";
     strCell="B"+rowIndexStr;
     if(qAllWifi==0)
     {
-        writeStyle(arg_xlsxDoc,strCell,"",format);
+        writeStyle(arg_xlsxDoc,strCell,"-",format);
     }
     else
     {
@@ -937,7 +1465,7 @@ void WriteInfo::writeMobileInfo_Interface(Document &arg_xlsxDoc)
     strCell="E"+rowIndexStr;
     if(qAllMobile==0)
     {
-        writeStyle(arg_xlsxDoc,strCell,"",format);
+        writeStyle(arg_xlsxDoc,strCell,"-",format);
     }
     else
     {
@@ -947,64 +1475,201 @@ void WriteInfo::writeMobileInfo_Interface(Document &arg_xlsxDoc)
 
     rowIndexStr="15";
     strCell="A"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,QString::number(gInterfaceTotalNum),format);
+    tempValue=QString::number(gInterfaceTotalNum);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,QString::number(gInterfaceAveReponseTime),format);
+    tempValue=QString::number(gInterfaceAveReponseTime);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
     strCell="C"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,QString::number(gInterfaceMinTime),format);
+    tempValue=QString::number(gInterfaceMinTime);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
     strCell="D"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,QString::number(gInterfaceMaxTime),format);
+    tempValue=QString::number(gInterfaceMaxTime);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
     strCell="E"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,QString::number(gInterfaceTimeWarning),format);
+    tempValue=QString::number(gInterfaceTimeWarning);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
     strCell="F"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,QString::number(gInterfaceTimeOutRate),format);
+    tempValue=QString::number(gInterfaceTimeOutRate);
+    if(tempValue.trimmed().isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
 }
 
 void WriteInfo::writeMobileInfo_Performance(Document &arg_xlsxDoc)
 {
     QString strCell;
     QString rowIndexStr;
+    QString tempValue;
 
     Format format=getNormalFormat();
 
     rowIndexStr="9";
+    strCell="A"+rowIndexStr;
+    if(gMemOption==0)
+    {
+        writeStyle(arg_xlsxDoc,strCell,"mem_total(M)",format);
+    }
+    else if(gMemOption==1)
+    {
+        writeStyle(arg_xlsxDoc,strCell,"mem_heap(M)",format);
+    }
+
+
+    rowIndexStr="9";
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,QString::number(memMax,10,2),format);
+    tempValue=QString::number(memMax,10,2);
+    if(tempValue.isEmpty())
+    {
+        writeStyle(arg_xlsxDoc,strCell,"-",format);
+    }
+    else
+    {
+        writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+    }
+
+
+
     strCell="C"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,QString::number(memMin,10,2),format);
+    tempValue=QString::number(memMin,10,2);
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
     strCell="E"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,QString::number(gMemAve,10,2),format);
+    tempValue=QString::number(gMemAve,10,2);
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
 
     rowIndexStr="10";
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,QString::number(cpuMax,10,2),format);
+    tempValue=QString::number(cpuMax,10,2);
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
+
+
     strCell="C"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,QString::number(cpuMin,10,2),format);
+    tempValue=QString::number(cpuMin,10,2);
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
     strCell="E"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,QString::number(gCpuAve,10,2),format);
+    tempValue=QString::number(gCpuAve,10,2);
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
 
     rowIndexStr="11";
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,QString::number(batteryMax,10,2),format);
+    tempValue=QString::number(batteryMax,10,2);
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
     strCell="C"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,QString::number(batteryMin,10,2),format);
+    tempValue=QString::number(batteryMin,10,2);
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
+
     strCell="E"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,QString::number(gBatteryAve,10,2),format);
+    tempValue=QString::number(gBatteryAve,10,2);
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
 
     rowIndexStr="12";
     strCell="B"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,QString::number(cpuTempMax,10,2),format);
+    tempValue=QString::number(cpuTempMax,10,2);
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
+
     strCell="C"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,QString::number(cpuTempMin,10,2),format);
+    tempValue=QString::number(cpuTempMin,10,2);
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+
     strCell="E"+rowIndexStr;
-    writeStyle(arg_xlsxDoc,strCell,QString::number(gCpuTempAve,10,2),format);
+    tempValue=QString::number(gCpuTempAve,10,2);
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
 
 
     rowIndexStr="13";
     strCell="B"+rowIndexStr;
     if(gPerformanceWifi==0)
     {
-        writeStyle(arg_xlsxDoc,strCell,"",format);
+        writeStyle(arg_xlsxDoc,strCell,"-",format);
     }
     else
     {
@@ -1014,7 +1679,7 @@ void WriteInfo::writeMobileInfo_Performance(Document &arg_xlsxDoc)
     strCell="E"+rowIndexStr;
     if(gPerformanceMobile==0)
     {
-        writeStyle(arg_xlsxDoc,strCell,"",format);
+        writeStyle(arg_xlsxDoc,strCell,"-",format);
     }
     else
     {

@@ -42,12 +42,6 @@ InterfaceWidget::InterfaceWidget(QWidget *parent) :
                                        "QListView::item:selected{background:#e4e4e4;color:#000000;padding-left:8px;}"
                                        "QListView::item{height:30px;color:#4d4d4d}");
 
-    ui->packageCombo->setStyleSheet("QComboBox QAbstractItemView::item{height:25px;}"
-                                    "QComboBox {border: 1px solid #e4e4e4;  border-radius: 3px;padding: 1px 2px 1px 2px;min-width: 9em;}"
-                                    "QComboBox::drop-down{ width: 40px; border-left-style: none;border-top-right-radius: 3px;  border-bottom-right-radius: 3px;}"
-                                    "QComboBox::down-arrow{image:url(:/arrow.png);}");
-    ui->packageCombo->setView(new QListView());
-
     ui->equipListView->verticalScrollBar()->setStyleSheet("QScrollBar:vertical {border:0px solid grey;width: 10px;}"
                                                           "QScrollBar::handle:vertical {background: grey;border: 3px solid grey;border-radius:5px;min-height: 20px;}");
     ui->packageListView->verticalScrollBar()->setStyleSheet("QScrollBar:vertical {border:0px solid grey;width: 10px;}"
@@ -248,6 +242,7 @@ void InterfaceWidget::on_startBtn_clicked()
         {
             assist=new AssistMeasure();
             assist->deviceModel=ExeCmd::GetDeviceModel( deviceName )+" + "+deviceName;
+            assist->packageName=this->packageName;
 
             assist->isCpuTempCheck=this->isCpuTempCheck;
             assist->isBatteryCheck=this->isBatteryCheck;
@@ -273,6 +268,7 @@ void InterfaceWidget::on_startBtn_clicked()
             assist->StartMeasure();
         }
 
+        gInterfaceStartTime=Helper::getTime2("yyyy-MM-dd_hh:mm:ss");
         qStartTime=Helper::getTime2("yyyyMMdd_hhmmss");
         fileNameForReport=gWorkSpace+QDir::separator() + "report" + QDir::separator()+ "Interface_" + deviceName + "_" + qStartTime;
         Helper::createPath(fileNameForReport);
@@ -576,7 +572,10 @@ void InterfaceWidget::RecieveDevicesSigal(QStringList devicesList)
     int row=equipList.indexOf(currentDevice);
     if(row==-1)
     {
-        deviceName="";
+        //没有选中设备时，去掉第一项设备名称的显示，直接显示“第三方应用”
+        packageModel->setStringList( QStringList());
+        ui->packageListView->setModel(packageModel);
+        deviceName="";//当前没有选中的设备时，设备名字清空，否则在点击设备时会出问题；
     }
 
     QModelIndex index=equipModel->index(row);
@@ -601,12 +600,45 @@ void InterfaceWidget::on_equipListView_clicked(const QModelIndex &index)
         qDebug()<<deviceName;
         if(deviceName!="")
         {
-            on_packageCombo_currentIndexChanged(ui->packageCombo->currentText());
+            addPackagesList();
+            on_packageLineEdit_textChanged("");
         }
         else
-            ui->packageCombo->setCurrentIndex(0);
-
+        {
+            //没有选中设备时，去掉第一项设备名称的显示，直接显示“第三方应用”
+            packageModel->setStringList( QStringList());
+            ui->packageListView->setModel(packageModel);
+        }
     }
+}
+
+void InterfaceWidget::addPackagesList()
+{
+    packageList.clear();
+
+    QString cmdStrThirdPackages="adb -s "+deviceName+" shell pm list packages -3\n";
+    QProcess p(0);
+    p.setReadChannelMode(QProcess::MergedChannels);
+    p.start(cmdStrThirdPackages);
+    p.waitForStarted();
+    while(p.waitForFinished()==false)
+    {
+    }
+
+    while(p.canReadLine())
+    {
+        QString mStr=p.readLine();
+        if(mStr.contains("package:"))
+        {
+            QStringList mSplitResult=mStr.split("package:");
+            packageList.append(mSplitResult.at(1).trimmed());
+        }
+    }
+
+    p.close();
+    qSort(packageList.begin(),packageList.end());
+    packageModel->setStringList(packageList);
+    ui->packageListView->setModel(packageModel);
 }
 
 void InterfaceWidget::ShowInterfaceData(interDataClass tempData)
@@ -811,7 +843,8 @@ void InterfaceWidget::on_equipBtn_clicked()
     qDebug()<<deviceName;
     if(deviceName!="")
     {
-        on_packageCombo_currentIndexChanged(ui->packageCombo->currentText());
+        addPackagesList();
+        on_packageLineEdit_textChanged("");
     }
 }
 
@@ -819,64 +852,7 @@ void InterfaceWidget::on_packageListView_clicked(const QModelIndex &index)
 {
     QModelIndex indexPackage=ui->packageListView->currentIndex();
     packageName=indexPackage.data().toString();
-}
-
-void InterfaceWidget::on_packageCombo_currentIndexChanged(const QString &arg1)
-{
-    if(numForPackageIndexChange<3)
-        numForPackageIndexChange++;
-    if(deviceName=="")
-    {
-        if(numForPackageIndexChange!=1)
-            QMessageBox::information(this,tr("提示"),tr("请选择一个设备"));
-        return ;
-    }
-
-    QString cmdStrAllPackages="adb -s "+deviceName+" shell pm list packages\n";
-    QString cmdStrThirdPackages="adb -s "+deviceName+" shell pm list packages -3\n";
-    QString cmdStrSystemPackages="adb -s "+deviceName+" shell pm list packages -s\n";
-
-    QProcess p(0);
-    p.setReadChannelMode(QProcess::MergedChannels);
-
-    QString mStr;
-    QStringList mSplitResult;
-
-    packageList.clear();
-    packageModel ->setStringList(packageList);
-
-    switch(ui->packageCombo->currentIndex())
-    {
-    case 1:
-        p.start(cmdStrAllPackages);
-        break;
-    case 0:
-        p.start(cmdStrThirdPackages);
-        break;
-    case 2:
-        p.start(cmdStrSystemPackages);
-        break;
-    default:
-        break;
-    }
-    p.waitForStarted();
-    while(p.waitForFinished()==false)
-    {
-    }
-
-    while(p.canReadLine())
-    {
-        mStr=p.readLine();
-        if(mStr.contains("package:"))
-        {
-            mSplitResult=mStr.split("package:");
-            packageList.append(mSplitResult.at(1).trimmed());
-            packageModel->setStringList(packageList);
-        }
-    }
-
-    p.close();
-    ui->packageListView->setModel(packageModel);
+    ui->packageLineEdit->setText(packageName);
 }
 
 void InterfaceWidget::RecieveMemOverThresSignal(bool flag,QString deviceName)
@@ -1359,4 +1335,27 @@ void InterfaceWidget::on_interDataTable_itemChanged(QTableWidgetItem *item)
         ui->filterAfterLineEdit->setEnabled(true);
     else
         ui->filterAfterLineEdit->setEnabled(false);
+}
+
+void InterfaceWidget::on_packageLineEdit_textChanged(const QString &arg1)
+{
+    QString text=ui->packageLineEdit->text();
+    bool isFind=false;
+    for(int i=0;i<packageList.count();i++)
+    {
+        if(packageList.at(i).startsWith(text))
+        {
+            QModelIndex index=ui->packageListView->model()->index(i,0);
+            ui->packageListView->setCurrentIndex(index);
+            packageName=ui->packageListView->currentIndex().data().toString();//有匹配项时，包名直接等于匹配项
+            isFind=true;
+            break;
+        }
+    }
+    if(!isFind)//没有匹配项时清除选项
+    {
+        QModelIndex index=ui->packageListView->model()->index(-1,0);
+        ui->packageListView->setCurrentIndex(index);
+        packageName=ui->packageLineEdit->text();
+    }
 }

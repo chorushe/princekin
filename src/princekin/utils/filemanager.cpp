@@ -1,8 +1,6 @@
 #include "filemanager.h"
 
 
-
-
 QString glSpace;
 QString space1=" ";
 QString space4="    ";
@@ -300,6 +298,11 @@ void FileManager::parseTempScript(QStringList arg_tempScriptList)
         else if(mStr.trimmed().startsWith("checkStatPoint "))
         {
             checkStatPoint(mStr);
+        }
+
+        else if(mStr.trimmed().startsWith("clickxy "))
+        {
+            clickxy(mStr.trimmed());
         }
 
 
@@ -740,6 +743,32 @@ void FileManager::parseTempScript(QStringList arg_tempScriptList)
         }
 
 
+        else if(mStr.trimmed().startsWith("checkId "))
+        {
+            createString("checkId",mStr,strCheckOK,space1);
+        }
+        else if(mStr.trimmed().startsWith("checkId="))
+        {
+            createString("checkId",mStr,strCheckOK,equalSign);
+        }
+        else if(mStr.trimmed().startsWith("checkId_notExit "))
+        {
+            createStringNotExit("checkId_notExit",mStr,space1);
+        }
+        else if(mStr.trimmed().startsWith("checkId_notExit="))
+        {
+            createStringNotExit("checkId_notExit",mStr,equalSign);
+        }
+
+
+
+
+
+
+
+
+
+
 
 
         else if(mStr.trimmed().startsWith("locateClassName "))
@@ -1061,6 +1090,93 @@ void FileManager::parseTempScript(QStringList arg_tempScriptList)
         }
 
 
+        else if(mStr.trimmed().startsWith("doublePause "))
+        {
+            doublePause("doublePause",mStr,strOK,space1);
+        }
+        else if(mStr.trimmed().startsWith("doublePause="))
+        {
+            doublePause("doublePause",mStr,strOK,equalSign);
+        }
+        else if(mStr.trimmed().startsWith("doublePause_notExit "))
+        {
+            doublePauseNotExit("doublePause_notExit",mStr,space1);
+        }
+        else if(mStr.trimmed().startsWith("doublePause_notExit="))
+        {
+            doublePauseNotExit("doublePause_notExit",mStr,equalSign);
+        }
+
+
+
+        else if(mStr.trimmed().startsWith("doublePlay "))
+        {
+            doublePlay("doublePlay",mStr,strOK,space1);
+        }
+        else if(mStr.trimmed().startsWith("doublePlay="))
+        {
+            doublePlay("doublePlay",mStr,strOK,equalSign);
+        }
+        else if(mStr.trimmed().startsWith("doublePlay_notExit "))
+        {
+            doublePlayNotExit("doublePlay_notExit",mStr,space1);
+        }
+        else if(mStr.trimmed().startsWith("doublePlay_notExit="))
+        {
+            doublePlayNotExit("doublePlay_notExit",mStr,equalSign);
+        }
+
+
+
+        else if(mStr.trimmed().startsWith("doubleClick "))
+        {
+            doubleClick("doubleClick",mStr,strOK,space1);
+        }
+        else if(mStr.trimmed().startsWith("doubleClick="))
+        {
+            doubleClick("doubleClick",mStr,strOK,equalSign);
+        }
+        else if(mStr.trimmed().startsWith("doubleClick_notExit "))
+        {
+            doubleClickNotExit("doubleClick_notExit",mStr,space1);
+        }
+        else if(mStr.trimmed().startsWith("doubleClick_notExit="))
+        {
+            doubleClickNotExit("doubleClick_notExit",mStr,equalSign);
+        }
+
+
+
+
+
+        else if(mStr.trimmed().startsWith("killApp "))
+        {
+            killApp("killApp",mStr,strExecOK,space1);
+        }
+        else if(mStr.trimmed().startsWith("killApp="))
+        {
+            killApp("killApp",mStr,strExecOK,equalSign);
+        }
+
+
+        else if(mStr.trimmed().startsWith("clearData "))
+        {
+            clearData("clearData",mStr,strExecOK,space1);
+        }
+        else if(mStr.trimmed().startsWith("clearData="))
+        {
+            clearData("clearData",mStr,strExecOK,equalSign);
+        }
+
+
+
+
+
+
+
+
+
+
         else if(mStr.trimmed()=="setHorizontal")
         {
             createNoParameterNotExit("setHorizontal");
@@ -1109,6 +1225,8 @@ void FileManager::parseTempScript(QStringList arg_tempScriptList)
         {
             sleep(mStr,equalSign);
         }
+
+
         else
         {
             otherLine(mStr);
@@ -1816,6 +1934,8 @@ void FileManager::unOrInstallOrStart(const QString &arg_funName,const QString &a
         }
     }
 }
+
+
 /*
 void FileManager::startApp(const QString &arg_funName,const QString &arg_line,const QString &arg_isok,const QString &arg_fgf)
 {
@@ -2197,7 +2317,7 @@ QStringList FileManager::convertScriptToTemp(const QString &arg_scriptFile)
     QStringList mResultList;
 
     QTextStream mStream(&mFile);
-    mStream.setCodec(tc);//打开非录制模块以为的模块再打开录制模块编译时，由于编码方式改变了，导致读到的汉字是乱码，所以这里小范围规定编码方式 hechang 20170724
+    mStream.setCodec(tc);
     while(!mStream.atEnd())
     {
         mLine=mStream.readLine();
@@ -2223,14 +2343,14 @@ QStringList FileManager::parseInvoke(const QString & arg_line)//arg_line:invoke=
     QString mInvokeFileName;
     QStringList mList;
 
-    mList=arg_line.split("=");//这里一步有用吗？如果没错就清空了，如果有错编译不会通过，下面写的注释就只是提示。
+    mList=arg_line.split("=");
     mInvokeFileName=mList.at(1).trimmed();
 
     mStr=gInvokeDir + QDir::separator() + mInvokeFileName + ".txt";
     QFile mFile(mStr);
     if(!mFile.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        mStr="//" + arg_line + "调用失败";//这里的意图是如果调用invoke有错还能继续编译吗？如果是，见上一句注释
+        mStr="//" + arg_line + "调用失败";
         mList.append(mStr);
         return mList;
     }
@@ -2869,4 +2989,612 @@ void FileManager::checkStatPoint(const QString &arg_str)
 {
     QString mStr=glSpace + "checkStatPoint" + "(" + "\"" + arg_str + "\"" +");";
     *stream<<mStr<<endl;
+}
+
+
+void FileManager::doublePause(const QString &arg_funName,const QString &arg_line,const QString &arg_isok,const QString &arg_fgf)
+{
+    int mCount;
+    QString mStr;
+    QStringList mListResult;
+
+    mListResult=getSplist(arg_line,arg_fgf);
+    mCount=mListResult.count();
+
+    if(arg_fgf==space1)
+    {
+        if(mCount==2)
+        {
+            mStr=glSpace + arg_funName + "(" + "\"" + mListResult.at(1) + "\"" +");";
+            *stream<<mStr<<endl;
+            writeOK(arg_isok);
+        }
+        else if(mCount==3)
+        {
+            mStr=glSpace + arg_funName + "(" + "\"" + mListResult.at(1) + "\"" + "," + mListResult.at(2) +");";
+            *stream<<mStr<<endl;
+            writeOK(arg_isok);
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+    else if(arg_fgf==equalSign)
+    {
+        if(mCount==2)
+        {
+            QString mVarName;
+            QString mVarValue;
+            mVarName=mListResult.at(1);
+            if(glHashVar.contains(mVarName))
+            {
+                mVarValue=glHashVar.value(mVarName).trimmed();
+                mStr=glSpace + arg_funName + "(" + "\"" + mVarValue + "\"" +");";
+                *stream<<mStr<<endl;
+                writeOK(arg_isok);
+            }
+            else
+            {
+                mStr=glSpace + arg_line;
+                *stream<<mStr<<endl;
+            }
+        }
+        else if(mCount==3)
+        {
+            QString mVarName1;
+            QString mVarName2;
+            QString mVarValue1;
+            QString mVarValue2;
+
+            mVarName1=mListResult.at(1);
+            mVarName2=mListResult.at(2);
+            if(!glHashVar.contains(mVarName1) || !glHashVar.contains(mVarName2))
+            {
+                mStr=glSpace + arg_line;
+                *stream<<mStr<<endl;
+            }
+            else
+            {
+                mVarValue1=glHashVar.value(mVarName1).trimmed();
+                mVarValue2=glHashVar.value(mVarName2).trimmed();
+
+                mStr=glSpace + arg_funName + "(" + "\"" + mVarValue1 + "\"" + "," + mVarValue2 +");";
+                *stream<<mStr<<endl;
+                writeOK(arg_isok);
+            }
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+
+
+
+}
+
+
+void FileManager::doublePauseNotExit(const QString &arg_funName,const QString &arg_line,const QString &arg_fgf)
+{
+    int mCount;
+    QString mStr;
+    QStringList mListResult;
+
+    mListResult=getSplist(arg_line,arg_fgf);
+    mCount=mListResult.count();
+
+    if(arg_fgf==space1)
+    {
+        if(mCount==2)
+        {
+            mStr=glSpace + arg_funName + "(" + "\"" + mListResult.at(1) + "\"" +");";
+            *stream<<mStr<<endl;
+        }
+        else if(mCount==3)
+        {
+            mStr=glSpace + arg_funName + "(" + "\"" + mListResult.at(1) + "\"" + "," + mListResult.at(2) +");";
+            *stream<<mStr<<endl;
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+    else if(arg_fgf==equalSign)
+    {
+        if(mCount==2)
+        {
+            QString mVarName;
+            QString mVarValue;
+            mVarName=mListResult.at(1);
+            if(glHashVar.contains(mVarName))
+            {
+                mVarValue=glHashVar.value(mVarName).trimmed();
+                mStr=glSpace + arg_funName + "(" + "\"" + mVarValue + "\"" +");";
+                *stream<<mStr<<endl;
+            }
+            else
+            {
+                mStr=glSpace + arg_line;
+                *stream<<mStr<<endl;
+            }
+        }
+        else if(mCount==3)
+        {
+            QString mVarName1;
+            QString mVarName2;
+            QString mVarValue1;
+            QString mVarValue2;
+
+            mVarName1=mListResult.at(1);
+            mVarName2=mListResult.at(2);
+            if(!glHashVar.contains(mVarName1) || !glHashVar.contains(mVarName2))
+            {
+                mStr=glSpace + arg_line;
+                *stream<<mStr<<endl;
+            }
+            else
+            {
+                mVarValue1=glHashVar.value(mVarName1).trimmed();
+                mVarValue2=glHashVar.value(mVarName2).trimmed();
+
+                mStr=glSpace + arg_funName + "(" + "\"" + mVarValue1 + "\"" + "," + mVarValue2 +");";
+                *stream<<mStr<<endl;
+            }
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+}
+
+
+
+void FileManager::doublePlay(const QString &arg_funName,const QString &arg_line,const QString &arg_isok,const QString &arg_fgf)
+{
+    int mCount;
+    QString mStr;
+    QStringList mListResult;
+
+    mListResult=getSplist(arg_line,arg_fgf);
+    mCount=mListResult.count();
+
+    if(arg_fgf==space1)
+    {
+        if(mCount==2)
+        {
+            mStr=glSpace + arg_funName + "(" + "\"" + mListResult.at(1) + "\"" +");";
+            *stream<<mStr<<endl;
+            writeOK(arg_isok);
+        }
+        else if(mCount==3)
+        {
+            mStr=glSpace + arg_funName + "(" + "\"" + mListResult.at(1) + "\"" + "," + mListResult.at(2) +");";
+            *stream<<mStr<<endl;
+            writeOK(arg_isok);
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+    else if(arg_fgf==equalSign)
+    {
+        if(mCount==2)
+        {
+            QString mVarName;
+            QString mVarValue;
+            mVarName=mListResult.at(1);
+            if(glHashVar.contains(mVarName))
+            {
+                mVarValue=glHashVar.value(mVarName).trimmed();
+                mStr=glSpace + arg_funName + "(" + "\"" + mVarValue + "\"" +");";
+                *stream<<mStr<<endl;
+                writeOK(arg_isok);
+            }
+            else
+            {
+                mStr=glSpace + arg_line;
+                *stream<<mStr<<endl;
+            }
+        }
+        else if(mCount==3)
+        {
+            QString mVarName1;
+            QString mVarName2;
+            QString mVarValue1;
+            QString mVarValue2;
+
+            mVarName1=mListResult.at(1);
+            mVarName2=mListResult.at(2);
+            if(!glHashVar.contains(mVarName1) || !glHashVar.contains(mVarName2))
+            {
+                mStr=glSpace + arg_line;
+                *stream<<mStr<<endl;
+            }
+            else
+            {
+                mVarValue1=glHashVar.value(mVarName1).trimmed();
+                mVarValue2=glHashVar.value(mVarName2).trimmed();
+
+                mStr=glSpace + arg_funName + "(" + "\"" + mVarValue1 + "\"" + "," + mVarValue2 +");";
+                *stream<<mStr<<endl;
+                writeOK(arg_isok);
+            }
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+
+
+
+}
+
+
+void FileManager::doublePlayNotExit(const QString &arg_funName,const QString &arg_line,const QString &arg_fgf)
+{
+    int mCount;
+    QString mStr;
+    QStringList mListResult;
+
+    mListResult=getSplist(arg_line,arg_fgf);
+    mCount=mListResult.count();
+
+    if(arg_fgf==space1)
+    {
+        if(mCount==2)
+        {
+            mStr=glSpace + arg_funName + "(" + "\"" + mListResult.at(1) + "\"" +");";
+            *stream<<mStr<<endl;
+        }
+        else if(mCount==3)
+        {
+            mStr=glSpace + arg_funName + "(" + "\"" + mListResult.at(1) + "\"" + "," + mListResult.at(2) +");";
+            *stream<<mStr<<endl;
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+    else if(arg_fgf==equalSign)
+    {
+        if(mCount==2)
+        {
+            QString mVarName;
+            QString mVarValue;
+            mVarName=mListResult.at(1);
+            if(glHashVar.contains(mVarName))
+            {
+                mVarValue=glHashVar.value(mVarName).trimmed();
+                mStr=glSpace + arg_funName + "(" + "\"" + mVarValue + "\"" +");";
+                *stream<<mStr<<endl;
+            }
+            else
+            {
+                mStr=glSpace + arg_line;
+                *stream<<mStr<<endl;
+            }
+        }
+        else if(mCount==3)
+        {
+            QString mVarName1;
+            QString mVarName2;
+            QString mVarValue1;
+            QString mVarValue2;
+
+            mVarName1=mListResult.at(1);
+            mVarName2=mListResult.at(2);
+            if(!glHashVar.contains(mVarName1) || !glHashVar.contains(mVarName2))
+            {
+                mStr=glSpace + arg_line;
+                *stream<<mStr<<endl;
+            }
+            else
+            {
+                mVarValue1=glHashVar.value(mVarName1).trimmed();
+                mVarValue2=glHashVar.value(mVarName2).trimmed();
+
+                mStr=glSpace + arg_funName + "(" + "\"" + mVarValue1 + "\"" + "," + mVarValue2 +");";
+                *stream<<mStr<<endl;
+            }
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+}
+
+void FileManager::killApp(const QString &arg_funName,const QString &arg_line,const QString &arg_isok,const QString &arg_fgf)
+{
+    int mCount;
+    QString mStr;
+    QStringList mListResult;
+
+    mListResult=getSplist(arg_line,arg_fgf);
+    mCount=mListResult.count();
+    if(arg_fgf==space1)
+    {
+        if(mCount==2)
+        {
+            mStr=glSpace + arg_funName + "(" + "\"" + mListResult.at(1) + "\"" +");";
+            *stream<<mStr<<endl;
+            writeOK(arg_isok);
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+    else if(arg_fgf==equalSign)
+    {
+        if(mCount==2)
+        {
+            QString mVarName;
+            QString mVarValue;
+            mVarName=mListResult.at(1);
+            if(glHashVar.contains(mVarName))
+            {
+                mVarValue=glHashVar.value(mVarName).trimmed();
+                mStr=glSpace + arg_funName + "(" + "\"" + mVarValue + "\"" +");";
+                *stream<<mStr<<endl;
+                writeOK(arg_isok);
+            }
+            else
+            {
+                mStr=glSpace + arg_line;
+                *stream<<mStr<<endl;
+            }
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+}
+
+void FileManager::clearData(const QString &arg_funName,const QString &arg_line,const QString &arg_isok,const QString &arg_fgf)
+{
+    int mCount;
+    QString mStr;
+    QStringList mListResult;
+
+    mListResult=getSplist(arg_line,arg_fgf);
+    mCount=mListResult.count();
+    if(arg_fgf==space1)
+    {
+        if(mCount==2)
+        {
+            mStr=glSpace + arg_funName + "(" + "\"" + mListResult.at(1) + "\"" +");";
+            *stream<<mStr<<endl;
+            writeOK(arg_isok);
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+    else if(arg_fgf==equalSign)
+    {
+        if(mCount==2)
+        {
+            QString mVarName;
+            QString mVarValue;
+            mVarName=mListResult.at(1);
+            if(glHashVar.contains(mVarName))
+            {
+                mVarValue=glHashVar.value(mVarName).trimmed();
+                mStr=glSpace + arg_funName + "(" + "\"" + mVarValue + "\"" +");";
+                *stream<<mStr<<endl;
+                writeOK(arg_isok);
+            }
+            else
+            {
+                mStr=glSpace + arg_line;
+                *stream<<mStr<<endl;
+            }
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+}
+
+
+void FileManager::doubleClick(const QString &arg_funName,const QString &arg_line,const QString &arg_isok,const QString &arg_fgf)
+{
+    int mCount;
+    QString mStr;
+    QStringList mListResult;
+
+    mListResult=getSplist(arg_line,arg_fgf);
+    mCount=mListResult.count();
+
+    if(arg_fgf==space1)
+    {
+        if(mCount==2)
+        {
+            mStr=glSpace + arg_funName + "(" + "\"" + mListResult.at(1) + "\"" +");";
+            *stream<<mStr<<endl;
+            writeOK(arg_isok);
+        }
+        else if(mCount==3)
+        {
+            mStr=glSpace + arg_funName + "(" + "\"" + mListResult.at(1) + "\"" + "," + mListResult.at(2) +");";
+            *stream<<mStr<<endl;
+            writeOK(arg_isok);
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+    else if(arg_fgf==equalSign)
+    {
+        if(mCount==2)
+        {
+            QString mVarName;
+            QString mVarValue;
+            mVarName=mListResult.at(1);
+            if(glHashVar.contains(mVarName))
+            {
+                mVarValue=glHashVar.value(mVarName).trimmed();
+                mStr=glSpace + arg_funName + "(" + "\"" + mVarValue + "\"" +");";
+                *stream<<mStr<<endl;
+                writeOK(arg_isok);
+            }
+            else
+            {
+                mStr=glSpace + arg_line;
+                *stream<<mStr<<endl;
+            }
+        }
+        else if(mCount==3)
+        {
+            QString mVarName1;
+            QString mVarName2;
+            QString mVarValue1;
+            QString mVarValue2;
+
+            mVarName1=mListResult.at(1);
+            mVarName2=mListResult.at(2);
+            if(!glHashVar.contains(mVarName1) || !glHashVar.contains(mVarName2))
+            {
+                mStr=glSpace + arg_line;
+                *stream<<mStr<<endl;
+            }
+            else
+            {
+                mVarValue1=glHashVar.value(mVarName1).trimmed();
+                mVarValue2=glHashVar.value(mVarName2).trimmed();
+
+                mStr=glSpace + arg_funName + "(" + "\"" + mVarValue1 + "\"" + "," + mVarValue2 +");";
+                *stream<<mStr<<endl;
+                writeOK(arg_isok);
+            }
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+
+
+
+}
+
+
+void FileManager::doubleClickNotExit(const QString &arg_funName,const QString &arg_line,const QString &arg_fgf)
+{
+    int mCount;
+    QString mStr;
+    QStringList mListResult;
+
+    mListResult=getSplist(arg_line,arg_fgf);
+    mCount=mListResult.count();
+
+    if(arg_fgf==space1)
+    {
+        if(mCount==2)
+        {
+            mStr=glSpace + arg_funName + "(" + "\"" + mListResult.at(1) + "\"" +");";
+            *stream<<mStr<<endl;
+        }
+        else if(mCount==3)
+        {
+            mStr=glSpace + arg_funName + "(" + "\"" + mListResult.at(1) + "\"" + "," + mListResult.at(2) +");";
+            *stream<<mStr<<endl;
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+    else if(arg_fgf==equalSign)
+    {
+        if(mCount==2)
+        {
+            QString mVarName;
+            QString mVarValue;
+            mVarName=mListResult.at(1);
+            if(glHashVar.contains(mVarName))
+            {
+                mVarValue=glHashVar.value(mVarName).trimmed();
+                mStr=glSpace + arg_funName + "(" + "\"" + mVarValue + "\"" +");";
+                *stream<<mStr<<endl;
+            }
+            else
+            {
+                mStr=glSpace + arg_line;
+                *stream<<mStr<<endl;
+            }
+        }
+        else if(mCount==3)
+        {
+            QString mVarName1;
+            QString mVarName2;
+            QString mVarValue1;
+            QString mVarValue2;
+
+            mVarName1=mListResult.at(1);
+            mVarName2=mListResult.at(2);
+            if(!glHashVar.contains(mVarName1) || !glHashVar.contains(mVarName2))
+            {
+                mStr=glSpace + arg_line;
+                *stream<<mStr<<endl;
+            }
+            else
+            {
+                mVarValue1=glHashVar.value(mVarName1).trimmed();
+                mVarValue2=glHashVar.value(mVarName2).trimmed();
+
+                mStr=glSpace + arg_funName + "(" + "\"" + mVarValue1 + "\"" + "," + mVarValue2 +");";
+                *stream<<mStr<<endl;
+            }
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+}
+
+
+void FileManager::clickxy(const QString &arg_line)
+{
+    int mCount;
+    QString mStr;
+    QStringList mListResult;
+
+    mListResult=getSplist(arg_line," ");
+    mCount=mListResult.count();
+
+    if(mCount==3)
+    {
+        mStr=glSpace + "clickxy" + "(" + mListResult.at(1) + "," + mListResult.at(2) +");";
+        *stream<<mStr<<endl;
+        writeOK(strClickOK);
+    }
 }

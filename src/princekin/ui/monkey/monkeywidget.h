@@ -68,6 +68,8 @@ private:
 
     QFile *fileMonkeyLog=NULL;
     QFile *fileMonkeyReport=NULL;
+    QFile *qfileMail=NULL;
+
     QFile *fileLogcat=NULL;
     QFile *fileBugReport=NULL;
     QFile *fileDumpsys=NULL;
@@ -138,6 +140,10 @@ private:
     void setEnabledTrue();
     void killMonkey();
     void createExcel();
+    void createMonkeyMail();
+    void writeFile(const QString&);
+
+    void addPackagesList();
 
     QString qStartTime;
     QString qMemWarningValue;
@@ -146,10 +152,11 @@ private:
     QString qBatteryTempWarningValue;
     QString qWifiWarningValue;
     QString qMobileWarningValue;
-
+    QTextStream *qOutStream;
     QString qMonkeyTime;
     QString qLunchTime;
     QString qFrames;
+    QFile qtestfile;
 
     void getXXX();
     void getFrames();
@@ -157,6 +164,7 @@ private:
     void getLunchTime();
     QStringList qStatisticsDataList;
     QString qOldPackageName;
+    QTextCodec *qtc=QTextCodec::codecForName("gb2312");
 
 
 signals:
@@ -193,13 +201,12 @@ private slots:
     void RecieveDevicesSigal(QStringList devicesList);
 
     void on_equipBtn_clicked();
-    void on_packageCombo_currentIndexChanged(int index);
+
     void on_equipListView_clicked(const QModelIndex &index);
     void on_packageListView_clicked(const QModelIndex &index);
     void on_startBtn_clicked();
     void on_clearBtn_clicked();
-    //void on_logcatBtn_clicked();
-    //void on_bugreportBtn_clicked();
+
     void on_detailReportBtn_clicked();
 
     void ReadStatisticsData(QStringList statistics);
@@ -210,6 +217,7 @@ private slots:
     void receiveWorkerResult1(const QString&,const QString&);
     void receiveWorkerResult2(const QString&,const QString&);
 
+    void on_packageLineEdit_textChanged(const QString &arg1);
 };
 
 #endif // MONKEYWIDGET_H

@@ -22,8 +22,8 @@ private:
 
 public slots:
     void WriteEdit();
-    void RecieveMemResult(QString numStr,QString time);
-    void RecieveCpuResult(QString numStr, QString time);
+    void RecieveMemResult(QString numStr,QString time,QString max,QString min,QString ave);
+    void RecieveCpuResult(QString numStr, QString time,QString max,QString min,QString ave);
 };
 
 #endif // PERFORMANCEDETAIL_H

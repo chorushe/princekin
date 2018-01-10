@@ -51,12 +51,12 @@ void InitEnv::run()
         strValue=ExeCmd::runCmd_getAll(cmdLine);
         if(!strValue.contains("com.sohu.trafficservice"))
         {
-            cmdLine="adb -s " + deviceId + " install -r " + gConfigDir + QDir::separator() + "apk" + QDir::separator() + "trafficService.apk";
-            ExeCmd::runCmd(cmdLine);
+            //cmdLine="adb -s " + deviceId + " install -r " + gConfigDir + QDir::separator() + "apk" + QDir::separator() + "trafficService.apk";
+            //ExeCmd::runCmd(cmdLine);
         }
 
-        cmdLine="adb -s " + deviceId + " shell am startservice com.sohu.trafficservice/.TrafficService";
-        ExeCmd::runCmd(cmdLine);
+        //cmdLine="adb -s " + deviceId + " shell am startservice com.sohu.trafficservice/.TrafficService";
+        //ExeCmd::runCmd(cmdLine);
 
         cmdLine="cmd /c adb -s " + deviceId + " shell dumpsys package " + gPackageName + " | findstr userId=";
         QString uid=ExeCmd::runCmd_getUid(cmdLine);

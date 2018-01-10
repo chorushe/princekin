@@ -85,6 +85,7 @@ public:
     void getAppInfo(const QString &);
     void getAppInfo1(const QString &);
     void getAppInfo2(const QString &);
+    void getAppInfo3(const QString &);
 
     void setAppInfo(const QString &);
     void setAppInfo_travel();
@@ -106,6 +107,12 @@ public:
     void sendMail();
     void performanceHtml();
     void createBaseExcel(const QString &);
+
+    void createTravelMail();
+    void createPerformanceMail();
+    void createMonkeyMail();
+    void createInterfaceMail();
+    void createBehaviourMail();
 
 signals:
     void sendWorkerFinished();
@@ -192,6 +199,7 @@ private:
 
     QString qAppSize2;
     QString qFrames;
+    QString qSubject;
     QStringList qStatisticsDataList;
     QStringList qMemInfoList;
     QStringList qCpuInfoList;
@@ -199,6 +207,7 @@ private:
     QStringList qCpuTempInfoList;
     double qAllWifi;
     double qAllMobile;
+    QTextCodec *qtc=QTextCodec::codecForName("gb2312");
 
 };
 }

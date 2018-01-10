@@ -78,11 +78,6 @@ MonkeyWidget::MonkeyWidget(QWidget *parent) :
                                        "QListView::item:selected:active{background:#e4e4e4;color:#000000;padding-left:8px;}"
                                        "QListView::item:selected{background:#e4e4e4;color:#000000;padding-left:8px;}"
                                        "QListView::item{height:30px;color:#4d4d4d}");
-    ui->packageCombo->setStyleSheet("QComboBox QAbstractItemView::item{height:25px;}"
-                                    "QComboBox {border: 1px solid #e4e4e4;  border-radius: 3px;padding: 1px 2px 1px 2px;min-width: 9em;}"
-                                    "QComboBox::drop-down{ width: 40px; border-left-style: none;border-top-right-radius: 3px;  border-bottom-right-radius: 3px;}"
-                                    "QComboBox::down-arrow{image:url(:/arrow.png);}");
-    ui->packageCombo->setView(new QListView());
 
     ui->equipListView->verticalScrollBar()->setStyleSheet("QScrollBar:vertical {border:0px solid grey;width: 10px;}"
                                                           "QScrollBar::handle:vertical {background: grey;border: 3px solid grey;border-radius:5px;min-height: 20px;}");
@@ -142,6 +137,36 @@ void MonkeyWidget::showInit()
     filePath=gWorkSpace;
 }
 
+void MonkeyWidget::addPackagesList()
+{
+    packageList.clear();
+
+    QString cmdStrThirdPackages="adb -s "+deviceName+" shell pm list packages -3\n";
+    QProcess p(0);
+    p.setReadChannelMode(QProcess::MergedChannels);
+    p.start(cmdStrThirdPackages);
+    p.waitForStarted();
+    while(p.waitForFinished()==false)
+    {
+    }
+
+    while(p.canReadLine())
+    {
+        QString mStr=p.readLine();
+        if(mStr.contains("package:"))
+        {
+            QStringList mSplitResult=mStr.split("package:");
+            packageList.append(mSplitResult.at(1).trimmed());
+        }
+    }
+
+    p.close();
+    qSort(packageList.begin(),packageList.end());
+    packageList.insert(0,ui->equipListView->currentIndex().data().toString());
+    packageModel->setStringList(packageList);
+    ui->packageListView->setModel(packageModel);
+}
+
 void MonkeyWidget::on_equipBtn_clicked()//ShowEquip
 {
     equipList.clear();
@@ -176,7 +201,6 @@ void MonkeyWidget::on_equipBtn_clicked()//ShowEquip
 
     ui->equipListView->setModel(equipModel);
     deviceName="";//点击设备按钮后，还没选择设备，此时情况设备名
-    //ui->packageCombo->setItemText(0,"");//在没关设备的情况下给包名的第一个清空
 
     QModelIndex indexEquip=ui->equipListView->model()->index(0,0);
     ui->equipListView->setCurrentIndex(indexEquip);
@@ -184,84 +208,12 @@ void MonkeyWidget::on_equipBtn_clicked()//ShowEquip
     deviceName=ExeCmd::getDeviceSN(indexEquip.data().toString());
     if(deviceName!="")
     {
-        if(ui->packageCombo->count()==3)
-            ui->packageCombo->insertItem(0,"");
-        ui->packageCombo->setCurrentIndex(0);
-        ui->packageCombo->setItemText(0,indexEquip.data().toString());
+        addPackagesList();
+        on_packageLineEdit_textChanged("");
     }
-    //else
-    //    ui->packageCombo->setCurrentIndex(0);
+
 }
 
-void MonkeyWidget::on_packageCombo_currentIndexChanged(int index)//ShowPackage
-{
-    if(numForPackageIndexChange<3)
-        numForPackageIndexChange++;
-    if(deviceName=="")
-    {
-        if(numForPackageIndexChange!=1)
-            QMessageBox::information(this,tr("提示"),tr("请选择一个设备"));
-        return ;
-    }
-
-    QString cmdStrAllPackages="adb -s "+deviceName+" shell pm list packages\n";
-    QString cmdStrThirdPackages="adb -s "+deviceName+" shell pm list packages -3\n";
-    QString cmdStrSystemPackages="adb -s "+deviceName+" shell pm list packages -s\n";
-
-    int flag=0;//flag的作用是：选择包名时，第一项不需要process，为了区分第一项与其他三项
-
-    QProcess p(0);
-    p.setReadChannelMode(QProcess::MergedChannels);
-
-    QString mStr;
-    QStringList mSplitResult;
-
-    packageList.clear();
-    packageModel->setStringList (packageList);
-
-    switch(ui->packageCombo->currentIndex())
-    {
-    case 0:
-        flag=0;
-        break;
-    case 2:
-        p.start(cmdStrAllPackages);
-        flag=1;
-        break;
-    case 1:
-        p.start(cmdStrThirdPackages);
-        flag=1;
-        break;
-    case 3:
-        p.start(cmdStrSystemPackages);
-        flag=1;
-        break;
-    default:
-        flag=0;
-        break;
-    }
-    if(flag==1)
-    {
-        p.waitForStarted();
-        while(p.waitForFinished()==false)
-        {
-        }
-
-        while(p.canReadLine())
-        {
-            mStr=p.readLine();
-            if(mStr.contains("package:"))
-            {
-                mSplitResult=mStr.split("package:");
-                packageList.append(mSplitResult.at(1).trimmed());
-                packageModel->setStringList(packageList);
-            }
-        }
-    }
-    p.close();
-    ui->packageListView->setModel(packageModel);
-    packageName="";
-}
 
 void MonkeyWidget::on_equipListView_clicked(const QModelIndex &index)//equipSelect
 {
@@ -269,19 +221,21 @@ void MonkeyWidget::on_equipListView_clicked(const QModelIndex &index)//equipSele
     deviceName=ExeCmd::getDeviceSN(indexEquip.data().toString());
     if(deviceName!="")
     {
-        if(ui->packageCombo->count()==3)
-            ui->packageCombo->insertItem(0,"");
-        ui->packageCombo->setCurrentIndex(0);
-        ui->packageCombo->setItemText(0,indexEquip.data().toString());
+        addPackagesList();
+        on_packageLineEdit_textChanged("");
     }
     else
-        ui->packageCombo->setCurrentIndex(0);
+    {
+        packageModel->setStringList( QStringList());
+        ui->packageListView->setModel(packageModel);
+    }
 }
 
 void MonkeyWidget::on_packageListView_clicked(const QModelIndex &index)//packageSelect
 {
     QModelIndex indexPackage=ui->packageListView->currentIndex();
     packageName=indexPackage.data().toString();
+    ui->packageLineEdit->setText(packageName);
 }
 
 
@@ -477,7 +431,7 @@ void MonkeyWidget::on_startBtn_clicked()//StartMonkey
 
         ui->equipBtn->setEnabled(false);
         ui->equipListView->setEnabled(false);
-        ui->packageCombo->setEnabled(false);
+        ui->packageLineEdit->setEnabled(false);
         ui->packageListView->setEnabled(false);
 
         //*****************20170505*************************//
@@ -533,6 +487,7 @@ void MonkeyWidget::exportBugreport()//BugReportControl
 {
     CreateBugReportFiles();
 
+    QThread::sleep(5);
     cmdStr="adb -s "+deviceName+" bugreport\n";
 
     MonkeyWorker *worker1=new MonkeyWorker;
@@ -595,9 +550,6 @@ void MonkeyWidget::RecieveDevicesSigal(QStringList devicesList)
     int row=equipList.indexOf(currentDevice);
     if(row==-1)
     {
-        if(ui->packageCombo->count()==4)
-            ui->packageCombo->removeItem(0);//没有选中设备时，去掉第一项设备名称的显示，直接显示“第三方应用”
-        //ui->packageCombo->setCurrentIndex(0);
         packageModel->setStringList( QStringList());//清空包名列表
         ui->packageListView->setModel(packageModel);
         deviceName="";
@@ -865,9 +817,17 @@ void MonkeyWidget::CreateMonkeyFiles()
     //建立monkeyreport文件
     monkeyFilePath=sDir + QDir::separator() + "MonkeyReport.txt";
 
+
     fileMonkeyReport=new QFile( monkeyFilePath );
     if ( !fileMonkeyReport->exists())
         fileMonkeyReport->open( QIODevice::WriteOnly );
+
+    gMonkeyReport=monkeyFilePath;
+
+    QFile tempfile(gConfigDir+QDir::separator() + "mailContent.txt");
+    tempfile.open(QIODevice::WriteOnly);
+    tempfile.close();
+
     timeStart = QDateTime::currentDateTime();
     current_date = timeStart.toString("yyyy-MM-dd hh:mm:ss");
     QString writeData="monkey开始时间: "+current_date+"\r\n";
@@ -1031,6 +991,9 @@ void MonkeyWidget::monkeyNotRunning()
     QString current_date = timeEnd.toString("yyyy-MM-dd hh:mm:ss");
     QString writeData="monkey结束时间: "+current_date+"\r\n";
     fileMonkeyReport->write(writeData.toStdString().c_str());
+
+
+
     QString timeSub = QString::number( timeStart.daysTo(timeEnd))+"天"
             +QString::number( timeStart.msecsTo(timeEnd)/3600000)+"小时"
             +QString::number(timeStart.msecsTo(timeEnd)%3600000/60000)+"分"
@@ -1044,13 +1007,17 @@ void MonkeyWidget::monkeyNotRunning()
     fileMonkeyReport->write(writeData.toStdString().c_str());
 
     writeData="测试结果：\r\n";
+
     if(ANRErrorStr==""&&CrashErrorStr==""&&ExceptionErrorStr==""&&OtherErrorStr=="")
-        ;
+    {
+    }
     else
     {
         writeData+="结果存在 ";
+
         if(ANRErrorStr!="")
             writeData+="ANR, ";
+
         if(CrashErrorStr!="")
             writeData+="Crash, ";
         if(ExceptionErrorStr!="")
@@ -1061,39 +1028,46 @@ void MonkeyWidget::monkeyNotRunning()
     }
 
     fileMonkeyReport->write(writeData.toStdString().c_str());
+
     ui->logTextEdit->append(writeData);
 
     if(ANRErrorStr!="")
     {
         writeData="ANR： \r\n"+ANRErrorStr;
         fileMonkeyReport->write(writeData.toStdString().c_str());
+
         ui->logTextEdit->append(writeData);
     }
     if(CrashErrorStr!="")
     {
         writeData="Crash： \r\n"+CrashErrorStr;
         fileMonkeyReport->write(writeData.toStdString().c_str());
+
         ui->logTextEdit->append(writeData);
     }
     if(ExceptionErrorStr!="")
     {
         writeData="Exception： \r\n"+ExceptionErrorStr;
         fileMonkeyReport->write(writeData.toStdString().c_str());
+
         ui->logTextEdit->append(writeData);
     }
     if(OtherErrorStr!="")
     {
         writeData="Other： \r\n"+OtherErrorStr;
         fileMonkeyReport->write(writeData.toStdString().c_str());
+
         ui->logTextEdit->append(writeData);
     }
     if(recieveStr.contains("Monkey finished"))
     {
         writeData="Monkey 运行成功！\r\n";
         fileMonkeyReport->write(writeData.toStdString().c_str());
+
         ui->logTextEdit->append(writeData);
     }
     fileMonkeyReport->close();
+
 
     if(isCpuTempCheck||isBatteryCheck||isMemCheck||isCpuCheck||isWifiCheck||isMobileCheck)
     {
@@ -1120,8 +1094,8 @@ void MonkeyWidget::monkeyNotRunning()
             QFile::remove(fLogcat->fileName());
     }
 
+    //createMonkeyMail();
     exportBugreport();
-
     setEnabledTrue();
 }
 
@@ -1163,7 +1137,7 @@ void MonkeyWidget::setEnabledTrue()
     emit sendStateChange(false);
     ui->equipBtn->setEnabled(true);
     ui->equipListView->setEnabled(true);
-    ui->packageCombo->setEnabled(true);
+    ui->packageLineEdit->setEnabled(true);
     ui->packageListView->setEnabled(true);
 }
 
@@ -1332,5 +1306,80 @@ void MonkeyWidget::receiveWorkerResult2(const QString&arg_str,const QString&arg_
         int dec=qLunchTime.toInt(&ok, 10);
         float floattime=dec*0.001;
         qLunchTime=QString::number(floattime, 'f', 2);
+    }
+}
+
+void MonkeyWidget::createMonkeyMail()
+{
+    QString tempValue;
+    QFile file;
+    file.setFileName(gConfigDir+QDir::separator() + "mailContent.txt");
+    QTextStream outStream(&file);
+    if(!file.open(QIODevice::WriteOnly))
+    {
+        file.close();
+    }
+
+    outStream.setCodec(qtc);
+    QString tempStr;
+
+    tempStr="To All:";
+    outStream<<tempStr<<endl;
+    QFile file2(gMonkeyReport);
+    QTextStream inStream(&file2);
+    if(!file2.open(QIODevice::ReadOnly))
+    {
+        file2.close();
+    }
+    while(!inStream.atEnd())
+    {
+        tempValue=inStream.readLine();
+        if(!tempValue.contains("-----------------------------"))
+        {
+            outStream<<tempValue<<endl;
+        }
+    }
+    file2.close();
+
+    tempStr="------------------------------------------------------";
+    outStream<<tempStr<<endl;
+
+    tempStr="Brs";
+    outStream<<tempStr<<endl;
+
+    tempStr="小王子团队";
+    outStream<<tempStr<<endl;
+
+    tempStr="Tel: 何畅022-65303756 OR 周朝彬010-56602399";
+    outStream<<tempStr<<endl;
+
+    tempStr="Email: changhe@sohu-inc.com OR chaobinzhou@sohu-inc.com";
+    outStream<<tempStr<<endl;
+
+    tempStr="QQ: 周朝彬1787072341";
+    outStream<<tempStr<<endl;
+    file.close();
+}
+
+void MonkeyWidget::on_packageLineEdit_textChanged(const QString &arg1)
+{
+    QString text=ui->packageLineEdit->text();
+    bool isFind=false;
+    for(int i=0;i<packageList.count();i++)
+    {
+        if(packageList.at(i).startsWith(text))
+        {
+            QModelIndex index=ui->packageListView->model()->index(i,0);
+            ui->packageListView->setCurrentIndex(index);
+            packageName=ui->packageListView->currentIndex().data().toString();//有匹配项时，包名直接等于匹配项
+            isFind=true;
+            break;
+        }
+    }
+    if(!isFind)//没有匹配项时清除选项
+    {
+        QModelIndex index=ui->packageListView->model()->index(-1,0);
+        ui->packageListView->setCurrentIndex(index);
+        packageName=ui->packageLineEdit->text();
     }
 }
