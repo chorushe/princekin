@@ -57,7 +57,7 @@ public:
     static void setTravelActivityNumber(const QString &);
 
 
-    static void writeUniversal(const QString &,const QString &,const QString &);
+    static void writeUniversal(const QString &,const QString &,const QString &,const QString &);
     static void writeIcon(Document &,const QString &);
     static void writeAppInfo(Document &,const QString &);
 

@@ -250,6 +250,15 @@ void AutoTravelWidget::on_startBtn_clicked()
             QMessageBox::information(this,tr("提示"),tr("请选择一个应用"));
             return;
         }
+        if(ui->packageLineEdit->text().trimmed()!=ui->packageListView->currentIndex().data()&&ui->packageListView->currentIndex().row()!=-1)//如果输入框内的内容是一半，则开始测试后把后一半补全
+        {
+            //这里如果不去掉链接的话，会导致槽函数的运行，那么packageName等其他的还会再变
+            disconnect(ui->packageLineEdit,SIGNAL(textChanged(QString)),this,SLOT(on_packageLineEdit_textChanged(QString)));
+            ui->packageLineEdit->setText(ui->packageListView->currentIndex().data().toString());
+            connect(ui->packageLineEdit,SIGNAL(textChanged(QString)),this,SLOT(on_packageLineEdit_textChanged(QString)));
+        }
+
+        ui->logTextEdit->setText("正在启动，请稍等...");
 
         //*****************20170717*****************//
         qOldPackageName=Helper::getFirstLine(gConfigDir + QDir::separator() + "packageName.txt");
@@ -310,6 +319,7 @@ void AutoTravelWidget::on_startBtn_clicked()
         if(packageName==qOldPackageName)
         {
             getLunchTime();
+
         }
         else
         {
@@ -335,6 +345,8 @@ void AutoTravelWidget::on_startBtn_clicked()
 
         qDebug()<<cmdStr;
         ExeCmd::runCmd(cmdStr);
+
+
         if(idBlackString=="")
             idBlackString="NULL";
         cmdStr="adb -s "+ deviceName +" shell uiautomator runtest TravelTest.jar -e blackName-resouceId "+idBlackString+" -e time "+clickInternalTime+" --nohup -c com.sohu.princekin.autotravel.TravelClass#testTravel\n";
@@ -508,6 +520,10 @@ void AutoTravelWidget::ReadOutput(QString recieveStr)
     qDebug()<<recieveStr;
     if(recieveStr.trimmed()=="")
         return;
+    if(recieveStr.contains("开始自动遍历"))
+    {
+        ui->logTextEdit->clear();
+    }
     if(recieveStr.contains("开始时间"))
     {
         isLogEnd=true;
@@ -750,7 +766,7 @@ void AutoTravelWidget::stopAutoTravel()
     if(isCpuTempCheck||isBatteryCheck||isMemCheck||isCpuCheck||isWifiCheck||isMobileCheck)
     {
         if(assist!=NULL)
-        {      
+        {
             assist->StopMeasure();
 
             if(gTravelNumber==0)

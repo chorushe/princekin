@@ -8,6 +8,7 @@ static QString qAppSize;
 static QString qLaunchTime;
 static QString qPlatform;
 static QString qTestDate;
+static QString qStartTime;
 static QString qDeviceId;
 
 static QString qMobileBrand;
@@ -235,8 +236,10 @@ void WriteInfo::setUrlSuccessNum(int arg_num)
 }
 
 
-void WriteInfo::writeUniversal(const QString &arg_targetXlsx,const QString &arg_tag,const QString &arg_deviceId)
+void WriteInfo::writeUniversal(const QString &arg_targetXlsx,const QString &arg_tag,const QString &arg_deviceId,const QString &arg_startTime)
 {
+    qStartTime=arg_startTime;
+    qDeviceId=arg_deviceId;
     Document xlsxDoc(arg_targetXlsx);
     xlsxDoc.selectSheet("总体报告");
 
@@ -711,9 +714,13 @@ void WriteInfo::writeMobileInfo_Monkey(Document &arg_xlsxDoc,const QString &arg_
     //*****************20170606*****************//
 
 
+    QString httppath="http://10.10.53.117/report/monkey/"+qDeviceId+"/"+qStartTime;
 
     QUrl url = QUrl::fromLocalFile(qXlsxSaveDir + QDir::separator() + "monkey" + QDir::separator() + "MonkeyLog.txt");
+    url.setUrl(httppath);
+
     writeHyperlink(arg_xlsxDoc,7,6,url,hyperlinkFormat,"查看详情","");
+
 }
 
 void WriteInfo::writeMobileInfo(Document &arg_xlsxDoc)
@@ -966,9 +973,12 @@ void WriteInfo::writeMobileInfo_Travel(Document &arg_xlsxDoc,const QString &arg_
     }
 
     //*****************20170606*****************//
+    QString httppath="http://10.10.53.117/report/travel/"+qDeviceId+"/"+qStartTime;
 
     QUrl url = QUrl::fromLocalFile(arg_path);
+    url.setUrl(httppath);
     writeHyperlink(arg_xlsxDoc,11,6,url,hyperlinkFormat,"查看详情","");
+
 }
 
 void WriteInfo::writeMobileInfo_behaviour(Document &arg_xlsxDoc,const QString &arg_path)
@@ -1152,8 +1162,10 @@ void WriteInfo::writeMobileInfo_behaviour(Document &arg_xlsxDoc,const QString &a
         }
     }
 
+    QString httppath="http://10.10.53.117/report/behaviour/"+qDeviceId+"/"+qStartTime;
     QUrl url = QUrl::fromLocalFile(qXlsxSaveDir + QDir::separator() +  linkFile);
 
+    url.setUrl(httppath);
     writeHyperlink(arg_xlsxDoc,10,5,url,hyperlinkFormat,"查看详情","");
 }
 

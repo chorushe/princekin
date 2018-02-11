@@ -70,6 +70,8 @@ private:
     QFile *fileMonkeyReport=NULL;
     QFile *qfileMail=NULL;
 
+    QTextStream inMonkeyRport;
+
     QFile *fileLogcat=NULL;
     QFile *fileBugReport=NULL;
     QFile *fileDumpsys=NULL;

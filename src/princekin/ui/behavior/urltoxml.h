@@ -22,6 +22,7 @@
 #include "globalvar.h"
 #include "execmd.h"
 #include <QAxObject>
+#include <QWheelEvent>
 
 
 using namespace QXlsx;
@@ -42,8 +43,9 @@ public:
     QString domainName;
     QStringList descList;
     QList<int> verifyList;
-    bool unique=false;
+    int uniqueNum=0;
     QString uniqueStr="";
+    QStringList uniqueList;
 
     int saveXml(QString sXmlFilePath);
     bool eventFilter(QObject *watched, QEvent *event);
@@ -64,7 +66,7 @@ private:
 
     void readExcelData(QString fileName);
     void ShowFileInfo();
-    void changeUnique(QString filePath, QString uniqueStr, QString value, QString des);
+    void changeUnique(QString filePath, QString uniqueStr, QString des);
 
 public slots:
     void CalculateUnique(int index);
@@ -87,10 +89,8 @@ private slots:
 
     void on_xmlPathLineEdit_editingFinished();
 
-
-    void on_xmlPathLineEdit_returnPressed();
-
 protected:
+
 
 };
 

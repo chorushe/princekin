@@ -320,7 +320,7 @@ void GenerateXlsx::setAppInfo_monkey()
 void GenerateXlsx::writeInfo(const QString &arg_mark)
 {
     //WriteInfo::writeUrl(qTargetXlsx);
-    WriteInfo::writeUniversal(qTargetXlsx,arg_mark,qDeviceId);
+    WriteInfo::writeUniversal(qTargetXlsx,arg_mark,qDeviceId,qStartTime);
 }
 
 

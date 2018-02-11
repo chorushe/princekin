@@ -9,6 +9,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 TARGET = princekin
 TEMPLATE = app
+LIBS += -ldbghelp
 
 
 SOURCES += main.cpp\
@@ -149,7 +150,9 @@ SOURCES += main.cpp\
     xlsxinfo/replayhtmlcontroller.cpp \
     ui/monkey/monkeyworker.cpp \  
     ui/replay/createcrashreport.cpp \
-    ui/record/editscriptfilewidget.cpp
+    ui/record/editscriptfilewidget.cpp \
+    utils/sendsignalclass.cpp \
+    utils/upload.cpp
     ui/record/editscriptfilewidget.cpp
 
 
@@ -303,7 +306,9 @@ HEADERS  += princekin.h \
     xlsxinfo/replayhtmlcontroller.h \
     ui/monkey/monkeyworker.h \
     ui/replay/createcrashreport.h \
-    ui/record/editscriptfilewidget.h
+    ui/record/editscriptfilewidget.h \
+    utils/sendsignalclass.h \
+    utils/upload.h
     ui/record/editscriptfilewidget.h
 
 FORMS    += princekin.ui \
@@ -348,6 +353,8 @@ RESOURCES += \
 RC_ICONS += \
     qrc/logo/crown.ico
 
+
+#QMAKE_LFLAGS_DEBUG += /INCREMENTAL:NO
 
 INCLUDEPATH += ui/run\
     ui/record\

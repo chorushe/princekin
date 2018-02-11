@@ -34,7 +34,7 @@ UrlToXml::UrlToXml(QWidget *parent) :
         comBox->addItem("不验证");
         comBox->addItem("验证非空");
         comBox->addItem("需要验证");
-        comBox->addItem("唯一识别值");
+        comBox->addItem("关键识别值");
         comBox->setStyleSheet("QComboBox QAbstractItemView::item{height:25px;}"
                               "QComboBox {border: 1px solid #e4e4e4;  border-radius: 3px;padding: 1px 2px 1px 2px;min-width: 9em;}"
                               "QComboBox::drop-down{ width: 40px; border-left-style: none;border-top-right-radius: 3px;  border-bottom-right-radius: 3px;}"
@@ -59,18 +59,17 @@ UrlToXml::UrlToXml(QWidget *parent) :
                                                             "QScrollBar::handle:vertical {background: grey;border: 3px solid grey;border-radius:5px;min-height: 20px;}");
 
     ui->fileTableWidget->horizontalHeader()->setStretchLastSection(true);//最后一列自适应宽度
-    ui->fileTableWidget->setColumnWidth(0,100);
-    ui->fileTableWidget->setColumnWidth(1,100);
+    ui->fileTableWidget->setColumnWidth(0,75);
+    ui->fileTableWidget->setColumnWidth(1,75);
     ui->fileTableWidget->setRowCount(1);
     ui->fileTableWidget->setItem(0,0,new QTableWidgetItem(""));//前两栏的也new个实例
     ui->fileTableWidget->setItem(0,1,new QTableWidgetItem(""));
     ui->fileTableWidget->setItem(0,2,new QTableWidgetItem(""));
     ui->fileTableWidget->verticalHeader()->setVisible(false); // 隐藏水平header
 
-    ui->multiCBox->setToolTip("可批量生成唯一识别值所对应的不同参数值的批量xml文件，其他参数验证规则与下表一致");
+    ui->multiCBox->setToolTip("可批量生成关键识别值所对应的不同参数值的批量xml文件，其他参数验证规则与下表一致");
     ui->downLoadExcelBtn->setToolTip("下载可导入文件名及参数值的Excel模板");
     ui->importExcelBtn->setToolTip("将按照Excel模板制作的Excel数据导入至下方表格");
-    ui->uniqueLabel->setText("<font color=gray>未设置唯一识别值</font>");
 
     xmlPath = gWorkSpace+QDir::separator()+"StatisticalXML";
     rightXmlPath = gWorkSpace+QDir::separator()+"StatisticalXML";
@@ -86,40 +85,52 @@ UrlToXml::UrlToXml(QWidget *parent) :
 
 void UrlToXml::CalculateUnique(int index)
 {
-    // if(index==3)
+    uniqueNum=0;
+    uniqueList.clear();
+    for(int i=0;i<ui->statisticsTW->rowCount();i++)
     {
-        unique=false;
-        QString str="";
-        for(int i=0;i<ui->statisticsTW->rowCount();i++)
+        QWidget * widget=ui->statisticsTW->cellWidget(i,3);//获得widget
+        QComboBox *combox=(QComboBox*)widget;//强制转化为QComboBox
+        int index=combox->currentIndex();
+        if(index==3)//唯一识别值
         {
-            QWidget * widget=ui->statisticsTW->cellWidget(i,3);//获得widget
-            QComboBox *combox=(QComboBox*)widget;//强制转化为QComboBox
-            int index=combox->currentIndex();
-            if(index==3)//唯一识别值
+            if(uniqueNum<2)
             {
-                if(!unique)
+                uniqueNum++;
+                uniqueList.append(ui->statisticsTW->item(i,0)->text()+"="+ui->statisticsTW->item(i,1)->text());
+                if(uniqueNum==1)
                 {
-                    unique=true;
-                    str=ui->statisticsTW->item(i,0)->text();
+                    ui->fileTableWidget->setColumnCount(3);
+                    QTableWidgetItem *item=new QTableWidgetItem(ui->statisticsTW->item(i,0)->text());
+                    ui->fileTableWidget->setHorizontalHeaderItem(1,item);
+                    item=new QTableWidgetItem("描述");
+                    ui->fileTableWidget->setHorizontalHeaderItem(2,item);
                 }
-                else
+                else if(uniqueNum==2)
                 {
-                    combox->setCurrentIndex(0);
-                    QMessageBox::information(this,"提示","唯一识别值只能有一个,请重新选择");
-                    return;
+                    ui->fileTableWidget->setColumnCount(4);
+                    QTableWidgetItem *item=new QTableWidgetItem(ui->statisticsTW->item(i,0)->text());
+                    ui->fileTableWidget->setHorizontalHeaderItem(2,item);
+                    item=new QTableWidgetItem("描述");
+                    ui->fileTableWidget->setHorizontalHeaderItem(3,item);
                 }
             }
-        }
-        if(str!="")
-        {
-            ui->uniqueLabel->setText("<font color=black>"+str+"</font>");
-        }
-        else
-        {
-            ui->uniqueLabel->setText("<font color=gray>未设置唯一识别值</font>");
+            else
+            {
+                combox->setCurrentIndex(0);
+                QMessageBox::information(this,"提示","关键识别值最多两个,请重新选择");
+                return;
+            }
         }
     }
-
+    if(uniqueNum==0)
+    {
+        ui->fileTableWidget->setColumnCount(3);
+        QTableWidgetItem *item=new QTableWidgetItem("参数值");
+        ui->fileTableWidget->setHorizontalHeaderItem(1,item);
+        item=new QTableWidgetItem("描述");
+        ui->fileTableWidget->setHorizontalHeaderItem(2,item);
+    }
 }
 
 UrlToXml::~UrlToXml()
@@ -184,12 +195,7 @@ void UrlToXml::on_lineEdit_textChanged(const QString &arg)
         url=url.left(url.length()-1);
     }
     statisticList=url.split("&");
-    /*if(statisticList.length()<=1)
-    {
-        ui->errorLabel->setText("链接无法识别");
-        return;
-    }
-    ui->errorLabel->setText("");*/
+
     if(statisticList.length()>1)
         ui->statisticsTW->setRowCount(statisticList.length());
     ui->changeBtn->setEnabled(true);
@@ -201,7 +207,7 @@ void UrlToXml::on_lineEdit_textChanged(const QString &arg)
         comBox->addItem("不验证");
         comBox->addItem("验证非空");
         comBox->addItem("需要验证");
-        comBox->addItem("唯一识别值");
+        comBox->addItem("关键识别值");
         comBox->setStyleSheet("QComboBox QAbstractItemView::item{height:25px;}"
                               "QComboBox {border: 1px solid #e4e4e4;  border-radius: 3px;padding: 1px 2px 1px 2px;min-width: 9em;}"
                               "QComboBox::drop-down{ width: 40px; border-left-style: none;border-top-right-radius: 3px;  border-bottom-right-radius: 3px;}"
@@ -218,10 +224,8 @@ void UrlToXml::on_lineEdit_textChanged(const QString &arg)
         QStringList tmpList=statisticList.at(i).split("=");
         if(tmpList.length()<=1)
         {
-            //  ui->errorLabel->setText("链接无法识别");
             continue;
         }
-        //ui->errorLabel->setText("");
         ui->statisticsTW->setItem(i,0,new QTableWidgetItem(tmpList.at(0)));
         ui->statisticsTW->setItem(i,1,new QTableWidgetItem(tmpList.at(1)));
     }
@@ -270,12 +274,12 @@ int UrlToXml::saveXml(QString sXmlFilePath)
         {
             QDomElement data = doc.createElement("data");
             QString textStr=ui->statisticsTW->item(i,1)->text();
-            if(textStr.contains(";"))
+            if(textStr.contains(";;"))
             {
-                QStringList texts=textStr.split(";");
+                QStringList texts=textStr.split(";;");
                 for(int j=0;j<texts.count();j++)
                 {
-                    QStringList desList=ui->statisticsTW->item(i,2)->text().split(";");
+                    QStringList desList=ui->statisticsTW->item(i,2)->text().split(";;");
                     QDomElement uid=doc.createElement(ui->statisticsTW->item(i,0)->text());
                     if(desList.count()-1>=j)
                         uid.setAttribute("des",desList[j]);
@@ -359,36 +363,33 @@ void UrlToXml::on_changeBtn_clicked()
     errorFlag=true;
     verifyList.clear();
     descList.clear();
-    unique=false;
+
     for(int i=0;i<ui->statisticsTW->rowCount();i++)
     {
         QWidget * widget=ui->statisticsTW->cellWidget(i,3);//获得widget
         QComboBox *combox=(QComboBox*)widget;//强制转化为QComboBox
         int index=combox->currentIndex();
-        if(index==3)//唯一识别值
-        {
-            if(!unique)
-            {
-                unique=true;
-                uniqueStr=ui->statisticsTW->item(i,0)->text()+"="+ui->statisticsTW->item(i,1)->text();
-            }
-            else
-            {
-                QMessageBox::information(this,"提示","唯一识别值只能有一个,请重新选择");
-                return;
-            }
-        }
         verifyList.append(index);
         descList.append(ui->statisticsTW->item(i,2)->text());
     }
-    if(!unique)
+    if(uniqueNum<1)
     {
         if(ui->statisticsTW->rowCount()>1)//统计点有的时候，才需要唯一识别值
         {
-            QMessageBox::information(this,"提示","请选择一个唯一识别值");
+            QMessageBox::information(this,"提示","请选择一个或两个关键识别值");
             return;
         }
     }
+
+    if(uniqueList.count()==1)
+    {
+        uniqueStr=uniqueList.at(0);
+    }
+    else
+    {
+        uniqueStr=uniqueList.at(0)+";;"+uniqueList.at(1);
+    }
+
     if(!isMultiPattern)
         saveXml(xmlPath+QDir::separator()+ui->xmlNameLineEdit->text());
     else
@@ -442,7 +443,24 @@ void UrlToXml::on_changeBtn_clicked()
             if(!flag)
                 QMessageBox::information(this,"提示",newFilePath+"文件生成失败！");
             else
-                changeUnique(newFilePath,uniqueStr.split("=").at(0),ui->fileTableWidget->item(i,1)->text(),ui->fileTableWidget->item(i,2)->text());
+            {
+                QString uniquestr="";
+                if(ui->fileTableWidget->columnCount()==3)
+                    uniquestr=ui->fileTableWidget->horizontalHeaderItem(1)->text() +"="+ ui->fileTableWidget->item(i,1)->text();
+                else
+                {
+                    if(ui->fileTableWidget->item(i,1)->text().trimmed()!="")//判断当前字段有没有值，如果没有，那么关键识别值就不要这个字段
+                        uniquestr+=ui->fileTableWidget->horizontalHeaderItem(1)->text() +"="+ ui->fileTableWidget->item(i,1)->text();
+                    if(ui->fileTableWidget->item(i,2)->text().trimmed()!="")
+                    {
+                        if(uniquestr!="")
+                            uniquestr+=";;";
+                        uniquestr+=ui->fileTableWidget->horizontalHeaderItem(2)->text() +"="+ ui->fileTableWidget->item(i,2)->text();
+                    }
+                }
+                changeUnique(newFilePath,uniquestr,ui->fileTableWidget->item(i,ui->fileTableWidget->columnCount()-1)->text());
+            }
+
         }
         QFile ff(xmlPath+QDir::separator()+"model.xml") ;//删除模板
         if(ff.exists())
@@ -643,10 +661,21 @@ void UrlToXml::readExcelData(QString fileName)
         }
 
         QVariantList var=varRows[0].toList();
-        if(!(var[0].toString()=="文件名" && var[1].toString()=="参数值" && var[2].toString()=="描述"))
+        if(ui->fileTableWidget->columnCount()==3)
         {
-            QMessageBox::information(this,"提示","Excel格式不正确，请重新选择！");
-            return;
+            if(!(var[0].toString()=="文件名" && var[2].toString()=="描述"))
+            {
+                QMessageBox::information(this,"提示","Excel格式不正确，请重新选择！");
+                return;
+            }
+        }
+        else if(ui->fileTableWidget->columnCount()==4)
+        {
+            if(!(var[0].toString()=="文件名" && var[3].toString()=="描述"))
+            {
+                QMessageBox::information(this,"提示","Excel格式不正确，请重新选择！");
+                return;
+            }
         }
 
         for(int i=1;i<varRows.size();i++)
@@ -655,9 +684,12 @@ void UrlToXml::readExcelData(QString fileName)
             QString cellValue="";
             QString cellValue1="";
             cellValue=var[0].toString();
-            cellValue1=var[1].toString();
-            if(var[2].toString()!="")
-                cellValue1+="="+var[2].toString();
+            if(ui->fileTableWidget->columnCount()==3)
+                cellValue1=var[1].toString()+"="+var[2].toString();
+            else if(ui->fileTableWidget->columnCount()==4)
+                cellValue1=var[1].toString()+"="+var[2].toString()+"="+var[3].toString();
+           // if(var[2].toString()!="")
+           // cellValue1+="="+var[2].toString();
             if(fileNameList.contains(cellValue))
             {
                 if(!repeatFlag)
@@ -678,6 +710,9 @@ void UrlToXml::readExcelData(QString fileName)
             }
         }
     }
+    work_book->dynamicCall("Close()");    // 关闭文件
+    excel.dynamicCall("Quit()");    // 退出
+
     qDebug()<<"done";
 }
 
@@ -691,19 +726,19 @@ void UrlToXml::ShowFileInfo()
     {
         QStringList valueList=fileInfoList.at(m).second.split("=");
         ui->fileTableWidget->setItem(num,0,new QTableWidgetItem(fileInfoList.at(m).first));
-        ui->fileTableWidget->setItem(num,1,new QTableWidgetItem(valueList[0]));
-        if(valueList.length()>1)
-            ui->fileTableWidget->setItem(num++,2,new QTableWidgetItem(valueList[1]));
-        else
-            ui->fileTableWidget->setItem(num++,2,new QTableWidgetItem(""));
+        for(int n=0;n<valueList.count();n++)
+        {
+            ui->fileTableWidget->setItem(num,n+1,new QTableWidgetItem(valueList[n]));
+        }
+        num++;
     }
-    ui->fileTableWidget->setItem(num,0,new QTableWidgetItem(""));//前两栏的也new个实例
-    ui->fileTableWidget->setItem(num,1,new QTableWidgetItem(""));
-    ui->fileTableWidget->setItem(num,2,new QTableWidgetItem(""));
+    for(int m=0;m<ui->fileTableWidget->columnCount();m++)
+        ui->fileTableWidget->setItem(num,m,new QTableWidgetItem(""));//前两栏的也new个实例
+
     connect(ui->fileTableWidget,SIGNAL(itemChanged(QTableWidgetItem*)),this,SLOT(on_fileTableWidget_itemChanged(QTableWidgetItem*)));
 }
 
-void UrlToXml::changeUnique(QString filePath,QString uniqueStr,QString value,QString des)
+void UrlToXml::changeUnique(QString filePath,QString uniqueStr,QString des)
 {
     if(!filePath.isEmpty())
     {
@@ -739,18 +774,25 @@ void UrlToXml::changeUnique(QString filePath,QString uniqueStr,QString value,QSt
         {
             QDomNode node = nodeList.at(0);
             QDomElement el=node.toElement();
-            el.setAttribute("unique",uniqueStr+"="+value);
+            el.setAttribute("unique",uniqueStr);
         }
-        nodeList = docElem.elementsByTagName(uniqueStr);
-        if (nodeList.count() >0 )
+        QStringList uniquelist=uniqueStr.split(";;");
+        for(int i=0;i<uniquelist.count();i++)
         {
-            QDomNode node = nodeList.at(0);
-            QDomNode oldnode = node.firstChild();
-            node.firstChild().setNodeValue(value);
-            QDomNode newnode = node.firstChild();
-            node.replaceChild(newnode,oldnode);
-            node.toElement().setAttribute("des",des);
+            QStringList uniquetmplist=uniquelist.at(i).split("=");
+
+            nodeList = docElem.elementsByTagName(uniquetmplist.at(0));
+            if (nodeList.count() >0 )
+            {
+                QDomNode node = nodeList.at(0);
+                QDomNode oldnode = node.firstChild();
+                node.firstChild().setNodeValue(uniquetmplist.at(1));
+                QDomNode newnode = node.firstChild();
+                node.replaceChild(newnode,oldnode);
+                node.toElement().setAttribute("des",des);
+            }
         }
+
 
         QFile filexml(filePath);
         if(!filexml.exists())
@@ -801,8 +843,3 @@ void UrlToXml::on_xmlPathLineEdit_editingFinished()
     }
 }
 
-
-void UrlToXml::on_xmlPathLineEdit_returnPressed()
-{
-
-}

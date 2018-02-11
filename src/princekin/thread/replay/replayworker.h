@@ -67,6 +67,7 @@ private:
     QString qScriptLine;
     QString qScriptBaseName;
     QString qModuleBaseName;
+    QString qstartRunTime;
 
 
     QHash<QString,int> qActualHash;

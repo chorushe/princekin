@@ -1,5 +1,5 @@
 #include "travelworker.h"
-
+#include <QThread>
 TravelWorker::TravelWorker(QObject *parent) : QObject(parent)
 {
     p=new QProcess(this);
@@ -10,6 +10,7 @@ TravelWorker::TravelWorker(QObject *parent) : QObject(parent)
 
 void TravelWorker::startTravel()
 {
+    QThread::sleep(15);
     if(p->state())
         p->write(cmdStr.toLatin1());
     else

@@ -10,6 +10,9 @@
     <height>559</height>
    </rect>
   </property>
+  <property name="mouseTracking">
+   <bool>false</bool>
+  </property>
   <property name="windowTitle">
    <string>UrlToXml</string>
   </property>
@@ -286,24 +289,11 @@
      <string>批量生成</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>690</x>
-      <y>80</y>
-      <width>54</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>参数名：</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="downLoadExcelBtn">
     <property name="geometry">
      <rect>
       <x>690</x>
-      <y>104</y>
+      <y>10</y>
       <width>151</width>
       <height>27</height>
      </rect>
@@ -321,7 +311,7 @@
     <property name="geometry">
      <rect>
       <x>850</x>
-      <y>104</y>
+      <y>10</y>
       <width>151</width>
       <height>27</height>
      </rect>
@@ -339,11 +329,14 @@
     <property name="geometry">
      <rect>
       <x>690</x>
-      <y>140</y>
+      <y>50</y>
       <width>311</width>
-      <height>331</height>
+      <height>421</height>
      </rect>
     </property>
+    <attribute name="horizontalHeaderDefaultSectionSize">
+     <number>77</number>
+    </attribute>
     <column>
      <property name="text">
       <string>文件名</string>
@@ -359,19 +352,6 @@
       <string>描述</string>
      </property>
     </column>
-   </widget>
-   <widget class="QLabel" name="uniqueLabel">
-    <property name="geometry">
-     <rect>
-      <x>740</x>
-      <y>80</y>
-      <width>211</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>未设置唯一识别值</string>
-    </property>
    </widget>
    <widget class="QLabel" name="label_5">
     <property name="geometry">

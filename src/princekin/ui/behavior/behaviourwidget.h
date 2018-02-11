@@ -127,7 +127,7 @@ private:
     QList<DataClass> GetXML(QString fileName);
     void ParseXML(const QDomElement &element);
     QString ParseURL(QString url, bool isLatest);
-    void ShowURL(QString url,QString unique,QString key);
+    void ShowURL(QString url, QString key);
 
     AssistMeasure *assist=NULL;
     QString deviceName;
@@ -220,7 +220,7 @@ private:
     QString qFrames;
     QString qPackageName;
 
-    bool scriptPatternFlag=true;
+    bool scriptPatternFlag=false;
     SwitchControl *scriptSC;
     QLabel *scriptLabel;
     QString currentScriptPath;

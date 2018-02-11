@@ -435,10 +435,7 @@ void PerformanceWidget::on_packageListView_clicked(const QModelIndex &index)//pa
 
 void PerformanceWidget::on_startBtn_clicked()//StartMemMonitor()
 {
-
-    qDebug()<<"pckage"<<packageName;
-
-
+    qDebug()<<"pckage"<<packageName<<"  "<<deviceName;
     if(deviceName=="")
     {
         QMessageBox::information(this,"提示","请选择设备");
@@ -449,10 +446,11 @@ void PerformanceWidget::on_startBtn_clicked()//StartMemMonitor()
         QMessageBox::information(this,"提示","请选择测试项");
         return;
     }
-    if(packageName.contains(deviceName))
+    if(packageName.contains(deviceName))//如果是手机名，那么测试整体手机，包包名设置为空
     {
         packageName="";
     }
+
     //如果测试进程的话，确认下进程是否在
     if(ui->packageListView->currentIndex().row()==-1 && ui->packageLineEdit->text()!="")
     {
@@ -465,21 +463,19 @@ void PerformanceWidget::on_startBtn_clicked()//StartMemMonitor()
         }
     }
 
-
     if(!isStartFlag)
     {
+        if(ui->packageLineEdit->text().trimmed()!=ui->packageListView->currentIndex().data()&&ui->packageListView->currentIndex().row()!=-1)//如果输入框内的内容是一半，则开始测试后把后一半补全
+        {
+            //这里如果不去掉链接的话，会导致槽函数的运行，那么packageName等其他的还会再变
+            disconnect(ui->packageLineEdit,SIGNAL(textChanged(QString)),this,SLOT(on_packageLineEdit_textChanged(QString)));
+            ui->packageLineEdit->setText(ui->packageListView->currentIndex().data().toString());
+            connect(ui->packageLineEdit,SIGNAL(textChanged(QString)),this,SLOT(on_packageLineEdit_textChanged(QString)));
+        }
+
         //*****************20170717*****************//
         qOldPackageName=Helper::getFirstLine(gConfigDir + QDir::separator() + "packageName.txt");
         gOldPackageName=qOldPackageName;
-        //gPackageThreadName=packageName;
-
-        /*
-        bool b=Helper::isPackageName1(packageName);
-        if(!b)
-        {
-            return;
-        }
-        */
 
         if(packageName.isEmpty())
         {
@@ -2263,6 +2259,7 @@ void PerformanceWidget::RecieveWindowDeactive()
 
 void PerformanceWidget::createExcel()
 {
+    qDebug()<<"createexcel";
     ExcelController::Controller *controller=new ExcelController::Controller;
 
     controller->setMark("performance");
@@ -2375,14 +2372,6 @@ void PerformanceWidget::receiveWorkerResult2(const QString&arg_str,const QString
 
 void PerformanceWidget::on_packageLineEdit_textChanged(const QString &arg1)
 {
-  /*  if(ui->packageLineEdit->text()=="")
-    {
-        packageName="";
-        QModelIndex index=ui->packageListView->model()->index(-1,0);
-        ui->packageListView->setCurrentIndex(index);
-        ui->packageListView->scrollToTop();
-        return;
-    }*/
     QString text=ui->packageLineEdit->text();
     gPackageThreadName=text;
     bool isFind=false;

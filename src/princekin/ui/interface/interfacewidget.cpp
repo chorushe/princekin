@@ -175,6 +175,13 @@ void InterfaceWidget::on_startBtn_clicked()
             QMessageBox::information(this,tr("提示"),tr("请选择一个应用"));
             return;
         }
+        if(ui->packageLineEdit->text().trimmed()!=ui->packageListView->currentIndex().data()&&ui->packageListView->currentIndex().row()!=-1)//如果输入框内的内容是一半，则开始测试后把后一半补全
+        {
+            //这里如果不去掉链接的话，会导致槽函数的运行，那么packageName等其他的还会再变
+            disconnect(ui->packageLineEdit,SIGNAL(textChanged(QString)),this,SLOT(on_packageLineEdit_textChanged(QString)));
+            ui->packageLineEdit->setText(ui->packageListView->currentIndex().data().toString());
+            connect(ui->packageLineEdit,SIGNAL(textChanged(QString)),this,SLOT(on_packageLineEdit_textChanged(QString)));
+        }
 
         //*****************20170717*****************//
         qOldPackageName=Helper::getFirstLine(gConfigDir + QDir::separator() + "packageName.txt");
@@ -219,7 +226,6 @@ void InterfaceWidget::on_startBtn_clicked()
         }
         //*****************20170717*****************//
 
-        // QString cmdStr="mitmdump -b "+IP+" -p "+port+" -s e:\\xiaowangzi2_0\\https\\getresponsedata.py";
         QString cmdStr="mitmdump -b "+IP+" -p "+port+" -s "+gConfigDir+QDir::separator()+"getresponsedata.py";
         BehaviorWorker *worker=new BehaviorWorker;
         worker->cmdStr=cmdStr;

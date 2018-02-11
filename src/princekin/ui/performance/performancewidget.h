@@ -60,6 +60,8 @@ public:
     explicit PerformanceWidget(QWidget *parent = 0);
     ~PerformanceWidget();
     void showInit();
+    void exportReport();
+    void createExcel();
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -71,7 +73,7 @@ private:
     void dataInit();
 
     void closeEvent(QCloseEvent *e);
-    void exportReport();
+
 
     void getTraffic(const QString &uid);
     QString getUid();
@@ -80,7 +82,7 @@ private:
     void compareBcak();
 
     void createBaseData();
-    void createExcel();
+
 
     void getXXX();
     void getFrames();
@@ -202,7 +204,7 @@ private:
     QStringListModel *packageModel=NULL;
 
     QString deviceName;
-    QString packageName;
+    QString packageName="";
 
     //从设置里传回来的数据
     int time;

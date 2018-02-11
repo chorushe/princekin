@@ -1,6 +1,8 @@
 #include "replayform.h"
 #include "ui_replayform.h"
 
+
+
 ReplayForm::ReplayForm(QWidget *parent) :QMainWindow(parent),ui(new Ui::ReplayForm)
 {
     ui->setupUi(this);
@@ -33,6 +35,7 @@ ReplayForm::ReplayForm(QWidget *parent) :QMainWindow(parent),ui(new Ui::ReplayFo
     ui->scriptTreeWidget->setHeaderHidden(true);
     ui->scriptTreeWidget->setMouseTracking(true);
 
+
     connect(ui->scriptTreeWidget,SIGNAL(itemChanged(QTreeWidgetItem*,int)),this,SLOT(treeItemChanged(QTreeWidgetItem*,int)));
 
     qDetailSourceXlsx=gConfigDir + QDir::separator() + "report.xlsx";
@@ -40,6 +43,7 @@ ReplayForm::ReplayForm(QWidget *parent) :QMainWindow(parent),ui(new Ui::ReplayFo
     qCrashSourceXlsx=gConfigDir + QDir::separator() + "crash.xlsx";
     showDeviceList();
     mailTimer();
+    isClick=false;
     qRowIndex=5;
 
 }
@@ -98,15 +102,6 @@ void ReplayForm::settingSlot()
 
 void ReplayForm::recieveData(QVariant var)
 {
-    /*
-    this->isMemCheck=isMemCheck;
-    this->isCpuCheck=isCpuCheck;
-    this->isBatteryCheck=isBatteryCheck;
-    this->isCpuTempCheck=isCpuTempCheck;
-    this->isWifiCheck=isWifiCheck;
-    this->isMobileCheck=isMobileCheck;
-    */
-
     signalReplayData_s signalData;
     signalData=var.value<signalReplayData_s>();
 
@@ -362,6 +357,7 @@ void ReplayForm::on_pushButton_4_clicked()
             QMessageBox::information(NULL,"提示","packageName.txt中应用包名不正确");
             return;
         }
+        isClick=true;
         doWork(selectedDeviceIdItemList);
 
     }//else
@@ -369,6 +365,7 @@ void ReplayForm::on_pushButton_4_clicked()
 
 void ReplayForm::doWork( QList<QListWidgetItem *> arg_selectedDeviceIdItemList)
 {
+    gIsCrash=false;
     int index=qScriptList.indexOf("findfolder");
 
     if(index!=-1)
@@ -441,11 +438,16 @@ void ReplayForm::createReportSaveDir()
     gPackagePath=QDir::toNativeSeparators(gPackagePath);
     Helper::createPath(gPackagePath);
 
-    //D:\princekinWorkspace\report\20170927\com.sohu.qianfan\sohuvideoreport_20170927_155913
+    //D:\princekinWorkspace\report\20170927\com.sohu.qianfan\report_20170927_155913
     qDetailedPath=gPackagePath + QDir::separator() + qDetailedFolderName;
     qDetailedPath=QDir::toNativeSeparators(qDetailedPath);
     Helper::createPath(qDetailedPath);
     gDetailedPath=qDetailedPath;
+
+
+    Upload::createFolder(gStartTextDate,gPackageName,qDetailedFolderName);
+
+
 
     int count=qDeviceModelIdNameList.count();
     for(int i=0;i<count;i++)
@@ -476,8 +478,11 @@ void ReplayForm::createReportSaveDir()
         {
             qfileHash.insert(deviceModelIdName,qfile);
             QTextStream *outStream=new QTextStream(qfile);
+            outStream->setCodec(qtc);
             qfilePointerHash.insert(deviceModelIdName,outStream);
         }
+        Upload::createFolder(gStartTextDate,gPackageName,qDetailedFolderName,deviceModelIdName);
+
     }//for
 
 
@@ -494,8 +499,6 @@ void ReplayForm::createReportSaveDir()
     file.close();
     */
 }
-
-
 
 void ReplayForm::setDeviceEnv(QStringList arg_deviceIdList,QStringList arg_moduleNameList)
 {
@@ -544,8 +547,16 @@ void ReplayForm::startRunScript(QStringList arg_deviceIdList,QStringList arg_sec
         connect(controllerInstance,SIGNAL(sendCrashResult(const QString &,const QString &,const QString &,const QString &) ),this,SLOT(receiveCrashResult(const QString &,const QString &,const QString &,const QString &))  );
 
         connect(controllerInstance,SIGNAL(sendErrorResult(const QString &,const QString &) ),this,SLOT(receiveErrorResult(const QString &,const QString &))  );
+
+
         connect(controllerInstance,SIGNAL(sendProcFinished(const QString &) ),this,SLOT(receiveProcFinished(const QString &) ) );
-        connect(this,SIGNAL(sendStopReplay()),controllerInstance,SLOT(receiveStopReplay())  ,Qt::DirectConnection);
+
+        //20180129原
+        //connect(this,SIGNAL(sendStopReplay()),controllerInstance,SLOT(receiveStopReplay())  ,Qt::DirectConnection);
+
+        connect(this,SIGNAL(sendStopReplay()),controllerInstance,SLOT(receiveStopReplay()));
+
+
         connect(controllerInstance,SIGNAL(sendOneScriptFinish(const QString &,bool)),this,SLOT(recieveOneScriptFinish(const QString &,bool)));
 
         pool->start(controllerInstance);
@@ -656,6 +667,7 @@ void ReplayForm::receiveErrorResult(const QString &arg_SecondLevelDirName,const 
     QFile f(strDir);
     f.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text);
     QTextStream out(&f);
+    out.setCodec(qtc);
     out<<receiveTime+arg_error<<endl;
     f.close();
 }
@@ -693,12 +705,12 @@ void ReplayForm::receiveRunScriptResult(const QString &arg_result)
             ui->textEdit->append(receiveTime+arg_result);
         }
     }
+
 }
 
 
 void ReplayForm::receiveReplayResult(const QString &arg_deviceId,const QString &arg_two,QStringList arg_actual, QStringList arg_error,int arg_sec,QStringList arg_moduleCrashList,const QString &arg_startTime,QStringList arg_looplist)
 {
-
     qDebug()<<"----------------------------";
     qDebug()<<arg_deviceId;
     qDebug()<<arg_two;
@@ -719,6 +731,8 @@ void ReplayForm::receiveReplayResult(const QString &arg_deviceId,const QString &
     createPerformance(arg_deviceId,arg_actual,arg_moduleCrashList);
 
 
+    QString localPath;
+    QString datepath;
     QStringList splitResult=qDeviceModelIdNameList.filter(arg_deviceId);
     if(splitResult.count()>=1)
     {
@@ -728,6 +742,16 @@ void ReplayForm::receiveReplayResult(const QString &arg_deviceId,const QString &
         delete qfileHash.value(deviceModelIdName);
         qfilePointerHash.remove(deviceModelIdName);
         qfileHash.remove(deviceModelIdName);
+
+        //D:\princekinWorkspace\report\20170927\com.sohu.qianfan\report_20170927_155913
+        qDetailedPath=gPackagePath + QDir::separator() + qDetailedFolderName;
+        qDetailedPath=QDir::toNativeSeparators(qDetailedPath);
+        localPath=qDetailedPath+QDir::separator()+deviceModelIdName;
+
+        datepath=Upload::getDataPath(qDetailedPath);
+        datepath="/data/ftpuser/test/"+datepath+deviceModelIdName;
+
+        Upload::putScriptlog(localPath,datepath,deviceModelIdName);
     }
 
 
@@ -761,6 +785,8 @@ void ReplayForm::receiveReplayResult(const QString &arg_deviceId,const QString &
         */
 
 
+
+
         emit sendStopReplayForStatistics();
         if(qNumber2==0)
         {
@@ -779,6 +805,9 @@ void ReplayForm::receiveReplayResult(const QString &arg_deviceId,const QString &
 
         qXlsx->selectSheet("base");
         bbb=qXlsx->save();
+
+
+
 
         if(bbb)
         {
@@ -846,6 +875,12 @@ void ReplayForm::receiveReplayResult(const QString &arg_deviceId,const QString &
 
         //ui->pushButton_4->setEnabled(false);
         emit sendSaveXlsx();
+
+
+        QString datapath=Upload::getDataPath(qDetailedPath);
+        datapath="/data/ftpuser/test/"+datepath;
+        Upload::putDaily(datapath);
+
         //emit sendClearPerformance();
         delete qWriteResultInstance;
         delete performanceInstance;
@@ -894,6 +929,13 @@ void ReplayForm::receiveReplayResult(const QString &arg_deviceId,const QString &
             */
 
         }
+
+        if(gIsCrash)
+        {
+            crashsendmail();
+        }
+
+
     }
 }
 
@@ -1558,14 +1600,15 @@ void ReplayForm::createDaily(const QString &arg_deviceId, QStringList arg_actual
         qXlsx->write(cell,tempValue);
 
 
-
-
-
         //QString logcatPath=qDetailedPath+QDir::separator()+model+"-"+arg_deviceId+QDir::separator()+"logcat";
         QString logcatPath=qDetailedPath+QDir::separator()+model+"-"+arg_deviceId;
+
+        QString httppath=Upload::getHttp(logcatPath);
+
         Format hyperlinkFormat;
         hyperlinkFormat=getHyperlinkFormat();
         QUrl url=QUrl::fromLocalFile(logcatPath);
+        url.setUrl(httppath);
         qXlsx->currentWorksheet()->writeHyperlink(qRowIndex,7,url,hyperlinkFormat,"具体详情","");
 
 
@@ -2073,6 +2116,10 @@ QString ReplayForm::getWifiMobile(const QString &arg_deviceId)
 
 void ReplayForm::mailTimerSlot()
 {
+    if(!isClick)
+    {
+        return;
+    }
     QString currentTime;
     QString settime;
     QDateTime datetime=QDateTime::currentDateTime();
@@ -2603,6 +2650,7 @@ void ReplayForm::restartscript()
 {
     qStatisticsDataList.clear();
     getStatisticsData();
+    qRunResultList.clear();
     qFirstLevelDirName=qRepoName + "report_" + Helper::getTime2("yyyyMMdd_hhmmss");
     qDetailedFolderName=qRepoName + "report_" + Helper::getTime2("yyyyMMdd_hhmmss");
 
@@ -2630,6 +2678,377 @@ void ReplayForm::restartscript()
     createCrashReport();
 
     isRun=true;
+    gIsCrash=false;
     startPerformance(qDeviceIdList);
     startRunScript(qDeviceIdList,qDeviceModelIdNameList,qScriptList);
+}
+
+void ReplayForm::catchCrash()
+{
+    if(isRun)
+    {
+        emit sendStopReplay();
+        isRun=false;
+    }
+    qDebug()<<"crash";
+    //crashsendmail();
+}
+
+
+void ReplayForm::crashsendmail()
+{
+    QString dailyXlsx;
+    QStringList tempList;
+
+    QFile file;
+    gDatePath=QDir::toNativeSeparators(gDatePath);
+    QDir dir(gDatePath);
+    dir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+    QStringList list=dir.entryList();
+    for(QString var:list)
+    {
+        dailyXlsx=gDatePath + QDir::separator() + var + QDir::separator() + "daily" + gStartTextDate + ".xlsx";
+        dailyXlsx=QDir::toNativeSeparators(dailyXlsx);
+        tempList.append(dailyXlsx);
+
+        int allTest=0;
+        int errorTest=0;
+        int okTest=0;
+
+        QString strLine;
+        QStringList deviceList;
+        QStringList failList;
+        QStringList splitResult;
+
+        file.setFileName(gConfigDir+QDir::separator()+var+"_rowindex.txt");
+        file.open(QIODevice::ReadOnly);
+        QTextStream inStream(&file);
+
+        /*
+        while(!inStream.atEnd())
+        {
+            strLine=inStream.readLine();
+            splitResult=strLine.split("=");
+            if(deviceList.indexOf(splitResult.at(0))==-1)
+            {
+                deviceList.append(splitResult.at(0));
+            }
+            if(strLine.contains("Fail"))
+            {
+                if(failList.indexOf(strLine)==-1)
+                {
+                    failList.append(strLine);
+                }
+                errorTest++;
+            }
+            allTest++;
+        }
+        */
+
+        QString ssss1;
+        QString strFailDevice;
+        while(!inStream.atEnd())
+        {
+            strLine=inStream.readLine();
+            splitResult=strLine.split("=");
+
+            strFailDevice=splitResult.at(0);
+            if(deviceList.indexOf(strFailDevice)==-1)
+            {
+                deviceList.append(strFailDevice);
+            }
+            ssss1=splitResult.at(1);
+            splitResult=ssss1.split("/");
+            if(splitResult.at(0)!=splitResult.at(1))
+            {
+                if(failList.indexOf(strFailDevice)==-1)
+                {
+                    failList.append(strFailDevice);
+                }
+            }
+        }
+
+
+        file.setFileName(gConfigDir+QDir::separator()+var+"_rowindex.txt");
+        file.open(QIODevice::ReadOnly);
+        QTextStream inStream_2(&file);
+
+        int dall=0;
+        int dok=0;
+        QString strNum;
+        while(!inStream_2.atEnd())
+        {
+            strLine=inStream_2.readLine().trimmed();
+            if(!strLine.isEmpty())
+            {
+                splitResult=strLine.split("=");
+                strNum=splitResult.at(1);
+                splitResult=strNum.split("/");
+                dok=splitResult.at(0).toInt();
+                dall=splitResult.at(1).toInt();
+                okTest=okTest+dok;
+                allTest=allTest+dall;
+            }
+        }
+
+        file.close();
+
+
+
+
+
+
+
+
+
+        double per;
+        QString cell;
+        QString appName;
+        QString strPer;
+
+        /*
+        int allDevice=deviceList.count();
+        int failDevice=failList.count();
+        int goodDevice=allDevice-failDevice;
+        */
+
+
+        Document qXlsx2(dailyXlsx);
+        qXlsx2.selectSheet("base");
+        appName=qXlsx2.cellAt(1,3)->value().toString();
+
+
+        //per=(double)goodDevice/allDevice*100;
+        //strPer=QString::number(per,'f',2);
+
+        //cell="C2";
+        //qXlsx2.write(cell,QString::number(goodDevice)+"/"+QString::number(allDevice));
+
+
+        QStringList crashDeviceList;
+        QStringList allDeviceList;
+        file.setFileName(gConfigDir+QDir::separator()+var+"_crash.txt");
+        file.open(QIODevice::ReadOnly);
+        QTextStream inStream_1(&file);
+        while(!inStream_1.atEnd())
+        {
+            strLine=inStream_1.readLine().trimmed();
+            splitResult=strLine.split("=");
+            if(allDeviceList.indexOf(splitResult.at(0))==-1)
+            {
+                allDeviceList.append(splitResult.at(0));
+            }
+            if(strLine.endsWith("=Yes"))
+            {
+                if(crashDeviceList.indexOf(strLine)==-1)
+                {
+                    crashDeviceList.append(strLine);
+                }
+            }
+        }
+        int allDevice=allDeviceList.count();
+        int failDevice=crashDeviceList.count();
+        int goodDevice=allDevice-failDevice;
+        cell="C2";
+        qXlsx2.write(cell,QString::number(goodDevice)+"/"+QString::number(allDevice));
+
+
+
+
+        int goodTest=allTest-errorTest;
+        per=(double)goodTest/allTest*100;
+        strPer=QString::number(per,'f',2);
+
+        qDebug()<<goodTest;
+        qDebug()<<allTest;
+        qDebug()<<per;
+        qDebug()<<strPer;
+
+
+        cell="E2";
+        //qXlsx2.write(cell,QString::number(goodTest)+"/"+QString::number(allTest));
+        qXlsx2.write(cell,QString::number(okTest)+"/"+QString::number(allTest));
+
+
+        appName=qXlsx2.cellAt(1,3)->value().toString();
+
+        QStringList startTimeList;
+        file.setFileName(gConfigDir+QDir::separator()+var+"_starttime.txt");
+        file.open(QIODevice::ReadOnly);
+        QTextStream inStream3(&file);
+        while(!inStream3.atEnd())
+        {
+            strLine=inStream3.readLine();
+            if(!strLine.trimmed().isEmpty())
+            {
+                startTimeList.append(strLine.trimmed());
+            }
+        }
+        file.close();
+
+
+        QStringList endTimeList;
+        file.setFileName(gConfigDir+QDir::separator()+var+"_endtime.txt");
+        file.open(QIODevice::ReadOnly);
+        QTextStream inStream4(&file);
+        while(!inStream4.atEnd())
+        {
+            strLine=inStream4.readLine();
+            if(!strLine.trimmed().isEmpty())
+            {
+                endTimeList.append(strLine.trimmed());
+            }
+        }
+        file.close();
+
+
+        qint64 t=0;
+        qint64 t2=0;
+        QString startT;
+        QString endT;
+
+        int n1=startTimeList.count();
+        int n2=endTimeList.count();
+        if(n1==n2)
+        {
+            for(int i=0;i<n1;i++)
+            {
+                startT=startTimeList.at(i);
+                endT=endTimeList.at(i);
+                QDateTime d1=QDateTime::fromString(startT,"yyyy-MM-dd hh:mm:ss");
+                QDateTime d2=QDateTime::fromString(endT,"yyyy-MM-dd hh:mm:ss");
+                t=d1.msecsTo(d2)/1000;
+                t2=t2+t;
+            }
+            int hours=t2/3600;
+            int re=t2%3600;
+            int minutes=re/60;
+            int seconds=re%60;
+            QString times=QString::number(hours)+"时"+QString::number(minutes)+"分"+QString::number(seconds)+"秒";
+            cell="G2";
+            qXlsx2.write(cell,times);
+        }
+        else
+        {
+            for(int i=0;i<n1-1;i++)
+            {
+                startT=startTimeList.at(i);
+                endT=endTimeList.at(i);
+                QDateTime d1=QDateTime::fromString(startT,"yyyy-MM-dd hh:mm:ss");
+                QDateTime d2=QDateTime::fromString(endT,"yyyy-MM-dd hh:mm:ss");
+                t=d1.msecsTo(d2)/1000;
+                t2=t2+t;
+            }
+
+            startT=startTimeList.at(n1-1);
+            endT=Helper::getTime2("yyyy-MM-dd hh:mm:ss");
+
+            QDateTime dd1=QDateTime::fromString(startT,"yyyy-MM-dd hh:mm:ss");
+            QDateTime dd2=QDateTime::fromString(endT,"yyyy-MM-dd hh:mm:ss");
+            t=dd1.msecsTo(dd2)/1000;
+            t2=t2+t;
+
+            int hours=t2/3600;
+            int re=t2%3600;
+            int minutes=re/60;
+            int seconds=re%60;
+            QString times=QString::number(hours)+"时"+QString::number(minutes)+"分"+QString::number(seconds)+"秒";
+            cell="G2";
+            qXlsx2.write(cell,times);
+        }
+
+        qXlsx2.save();
+
+
+        file.setFileName(gConfigDir+QDir::separator() + var+"_mailContent_daily.txt");
+        QTextStream outStream(&file);
+        if(!file.open(QIODevice::WriteOnly))
+        {
+            file.close();
+        }
+
+        outStream.setCodec(qtc);
+        QString tempStr;
+
+        tempStr="To All:";
+        outStream<<tempStr<<endl;
+
+        tempStr="APP名称: "+appName;
+        outStream<<tempStr<<endl;
+
+        tempStr="测试平台: android";
+        outStream<<tempStr<<endl;
+
+        tempStr="测试设备: " + deviceList.join(",");
+        outStream<<tempStr<<endl;
+
+
+        tempStr="测试设备通过数/总数: "+QString::number(goodDevice)+"/"+QString::number(allDevice);
+        outStream<<tempStr<<endl;
+
+        //tempStr="测试通过率: "+QString::number(goodTest)+"/"+QString::number(allTest);
+        tempStr="case通过率: "+QString::number(okTest)+"/"+QString::number(allTest);
+        outStream<<tempStr<<endl;
+
+        tempStr="测试日期: "+gStartTextDate;
+        outStream<<tempStr<<endl;
+
+        tempStr="------------------------------------------------------";
+        outStream<<tempStr<<endl;
+
+        tempStr="Brs";
+        outStream<<tempStr<<endl;
+
+        tempStr="小王子团队";
+        outStream<<tempStr<<endl;
+
+        tempStr="Tel: 何畅022-65303756 OR 周朝彬010-56602399";
+        outStream<<tempStr<<endl;
+
+        tempStr="Email: changhe@sohu-inc.com OR chaobinzhou@sohu-inc.com";
+        outStream<<tempStr<<endl;
+
+        tempStr="QQ: 周朝彬1787072341";
+        outStream<<tempStr<<endl;
+        file.close();
+
+        QString filename=gConfigDir + QDir::separator() + "emailsender.txt";
+        tempList=Helper::getList(filename);
+        if(tempList.size()>=2)
+        {
+            QString senderName=tempList.at(0);
+            QString senderKey=tempList.at(1);
+            QString cmdLine;
+
+            QString subject=appName + "自动化测试-日报-" + gStartTextDate;
+            QString mailContentFile=gConfigDir + QDir::separator() + var +"_mailContent_daily.txt";
+            mailContentFile=QDir::toNativeSeparators(mailContentFile);
+
+            QString receiver=gConfigDir + QDir::separator() + "email.txt";
+
+            cmdLine="cmd /c java -jar " + gConfigDir + QDir::separator() + "sendmail2.jar" + " " + senderName + " " + senderKey + " " + receiver +  " " + subject + " " + mailContentFile + " " + dailyXlsx;
+            cmdLine=cmdLine.trimmed();
+            //Helper::runCmd(cmdLine);
+
+            AdbShellController::Controller *controller=new AdbShellController::Controller;
+            controller->setMark("getAll","sendmail");
+            controller->setCmdLine(cmdLine);
+            //connect(controller,SIGNAL(sendWorkerResult(const QString&,const QString&)),this,SLOT(receiveWorkerResult1(const QString&,const QString&)));
+            controller->doController();
+        }
+        QFile file(gConfigDir+QDir::separator()+var+"_rowindex.txt");
+        file.remove();
+
+        file.setFileName(gConfigDir+QDir::separator()+var+"_crash.txt");
+        file.remove();
+
+        file.setFileName(gConfigDir+QDir::separator()+var+"_starttime.txt");
+        file.remove();
+
+        file.setFileName(gConfigDir+QDir::separator()+var+"_endtime.txt");
+        file.remove();
+
+        Helper::writeStr(gConfigDir+QDir::separator()+var+"_base.txt",QString::number(5));
+        Helper::writeStr(gConfigDir+QDir::separator()+var+"_performance.txt",QString::number(3));
+    }//for
 }

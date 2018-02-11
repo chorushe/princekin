@@ -20,7 +20,10 @@
 #include "princekinabout.h"
 #include "ui/interface/interfacewidget.h"
 #include "tool/toolboxwidget.h"
-
+#include "DbgHelp.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include "windows.h"
 namespace Ui {
 class Princekin;
 }
@@ -70,6 +73,8 @@ private slots:
     void helpBtn_clicked();
     void aboutBtn_clicked();
 
+    void recieveCrashSignal();
+
 private:
     Ui::Princekin *ui;
 
@@ -77,7 +82,7 @@ private:
     Record *recordUi=NULL;
 
     QPointer<ReplayForm> replayPointer=NULL;
-    ReplayForm *replayFormInstance=NULL;
+    //ReplayForm *replayFormInstance=NULL;
 
     QPalette   palWhite;
     QPalette   palBlack;

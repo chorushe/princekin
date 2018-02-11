@@ -16,6 +16,7 @@
 #include "appsize.h"
 #include "htmlinfo.h"
 #include "string.h"
+#include "upload.h"
 #include "xlsxdocument.h"
 #include "xlsxformat.h"
 #include "xlsxcellrange.h"
@@ -207,7 +208,7 @@ private:
     QStringList qCpuTempInfoList;
     double qAllWifi;
     double qAllMobile;
-    QTextCodec *qtc=QTextCodec::codecForName("gb2312");
+    QTextCodec *qtc=QTextCodec::codecForName("utf-8");
 
 };
 }

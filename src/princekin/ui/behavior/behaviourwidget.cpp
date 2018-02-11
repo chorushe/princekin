@@ -118,8 +118,9 @@ BehaviourWidget::BehaviourWidget(QWidget *parent) :
     connect(ui->xmlTreeWidget,SIGNAL(itemChanged(QTreeWidgetItem*,int)),this,SLOT(treeItemChanged(QTreeWidgetItem*,int)));
     connect(ui->scriptTreeWidget,SIGNAL(itemChanged(QTreeWidgetItem*,int)),this,SLOT(treeItemChanged(QTreeWidgetItem*,int)));
 
-    ui->xmlTreeWidget->setVisible(false);//一开始的脚本模式，去掉xml文件列表的显示
-    toolBar3->setVisible(false);
+    ui->scriptTreeWidget->setVisible(false);//一开始的手动模式，去掉脚本文件列表的显示
+    ui->scriptTextEdit->setVisible(false);
+    toolBar2->setVisible(false);
     //初始化脚本模式xml文件的根路径
     xmlRootPath = gWorkSpace + QDir::separator() + "StatisticalXML";
 }
@@ -183,11 +184,11 @@ void BehaviourWidget::createToolBar()
     spacer->setStyleSheet("QWidget{background:#ffffff;}");
     toolBar->addWidget(spacer);
 
-    scriptLabel=new QLabel("脚本模式 ");
+    scriptLabel=new QLabel("手动模式 ");
     toolBar->addWidget(scriptLabel);
 
     scriptSC=new SwitchControl;
-    scriptSC->setToggle(true);
+    scriptSC->setToggle(false);
     scriptSC->setCheckedColor(QColor("#c1904d"));
     scriptSC->setFixedSize(40,20);
     toolBar->addWidget(scriptSC);
@@ -322,7 +323,10 @@ void BehaviourWidget::on_xmlTreeWidget_itemChanged(QTreeWidgetItem *item, int co
             QString xmlPath=StaticticsHerper::getBasePathForXml(item);
             it=allXmlData.find( xmlPath );
             allXmlData.erase(it);
-            xmlNum[xmlPath]=0;
+
+            QMap<QString,int>::iterator itt;
+            itt=xmlNum.find(xmlPath);
+            xmlNum.erase(itt);
             gxmlNum=xmlNum;
             QLabel *numlabel=new QLabel;
             numlabel->setText("<font color=black>&nbsp;</font>");
@@ -920,21 +924,35 @@ void BehaviourWidget::readFromServerClass(QString str)
 
     for(it=allXmlData.begin();it!=allXmlData.end();++it)
     {
-        if(str.contains(it.value()[0].UniqueIdenti)&&str.contains(it.value()[0].revelantHead))//unique是全局检测的检测标准，但单个检测时需要revelant
+        if(str.contains(it.value()[0].revelantHead))//先用revelant进行大过滤
         {
-            tmp=it.value()[0].revelantHead;
-            num=str.indexOf(tmp);
-            str=str.mid(num);
-            tmp="HTTP/1.0";//结尾的标志，但是和对手机直接抓包的不一样，那是1.1这是1.0
-            num=str.indexOf(tmp);
-            if(num!=-1)
+            //接下来用unique的字段进行小过率
+            QStringList uniquelist=it.value()[0].UniqueIdenti.split(";;");
+            bool uniqueflag=true;
+            for(int i=0;i<uniquelist.count();i++)
             {
-                num+=tmp.length();
-                QString url=UrlDecode( str.left(num));
-                ShowURL(url,it.value()[0].UniqueIdenti,it.key());
-                str=str.mid(num);
+                if(!str.contains(uniquelist[i]))
+                {
+                    uniqueflag=false;
+                    break;
+                }
             }
-            break;
+            if(uniqueflag)//如果所有关键识别值都匹配成功
+            {
+                tmp=it.value()[0].revelantHead;
+                num=str.indexOf(tmp);
+                str=str.mid(num);
+                tmp="HTTP/1.0";//结尾的标志，但是和对手机直接抓包的不一样，那是1.1这是1.0
+                num=str.indexOf(tmp);
+                if(num!=-1)
+                {
+                    num+=tmp.length();
+                    QString url=UrlDecode( str.left(num));
+                    ShowURL(url,it.key());
+                    str=str.mid(num);
+                }
+                break;
+            }
         }
 
     }
@@ -948,10 +966,24 @@ void BehaviourWidget::ReadStandardOutput(QString res)
         QMap<QString,QList<DataClass> >::iterator it;
         for(it=allXmlData.begin();it!=allXmlData.end();++it)
         {
-            if(res.contains(it.value()[0].UniqueIdenti)&&res.contains(it.value()[0].revelantHead))//unique是全局检测的检测标准，但单个检测时需要revelant
+            if(res.contains(it.value()[0].revelantHead))//先用revelant进行大过滤
             {
-                ShowURL(res,it.value()[0].UniqueIdenti,it.key());
-                break;
+                //接下来用unique的字段进行小过率
+                QStringList uniquelist=it.value()[0].UniqueIdenti.split(";;");
+                bool uniqueflag=true;
+                for(int i=0;i<uniquelist.count();i++)
+                {
+                    if(!res.contains(uniquelist[i]))
+                    {
+                        uniqueflag=false;
+                        break;
+                    }
+                }
+                if(uniqueflag)//如果所有关键识别值都匹配成功
+                {
+                    ShowURL(res,it.key());
+                    break;
+                }
             }
         }
     }
@@ -966,79 +998,70 @@ void BehaviourWidget::ReadStandardOutput(QString res)
             urlTimeList.append(stru);
         }
     }
-
 }
-
-void BehaviourWidget::ShowURL(QString url,QString unique,QString key)
+void BehaviourWidget::ShowURL(QString url,QString key)
 {
-    //url=UrlDecode(url);
-    if(url.contains(unique))
+    urlList<<url;//所有的url都放在一个qstring list里保存，对字符串操作时都对原始的字符串操作，而显示出来的字符串是有空格或其他变化的，包括用label显示后无法拿到label的text
+
+    url.replace("&","& ");//setwordwrap属性需要针对字符串中有空格等分隔符才行，所以这里加了空格作为分隔，这样再用label显示时便可以达到自动换行的效果
+    QLabel *tmpLabel=new QLabel;
+    tmpLabel->setText(url);
+    tmpLabel->setWordWrap(true);
+
+    QListWidgetItem *item=new QListWidgetItem(ui->urlListWidget);
+    item->setSizeHint(QSize(ui->urlListWidget->width()-30,ui->urlListWidget->height()));
+    ui->urlListWidget->setItemWidget(item,tmpLabel);
+
+    //鼠标回到最新一条更新结果时，会更新统计点显示，滚动条也会随之移动，否则统计点只显示当前选中的url，滚动条也不动！！！
+    bool isLatest ;
+    if(ui->urlListWidget->currentRow()==(ui->urlListWidget->count()-2))//-2是因为此时已经添加了最新的一条，而当前值还在上一条
+        isLatest=true;
+    else
+        isLatest=false;
+    if(isLatest)
     {
-        urlList<<url;//所有的url都放在一个qstring list里保存，对字符串操作时都对原始的字符串操作，而显示出来的字符串是有空格或其他变化的，包括用label显示后无法拿到label的text
+        ui->urlListWidget->setCurrentRow(ui->urlListWidget->count()-1);
+        ui->urlListWidget->scrollToBottom();
+    }
+    isSuccess=true;
+    QString errorStr = ParseURL(urlList[urlList.count()-1],isLatest);//如果当前选中项是最后一项，解析最新的url,如果选中项是以前的，则不更新
 
-        url.replace("&","& ");//setwordwrap属性需要针对字符串中有空格等分隔符才行，所以这里加了空格作为分隔，这样再用label显示时便可以达到自动换行的效果
-        QLabel *tmpLabel=new QLabel;
-        tmpLabel->setText(url);
-        tmpLabel->setWordWrap(true);
+    if(isSuccess)
+        statRes.append(key+"&√");
+    else
+        statRes.append(key+"&×"+errorStr);
+    qDebug()<<key;
+    qDebug()<<statRes[statRes.length()-1];
 
-        QListWidgetItem *item=new QListWidgetItem(ui->urlListWidget);
-        item->setSizeHint(QSize(ui->urlListWidget->width()-30,ui->urlListWidget->height()));
-        ui->urlListWidget->setItemWidget(item,tmpLabel);
+    urlErrorList<<isSuccess;//虽然不是最新的不会显示，但是解析时还是能判断isSuccess字段的
 
-        //鼠标回到最新一条更新结果时，会更新统计点显示，滚动条也会随之移动，否则统计点只显示当前选中的url，滚动条也不动！！！
-        bool isLatest ;
-        if(ui->urlListWidget->currentRow()==(ui->urlListWidget->count()-2))//-2是因为此时已经添加了最新的一条，而当前值还在上一条
-            isLatest=true;
-        else
-            isLatest=false;
-        if(isLatest)
+    QTreeWidgetItemIterator treeitem(ui->xmlTreeWidget);
+    while(*treeitem)
+    {
+        if(StaticticsHerper::getBasePathForXml((*treeitem))==key)
         {
-            ui->urlListWidget->setCurrentRow(ui->urlListWidget->count()-1);
-            ui->urlListWidget->scrollToBottom();
-        }
-        isSuccess=true;
-        QString errorStr = ParseURL(urlList[urlList.count()-1],isLatest);//如果当前选中项是最后一项，解析最新的url,如果选中项是以前的，则不更新
-
-        if(isSuccess)
-            statRes.append(key+"&√");
-        else
-            statRes.append(key+"&×"+errorStr);
-        qDebug()<<key;
-        qDebug()<<statRes[statRes.length()-1];
-
-        urlErrorList<<isSuccess;//虽然不是最新的不会显示，但是解析时还是能判断isSuccess字段的
-
-        QTreeWidgetItemIterator treeitem(ui->xmlTreeWidget);
-        while(*treeitem)
-        {
-            if(StaticticsHerper::getBasePathForXml((*treeitem))==key)
+            QLabel *numLabel=new QLabel;
+            int tmpnum=xmlNum[key];
+            xmlNum[key]=++tmpnum;
+            gxmlNum=xmlNum;
+            numLabel->setText("<font color=black>&nbsp;" + QString::number(tmpnum)+ "</font>");
+            ui->xmlTreeWidget->setItemWidget((*treeitem),2,numLabel);
+            //设置未成功的文件是X状态
+            QLabel *tmplabel=new QLabel;
+            if(isSuccess==false)//判断检测是否成功，不成功加X,成功加对号
             {
-                QLabel *numLabel=new QLabel;
-                int tmpnum=xmlNum[key];
-                xmlNum[key]=++tmpnum;
-                gxmlNum=xmlNum;
-                numLabel->setText("<font color=black>&nbsp;" + QString::number(tmpnum)+ "</font>");
-                ui->xmlTreeWidget->setItemWidget((*treeitem),2,numLabel);
-                //设置未成功的文件是X状态
-                QLabel *tmplabel=new QLabel;
-                if(isSuccess==false)//判断检测是否成功，不成功加X,成功加对号
-                {
-                    tmplabel->setText("<font color=red>&nbsp;X</font>");
-                    ui->xmlTreeWidget->setItemWidget((*treeitem),1,tmplabel);
-                    break;
-                }
-                else
-                {
-                    tmplabel->setText("<font color=green>&nbsp;√</font>");
-                    ui->xmlTreeWidget->setItemWidget((*treeitem),1,tmplabel);
-                    break;
-                }
-
-
+                tmplabel->setText("<font color=red>&nbsp;X</font>");
+                ui->xmlTreeWidget->setItemWidget((*treeitem),1,tmplabel);
+                break;
             }
-            ++treeitem;
+            else
+            {
+                tmplabel->setText("<font color=green>&nbsp;√</font>");
+                ui->xmlTreeWidget->setItemWidget((*treeitem),1,tmplabel);
+                break;
+            }
         }
-
+        ++treeitem;
     }
 }
 
@@ -1053,7 +1076,17 @@ QString BehaviourWidget::ParseURL(QString url,bool isLatest)//点击url列表时
     QMap<QString,QList<DataClass> >::iterator it;
     for(it=allXmlData.begin();it!=allXmlData.end();++it)
     {
-        if(url.contains(it.value()[0].UniqueIdenti))
+        QStringList uniquelist=it.value()[0].UniqueIdenti.split(";;");
+        bool uniqueflag=true;
+        for(int i=0;i<uniquelist.count();i++)
+        {
+            if(!url.contains(uniquelist[i]))
+            {
+                uniqueflag=false;
+                break;
+            }
+        }
+        if(uniqueflag)//如果所有关键识别值都匹配成功
         {
             isFind=true;
             tmp=it.value()[0].revelantHead;
@@ -1265,11 +1298,13 @@ QList<DataClass> BehaviourWidget::GetXML(QString fileName)//打开XML文件，�
         if(!document.setContent(&file, false, &error, &row, &column))
         {
             QMessageBox::information(NULL, QString("提示"), QString("解析文件错误，行： ") + QString::number(row, 10) + QString(" ,列： ") + QString::number(column, 10));
+            file.close();
             return tempData;
         }
         if(document.isNull())
         {
             QMessageBox::information(NULL, QString("提示"), QString("文件为空"));
+            file.close();
             return tempData;
         }
         QDomElement root = document.documentElement();
@@ -1300,7 +1335,7 @@ QList<DataClass> BehaviourWidget::GetXML(QString fileName)//打开XML文件，�
         }
 
         ParseXML(root);
-
+        file.close();
         return xmlData;
     }
 }
@@ -1380,28 +1415,11 @@ void BehaviourWidget::AddXmlBtnClicked()
         QTreeWidgetItem *item=ui->xmlTreeWidget->itemAt(0,0);
         ui->xmlTreeWidget->setCurrentItem(item);
 
-        //重新加载xml文件时所有东西清空。。。
-        /*ui->statisticsListWidget->clear();
-        urlList.clear();
-        urlErrorList.clear();
-
-        ui->urlListWidget->clear();
-        revelantHead="";*/
         allXmlData.clear();
         xmlNum.clear();
         gxmlNum.clear();
         xmlData.clear();
         xmlMatch.clear();
-
-        /*QListWidgetItem *item1=new QListWidgetItem(ui->urlListWidget);
-        QLabel *tmpLabel=new QLabel;
-        tmpLabel->setText("<font color=gray>URL列表</font>");
-        ui->urlListWidget->setItemWidget(item1,tmpLabel);
-        urlList.append("URL列表");
-        QListWidgetItem *item2=new QListWidgetItem(ui->statisticsListWidget);
-        QLabel *tmpLabel2=new QLabel;
-        tmpLabel2->setText("<font color=gray>统计点列表</font>");
-        ui->statisticsListWidget->setItemWidget(item2,tmpLabel2);*/
     }
     else//如果路径与之前一致，
     {
@@ -1419,8 +1437,12 @@ void BehaviourWidget::AddXmlBtnClicked()
             ++item;
         }
         ui->xmlTreeWidget->clear();
-        QTreeWidgetItem *fileItem = new QTreeWidgetItem();
-        StaticticsHerper::LoadFiles(filePath,ui->xmlTreeWidget,fileItem);
+        QTreeWidgetItem *fileItem = new QTreeWidgetItem(QStringList()<<"selectAll",0);
+        fileItem->setIcon(0,QIcon(":/folder.png"));
+        fileItem->setCheckState(0,Qt::Unchecked);
+        ui->xmlTreeWidget->addTopLevelItem(fileItem);
+
+        StaticticsHerper::LoadFiles(filePath,NULL,fileItem);
         QTreeWidgetItem *itemm=ui->xmlTreeWidget->itemAt(0,0);
         ui->xmlTreeWidget->setCurrentItem(itemm);
 
@@ -1657,6 +1679,23 @@ void BehaviourWidget::stopRun()
         fileLogcat->close();
         if(fileLogcat->size()==0)
             QFile::remove(fileLogcat->fileName());
+    }
+
+    //把没有检测到的xml文件写到statRes变量里
+    QMap<QString,QList<DataClass> >::const_iterator i;
+    for(i=allXmlData.constBegin();i!=allXmlData.constEnd();i++)
+    {
+        bool containFlag=false;
+        for(int j=0;j<statRes.count();j++)
+        {
+            if(statRes[j].contains(i.key()))
+            {
+                containFlag=true;
+                break;
+            }
+        }
+        if(!containFlag)
+            statRes.append(i.key()+"&...");
     }
 
     exportReport();
@@ -2004,42 +2043,57 @@ bool BehaviourWidget::FindMatchUrl(QString xmlFile)
     for(int p=0;p<urlListFour.length();p++)
     {
         // qDebug()<<"----"<<urlListFour[p];
-        if(urlListFour[p].contains(unique)&&urlListFour[p].contains(revelantHead))//unique是全局检测的检测标准，但单个检测时需要revelant
+        if(urlListFour[p].contains(revelantHead))//先用revelant进行大过滤
         {
-            QString url=urlListFour[p];
-            urlList<<url;//所有的url都放在一个qstring list里保存，对字符串操作时都对原始的字符串操作，而显示出来的字符串是有空格或其他变化的，包括用label显示后无法拿到label的text
+            //接下来用unique的字段进行小过率
+            QStringList uniquelist=unique.split(";;");
+            bool uniqueflag=true;
+            for(int i=0;i<uniquelist.count();i++)
+            {
+                if(!urlListFour[p].contains(uniquelist[i]))
+                {
+                    uniqueflag=false;
+                    break;
+                }
+            }
+            if(uniqueflag)//如果所有关键识别值都匹配成功
+            {
 
-            url.replace("&","& ");//setwordwrap属性需要针对字符串中有空格等分隔符才行，所以这里加了空格作为分隔，这样再用label显示时便可以达到自动换行的效果
+                QString url=urlListFour[p];
+                urlList<<url;//所有的url都放在一个qstring list里保存，对字符串操作时都对原始的字符串操作，而显示出来的字符串是有空格或其他变化的，包括用label显示后无法拿到label的text
 
-            QLabel *tmpLabel=new QLabel;
-            tmpLabel->setText(url);
-            tmpLabel->setWordWrap(true);
-            QListWidgetItem *item=new QListWidgetItem(ui->urlListWidget);
-            item->setSizeHint(QSize(ui->urlListWidget->width()-30,ui->urlListWidget->height()));
-            ui->urlListWidget->setItemWidget(item,tmpLabel);
-            //判断是否是最低端数据，如果是，滚动条跟着动
-            bool isLatest ;
-            if(ui->urlListWidget->currentRow()==(ui->urlListWidget->count()-2))//-2是因为此时已经添加了最新的一条，而当前值还在上一条
-                isLatest=true;
-            else
-                isLatest=false;
-            if(isLatest)
-            {
-                ui->urlListWidget->setCurrentRow(ui->urlListWidget->count()-1);
-                ui->urlListWidget->scrollToBottom();
+                url.replace("&","& ");//setwordwrap属性需要针对字符串中有空格等分隔符才行，所以这里加了空格作为分隔，这样再用label显示时便可以达到自动换行的效果
+
+                QLabel *tmpLabel=new QLabel;
+                tmpLabel->setText(url);
+                tmpLabel->setWordWrap(true);
+                QListWidgetItem *item=new QListWidgetItem(ui->urlListWidget);
+                item->setSizeHint(QSize(ui->urlListWidget->width()-30,ui->urlListWidget->height()));
+                ui->urlListWidget->setItemWidget(item,tmpLabel);
+                //判断是否是最低端数据，如果是，滚动条跟着动
+                bool isLatest ;
+                if(ui->urlListWidget->currentRow()==(ui->urlListWidget->count()-2))//-2是因为此时已经添加了最新的一条，而当前值还在上一条
+                    isLatest=true;
+                else
+                    isLatest=false;
+                if(isLatest)
+                {
+                    ui->urlListWidget->setCurrentRow(ui->urlListWidget->count()-1);
+                    ui->urlListWidget->scrollToBottom();
+                }
+                errorStr = ParseURLForCheck(urlListFour[p],singleXmlData,isLatest);
+                isFind=true;
+                if(errorStr=="")
+                {
+                    urlErrorList<<true;
+                }
+                else
+                {
+                    urlErrorList<<false;
+                    tempFlagForStat=false;
+                }
+                break;
             }
-            errorStr = ParseURLForCheck(urlListFour[p],singleXmlData,isLatest);
-            isFind=true;
-            if(errorStr=="")
-            {
-                urlErrorList<<true;
-            }
-            else
-            {
-                urlErrorList<<false;
-                tempFlagForStat=false;
-            }
-            break;
         }
     }
 
@@ -2210,105 +2264,114 @@ QString BehaviourWidget::ParseURLForCheck(QString url, QList<DataClass> xmlData,
 
     QString tmp="";
     QString errorStr="";
-    if(url.contains(xmlData[0].UniqueIdenti))
+    tmp=xmlData[0].revelantHead;
+    url=url.mid(tmp.length());//把get前缀去掉
+    tmp="HTTP/1.1";
+    url=url.left(url.length()-tmp.length());//这里如果是服务器抓包可能是HTTP/1.0,但是长度是一致的
+    tmp="";
+    int num;
+    QString tagName="";
+    QString value="";
+    if(isLatest)
     {
-        tmp=xmlData[0].revelantHead;
-        url=url.mid(tmp.length());//把get前缀去掉
-        tmp="HTTP/1.1";
-        url=url.left(url.length()-tmp.length());//这里如果是服务器抓包可能是HTTP/1.0,但是长度是一致的
-        tmp="";
-        int num;
-        QString tagName="";
-        QString value="";
-        if(isLatest)
+        ui->statisticsListWidget->clear();
+    }
+    while(url!="")
+    {
+        tmp="=";
+        num=url.indexOf(tmp);
+        tagName=url.left(num);
+        url=url.mid(num+1);
+        if(tagName=="memo")//memo这个统计点中可能会带有&字符，这截取的内容就会不完整，考虑到该字段由{}括着，所以选取}作为结尾判断
+            tmp="}";
+        else
+            tmp="&";
+        num=url.indexOf(tmp);
+        if(num==-1)
         {
-            ui->statisticsListWidget->clear();
-        }
-        while(url!="")
-        {
-            tmp="=";
-            num=url.indexOf(tmp);
-            tagName=url.left(num);
-            url=url.mid(num+1);
-            if(tagName=="memo")//memo这个统计点中可能会带有&字符，这截取的内容就会不完整，考虑到该字段由{}括着，所以选取}作为结尾判断
-                tmp="}";
-            else
+            if(tagName=="memo")//有的memo是空
+            {
                 tmp="&";
-            num=url.indexOf(tmp);
-            if(num==-1)
-            {
-                if(tagName=="memo")//有的memo是空
-                {
-                    tmp="&";
-                    num=url.indexOf(tmp);
-                    value=url.left(num);
-                    url=url.mid(num+1);
-                }
-                else
-                {
-                    value=url;
-                    url="";
-                }
+                num=url.indexOf(tmp);
+                value=url.left(num);
+                url=url.mid(num+1);
             }
             else
             {
-                if(tagName=="memo")//以}结尾的，需要把}放到value值中，位置往后扩一位
-                {
-                    value=url.left(num+1);
-                    url=url.mid(num+2);
-                }
-                else
-                {
-                    value=url.left(num);
-                    url=url.mid(num+1);
-                }
+                value=url;
+                url="";
             }
-            //把每个字段和从xml中读出来的数据对比
-            //多个字段的onlyCheck是Y，2.7版本修改，但此处的逻辑无需改变
-            int flag=0;//xml文件和解析出来的url字段对比，正确或错误的标志
-            for(int i=1;i<xmlData.length();i++)//list<dataclass>的第一个值是存revelanthead头的，所以遍历的时候从1开始
+        }
+        else
+        {
+            if(tagName=="memo")//以}结尾的，需要把}放到value值中，位置往后扩一位
             {
-                if(tagName==xmlData[i].tagName)//每一个字段在for循环中遇到tagName相同之后，就不会再有相同的了，会跳出for循环了
+                value=url.left(num+1);
+                url=url.mid(num+2);
+            }
+            else
+            {
+                value=url.left(num);
+                url=url.mid(num+1);
+            }
+        }
+        //把每个字段和从xml中读出来的数据对比
+        //多个字段的onlyCheck是Y，2.7版本修改，但此处的逻辑无需改变
+        int flag=0;//xml文件和解析出来的url字段对比，正确或错误的标志
+        for(int i=1;i<xmlData.length();i++)//list<dataclass>的第一个值是存revelanthead头的，所以遍历的时候从1开始
+        {
+            if(tagName==xmlData[i].tagName)//每一个字段在for循环中遇到tagName相同之后，就不会再有相同的了，会跳出for循环了
+            {
+                flag=1;
+                if(xmlData[i].onlyCheck=="Y")
                 {
-                    flag=1;
-                    if(xmlData[i].onlyCheck=="Y")
+                    bool mflag=false;//onlycheck是Y时，可能有多个值，一个对不上时，要判断下其他值是不是都对不上
+                    while(tagName==xmlData[i].tagName)
                     {
-                        bool mflag=false;//onlycheck是Y时，可能有多个值，一个对不上时，要判断下其他值是不是都对不上
-                        while(tagName==xmlData[i].tagName)
+                        if(xmlData[i].value==value)
                         {
-                            if(xmlData[i].value==value)
-                            {
-                                mflag=true;
-                                if(isLatest)
-                                {
-                                    ui->statisticsListWidget->addItem("√    "+tagName+" : "+value+"----"+xmlData[i].des);
-                                }
-                                flag=2;
-                                break;//如果一样就break,不用考虑顺序问题，都不一样就打叉
-                            }
-                            i++;
-                        }
-
-                        if(!mflag)
-                        {
-                            isSuccess=false;
+                            mflag=true;
                             if(isLatest)
                             {
-                                QString label="×    "+tagName+" : "+value+" / "+xmlData[i-1].value+"----"+xmlData[i-1].des;
-                                QListWidgetItem *item=new QListWidgetItem(ui->statisticsListWidget);
-                                item->setTextColor(Qt::red);
-                                item->setText(label);
-                                ui->statisticsListWidget->addItem(item);
+                                ui->statisticsListWidget->addItem("√    "+tagName+" : "+value+"----"+xmlData[i].des);
                             }
-                            QString tempStr=tagName+"="+value+"="+xmlData[i-1].value;
-                            errorStr+="&"+tempStr;
                             flag=2;
+                            break;//如果一样就break,不用考虑顺序问题，都不一样就打叉
                         }
+                        i++;
+                    }
+
+                    if(!mflag)
+                    {
+                        isSuccess=false;
+                        if(isLatest)
+                        {
+                            QString label="×    "+tagName+" : "+value+" / "+xmlData[i-1].value+"----"+xmlData[i-1].des;
+                            QListWidgetItem *item=new QListWidgetItem(ui->statisticsListWidget);
+                            item->setTextColor(Qt::red);
+                            item->setText(label);
+                            ui->statisticsListWidget->addItem(item);
+                        }
+                        QString tempStr=tagName+"="+value+"="+xmlData[i-1].value;
+                        errorStr+="&"+tempStr;
+                        flag=2;
+                    }
+                    break;
+                }
+                else if(xmlData[i].onlyCheck=="N")
+                {
+                    if(value==xmlData[i].value||xmlData[i].value=="unknown"||xmlData[i].value=="hotvrs获取")//
+                    {
+                        if(isLatest)
+                        {
+                            ui->statisticsListWidget->addItem("√    "+tagName+" : "+value+"----"+xmlData[i].des);
+                        }
+                        flag=2;
                         break;
                     }
-                    else if(xmlData[i].onlyCheck=="N")
+                    if(xmlData[i].value=="unnull")//非空字段
                     {
-                        if(value==xmlData[i].value||xmlData[i].value=="unknown"||xmlData[i].value=="hotvrs获取")//
+                        if(value!="")
                         {
                             if(isLatest)
                             {
@@ -2317,51 +2380,39 @@ QString BehaviourWidget::ParseURLForCheck(QString url, QList<DataClass> xmlData,
                             flag=2;
                             break;
                         }
-                        if(xmlData[i].value=="unnull")//非空字段
+                        else
                         {
-                            if(value!="")
+                            isSuccess=false;
+                            if(isLatest)
                             {
-                                if(isLatest)
-                                {
-                                    ui->statisticsListWidget->addItem("√    "+tagName+" : "+value+"----"+xmlData[i].des);
-                                }
-                                flag=2;
-                                break;
+                                QString label="×    "+tagName+" : "+value+" / unnull----"+xmlData[i].des;
+                                QListWidgetItem *item=new QListWidgetItem(ui->statisticsListWidget);
+                                item->setTextColor(Qt::red);
+                                item->setText(label);
+                                ui->statisticsListWidget->addItem(item);
                             }
-                            else
-                            {
-                                isSuccess=false;
-                                if(isLatest)
-                                {
-                                    QString label="×    "+tagName+" : "+value+" / unnull----"+xmlData[i].des;
-                                    QListWidgetItem *item=new QListWidgetItem(ui->statisticsListWidget);
-                                    item->setTextColor(Qt::red);
-                                    item->setText(label);
-                                    ui->statisticsListWidget->addItem(item);
-                                }
-                                QString tempStr=tagName+"="+value+"="+xmlData[i-1].value;
-                                errorStr+="&"+tempStr;
-                                flag=2;
-                                break;
-                            }
+                            QString tempStr=tagName+"="+value+"="+xmlData[i-1].value;
+                            errorStr+="&"+tempStr;
+                            flag=2;
+                            break;
                         }
                     }
                 }
             }
-            if(flag==1)//有这个名，但值对不上，url很多值都对不上，但也是错了。。。
+        }
+        if(flag==1)//有这个名，但值对不上，url很多值都对不上，但也是错了。。。
+        {
+            isSuccess=false;
+            if(isLatest)
             {
-                isSuccess=false;
-                if(isLatest)
-                {
-                    QString label="×    "+tagName+" : "+value+"----";
-                    QListWidgetItem *item=new QListWidgetItem(ui->statisticsListWidget);
-                    item->setTextColor(Qt::red);
-                    item->setText(label);
-                    ui->statisticsListWidget->addItem(item);
-                }
-                QString tempStr=tagName+"="+value+"=";
-                errorStr+="&"+tempStr;
+                QString label="×    "+tagName+" : "+value+"----";
+                QListWidgetItem *item=new QListWidgetItem(ui->statisticsListWidget);
+                item->setTextColor(Qt::red);
+                item->setText(label);
+                ui->statisticsListWidget->addItem(item);
             }
+            QString tempStr=tagName+"="+value+"=";
+            errorStr+="&"+tempStr;
         }
     }
     return errorStr;

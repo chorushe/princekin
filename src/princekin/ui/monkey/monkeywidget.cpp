@@ -254,6 +254,14 @@ void MonkeyWidget::on_startBtn_clicked()//StartMonkey
         }
         //*****************20170717*****************//
 
+        if(ui->packageLineEdit->text().trimmed()!=ui->packageListView->currentIndex().data()&&ui->packageListView->currentIndex().row()!=-1)//如果输入框内的内容是一半，则开始测试后把后一半补全
+        {
+            //这里如果不去掉链接的话，会导致槽函数的运行，那么packageName等其他的还会再变
+            disconnect(ui->packageLineEdit,SIGNAL(textChanged(QString)),this,SLOT(on_packageLineEdit_textChanged(QString)));
+            ui->packageLineEdit->setText(ui->packageListView->currentIndex().data().toString());
+            connect(ui->packageLineEdit,SIGNAL(textChanged(QString)),this,SLOT(on_packageLineEdit_textChanged(QString)));
+        }
+
         isMemOverThres=false;
         isCpuOverThres=false;
         isWifiOverThres=false;
@@ -821,6 +829,9 @@ void MonkeyWidget::CreateMonkeyFiles()
     fileMonkeyReport=new QFile( monkeyFilePath );
     if ( !fileMonkeyReport->exists())
         fileMonkeyReport->open( QIODevice::WriteOnly );
+    inMonkeyRport.setDevice(fileMonkeyReport);
+    QTextCodec *tc=QTextCodec::codecForName("UTF-8");
+    inMonkeyRport.setCodec(tc);
 
     gMonkeyReport=monkeyFilePath;
 
@@ -831,7 +842,8 @@ void MonkeyWidget::CreateMonkeyFiles()
     timeStart = QDateTime::currentDateTime();
     current_date = timeStart.toString("yyyy-MM-dd hh:mm:ss");
     QString writeData="monkey开始时间: "+current_date+"\r\n";
-    fileMonkeyReport->write(writeData.toStdString().c_str());
+   // fileMonkeyReport->write(writeData.toStdString().c_str());
+    inMonkeyRport<<writeData<<endl;
 
     delete tempDir;
 }
@@ -990,8 +1002,8 @@ void MonkeyWidget::monkeyNotRunning()
     timeEnd = QDateTime::currentDateTime();
     QString current_date = timeEnd.toString("yyyy-MM-dd hh:mm:ss");
     QString writeData="monkey结束时间: "+current_date+"\r\n";
-    fileMonkeyReport->write(writeData.toStdString().c_str());
-
+    //fileMonkeyReport->write(writeData.toStdString().c_str());
+    inMonkeyRport<<writeData<<endl;
 
 
     QString timeSub = QString::number( timeStart.daysTo(timeEnd))+"天"
@@ -1004,7 +1016,8 @@ void MonkeyWidget::monkeyNotRunning()
     qMonkeyTime=timeSub;
     //*****************20170315*****************//
 
-    fileMonkeyReport->write(writeData.toStdString().c_str());
+    //fileMonkeyReport->write(writeData.toStdString().c_str());
+    inMonkeyRport<<writeData<<endl;
 
     writeData="测试结果：\r\n";
 
@@ -1027,43 +1040,43 @@ void MonkeyWidget::monkeyNotRunning()
         writeData+="详情如下： \r\n";
     }
 
-    fileMonkeyReport->write(writeData.toStdString().c_str());
-
+    //fileMonkeyReport->write(writeData.toStdString().c_str());
+    inMonkeyRport<<writeData<<endl;
     ui->logTextEdit->append(writeData);
 
     if(ANRErrorStr!="")
     {
         writeData="ANR： \r\n"+ANRErrorStr;
-        fileMonkeyReport->write(writeData.toStdString().c_str());
-
+        //fileMonkeyReport->write(writeData.toStdString().c_str());
+        inMonkeyRport<<writeData<<endl;
         ui->logTextEdit->append(writeData);
     }
     if(CrashErrorStr!="")
     {
         writeData="Crash： \r\n"+CrashErrorStr;
-        fileMonkeyReport->write(writeData.toStdString().c_str());
-
+        //fileMonkeyReport->write(writeData.toStdString().c_str());
+        inMonkeyRport<<writeData<<endl;
         ui->logTextEdit->append(writeData);
     }
     if(ExceptionErrorStr!="")
     {
         writeData="Exception： \r\n"+ExceptionErrorStr;
-        fileMonkeyReport->write(writeData.toStdString().c_str());
-
+        //fileMonkeyReport->write(writeData.toStdString().c_str());
+        inMonkeyRport<<writeData<<endl;
         ui->logTextEdit->append(writeData);
     }
     if(OtherErrorStr!="")
     {
         writeData="Other： \r\n"+OtherErrorStr;
-        fileMonkeyReport->write(writeData.toStdString().c_str());
-
+        //fileMonkeyReport->write(writeData.toStdString().c_str());
+        inMonkeyRport<<writeData<<endl;
         ui->logTextEdit->append(writeData);
     }
     if(recieveStr.contains("Monkey finished"))
     {
         writeData="Monkey 运行成功！\r\n";
-        fileMonkeyReport->write(writeData.toStdString().c_str());
-
+        //fileMonkeyReport->write(writeData.toStdString().c_str());
+        inMonkeyRport<<writeData<<endl;
         ui->logTextEdit->append(writeData);
     }
     fileMonkeyReport->close();
@@ -1215,6 +1228,7 @@ void MonkeyWidget::createBaseExcel()
     controller->setDeviceId(deviceName);
     controller->setLunchTime(qLunchTime);
     controller->setFrames(qFrames);
+
 
     controller->setMemWarningValue(memThres);
     controller->setCpuWarningValue(cpuThres);

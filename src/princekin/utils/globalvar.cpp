@@ -44,7 +44,7 @@ bool gisBatteryCheck;
 bool gisWifiCheck;
 bool gisMobileCheck;
 bool gIsStopTrafficService;
-
+bool gIsCrash;
 QString gAppDir;
 QString gConfigDir;
 QString gtempConfigDir;

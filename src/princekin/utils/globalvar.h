@@ -50,6 +50,8 @@ extern bool gisWifiCheck;
 extern bool gisMobileCheck;
 extern bool gIsStopTrafficService;
 extern bool gIsThread;
+extern bool gIsCrash;
+
 extern QString gAppDir;
 extern QString gConfigDir;
 extern QString gtempConfigDir;

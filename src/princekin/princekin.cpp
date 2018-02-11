@@ -1,6 +1,35 @@
 #include "princekin.h"
 #include "ui_princekin.h"
 
+static ReplayForm *replayFormInstance=NULL;
+
+LONG WINAPI replayCrashHandler(EXCEPTION_POINTERS *arg_exception)
+{
+    gIsCrash=true;
+    HANDLE hDumpFile = CreateFile((LPCWSTR)QString(gConfigDir+QDir::separator()+"crash.dmp").utf16(),GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if(hDumpFile != INVALID_HANDLE_VALUE)
+    {
+        MINIDUMP_EXCEPTION_INFORMATION dumpInfo;
+        dumpInfo.ExceptionPointers = arg_exception;
+        dumpInfo.ThreadId = GetCurrentThreadId();
+        dumpInfo.ClientPointers = TRUE;
+        MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(),hDumpFile, MiniDumpNormal, &dumpInfo, NULL, NULL);
+        CloseHandle(hDumpFile);
+    }
+    else
+    {
+    }
+
+    replayFormInstance->catchCrash();
+
+
+
+    EXCEPTION_RECORD *record = arg_exception->ExceptionRecord;
+    QString errCode(QString::number(record->ExceptionCode,16)),errAdr(QString::number((uint)record->ExceptionAddress,16)),errMod;
+    QMessageBox::critical(NULL,"小王子崩溃",QString("<div>错误代码：%1</div><div>错误地址：%2</div></FONT>").arg(errCode).arg(errAdr),QMessageBox::Ok);
+
+    return EXCEPTION_EXECUTE_HANDLER;    
+}
 
 
 Princekin::Princekin(QWidget *parent) :QMainWindow(parent),ui(new Ui::Princekin)
@@ -50,6 +79,12 @@ Princekin::Princekin(QWidget *parent) :QMainWindow(parent),ui(new Ui::Princekin)
     timer->moveToThread(timerThread);
     connect( timer, SIGNAL(timeout()),this, SLOT(TimerSlot()),Qt::DirectConnection );
     timerThread->start();
+}
+
+void Princekin::recieveCrashSignal()
+{
+   // performanceDialog->createExcel();
+    QMessageBox::information(this,"提示","哎呀！小王子挂掉了，正在保存数据......\r\n等弹出“excel生成完毕”对话框后再点击“OK”按钮~");
 }
 
 void Princekin::TimerSlot()
@@ -508,7 +543,7 @@ void Princekin::on_pushButton_6_clicked()
 
 void Princekin::on_pushButton_2_clicked()
 {
-
+    SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)replayCrashHandler);
     if(replayPointer.isNull())
     {
         replayFormInstance=new ReplayForm();

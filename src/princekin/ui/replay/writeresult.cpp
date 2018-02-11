@@ -414,14 +414,18 @@ void WriteResult::writeTitle(Document &arg_xlsx,const QString &arg_deviceId,cons
     //rowIndex=topIndex + "2";
     //writeStyle(arg_xlsx,rowIndex,"具体详情",format);
 
-
     //QUrl url("http://www.sohu.com");
-
-    //url.setUrl("http://www.sohu.com");
 
     letterIndex=gLetterHash.value(topIndex);
 
-    QUrl url = QUrl::fromLocalFile(arg_detailedPath + QDir::separator() + arg_two);
+    QUrl url=QUrl::fromLocalFile(arg_detailedPath + QDir::separator() + arg_two);
+
+    QString httppath;
+
+    httppath=Upload::getHttp(arg_detailedPath);
+    httppath=httppath+arg_two;
+
+    url.setUrl(httppath);
 
     writeHyperlink(arg_xlsx,2,letterIndex,url,hyperlinkFormat,"具体详情","");
 

@@ -5,7 +5,7 @@
 #include "xlsxdocument.h"
 #include "xlsxabstractsheet.h"
 #include "globalvar.h"
-
+#include "upload.h"
 #include <QtXlsx>
 #include <QObject>
 #include <QWidget>

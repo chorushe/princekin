@@ -26,6 +26,7 @@
 #include <QTextStream>
 #include "globalvar.h"
 #include "helper.h"
+#include "upload.h"
 #include "execmd.h"
 #include "filehandle.h"
 #include "initenv.h"
@@ -69,7 +70,7 @@ public:
     explicit ReplayForm(QWidget *parent = 0);
     ~ReplayForm();
 
-private:
+public:
     void createMenuBar();
     void createToolBar();
     void createMenuItems();
@@ -135,6 +136,9 @@ private:
     QString getTreeRootText(QTreeWidgetItem *item);
     void restartscript();
 
+    void catchCrash();
+    void crashsendmail();
+
 signals:
     void sendStopReplay();
     void sendStopPerformance(const QString &);
@@ -197,6 +201,7 @@ private:
     bool isMobileCheck;
     bool isRun=false;
     bool isDebug;
+    bool isClick;
 
     int qSec=0;
     int qNumber;
@@ -283,9 +288,10 @@ private:
     QString qTempDeviceId;
     QString qTempDeviceModelIdName;
     QStringList qTempSplitResult;
-    QTextCodec *qtc=QTextCodec::codecForName("gb2312");
+    QTextCodec *qtc=QTextCodec::codecForName("UTF-8");
     QMap<QString,QMap<QString,int>> suiteResForEveScript;//记录测试套内每个脚本的运行情况；
     QMap<QString,bool> suiteRes;//记录每个测试套文件内最后的结果，暂时没有用，以备后患
+
 };
 
 #endif // REPLAYFORM_H

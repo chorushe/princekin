@@ -183,6 +183,9 @@ void Worker::createExcel(const QString &arg_mark)
         createTravelMail();
         qSubject=qAppChineseName+"遍历测试报告-"+Helper::getTime2("yyyyMMdd");
         chart();
+
+        Upload::createFtpTravelFolder(qDeviceId,qStartTime,qXlsxSaveDir);
+        Upload::putTravel(qDeviceId,qStartTime,qXlsxSaveDir);
     }
     if(arg_mark=="behaviour")
     {
@@ -195,6 +198,9 @@ void Worker::createExcel(const QString &arg_mark)
         createBehaviourMail();
         qSubject=qAppChineseName+"埋点统计测试报告-"+Helper::getTime2("yyyyMMdd");
         chart();
+
+        Upload::createFtpbehaviourFolder(qDeviceId,qStartTime,qXlsxSaveDir);
+        Upload::putBehaviour(qDeviceId,qStartTime,qXlsxSaveDir);
     }
 
     if(arg_mark=="monkey")
@@ -209,6 +215,10 @@ void Worker::createExcel(const QString &arg_mark)
         createMonkeyMail();
         qSubject=qAppChineseName+"稳定性测试报告-"+Helper::getTime2("yyyyMMdd");
         chart();
+        //"D:\\princekinWorkspace\\report\\Monkey_NX505J_20180126_145044"
+        Upload::createFtpMonkeyFolder(qDeviceId,qStartTime,qXlsxSaveDir);
+        Upload::putMonkey(qDeviceId,qStartTime,qXlsxSaveDir);
+
     }
 
     else if(arg_mark=="interface")
@@ -221,6 +231,9 @@ void Worker::createExcel(const QString &arg_mark)
         createInterfaceMail();
         qSubject=qAppChineseName+"接口测试报告-"+Helper::getTime2("yyyyMMdd");
         chart();
+
+        Upload::createFtpinterfaceFolder(qDeviceId,qStartTime,qXlsxSaveDir);
+        Upload::putInterface(qDeviceId,qStartTime,qXlsxSaveDir);
     }
 
     else if(arg_mark=="performance")
@@ -236,6 +249,9 @@ void Worker::createExcel(const QString &arg_mark)
         createPerformanceMail();
         qSubject=qAppChineseName+"性能测试报告-"+Helper::getTime2("yyyyMMdd");
         chart2();
+
+        Upload::createFtpperformanceFolder(qDeviceId,qStartTime,qXlsxSaveDir);
+        Upload::putPerformance(qDeviceId,qStartTime,qXlsxSaveDir);
     }
 
 }
@@ -356,7 +372,7 @@ void Worker::setAppInfo_monkey()
 void Worker::writeInfo(const QString &arg_mark)
 {
     //WriteInfo::writeUrl(qTargetXlsx);
-    WriteInfo::writeUniversal(qTargetXlsx,arg_mark,qDeviceId);
+    WriteInfo::writeUniversal(qTargetXlsx,arg_mark,qDeviceId,qStartTime);
 }
 
 
@@ -809,6 +825,8 @@ void Worker::createBaseExcel(const QString &arg_mark)
         setAppInfo_universal();
         setAppInfo_travel();
         writeInfo(arg_mark);
+        Upload::createFtpTravelFolder(qDeviceId,qStartTime,qXlsxSaveDir);
+        Upload::putTravel(qDeviceId,qStartTime,qXlsxSaveDir);
     }
     if(arg_mark=="behaviour")
     {
@@ -816,6 +834,9 @@ void Worker::createBaseExcel(const QString &arg_mark)
         setAppInfo_universal();
         setAppInfo_behaviour();
         writeInfo(arg_mark);
+
+        Upload::createFtpbehaviourFolder(qDeviceId,qStartTime,qXlsxSaveDir);
+        Upload::putBehaviour(qDeviceId,qStartTime,qXlsxSaveDir);
     }
 
     if(arg_mark=="monkey")
@@ -824,6 +845,9 @@ void Worker::createBaseExcel(const QString &arg_mark)
         setAppInfo_universal();
         setAppInfo_monkey();
         writeInfo(arg_mark);
+
+        Upload::createFtpMonkeyFolder(qDeviceId,qStartTime,qXlsxSaveDir);
+        Upload::putMonkey(qDeviceId,qStartTime,qXlsxSaveDir);
     }
 
     else if(arg_mark=="interface")
@@ -831,6 +855,9 @@ void Worker::createBaseExcel(const QString &arg_mark)
         getAppInfo1(arg_mark);
         setAppInfo_universal();
         writeInfo(arg_mark);
+
+        Upload::createFtpinterfaceFolder(qDeviceId,qStartTime,qXlsxSaveDir);
+        Upload::putInterface(qDeviceId,qStartTime,qXlsxSaveDir);
     }
 
     else if(arg_mark=="performance")
@@ -842,6 +869,9 @@ void Worker::createBaseExcel(const QString &arg_mark)
         //*****************20170606**********//
         performanceHtml();
         //*****************20170606**********//
+
+        Upload::createFtpperformanceFolder(qDeviceId,qStartTime,qXlsxSaveDir);
+        Upload::putPerformance(qDeviceId,qStartTime,qXlsxSaveDir);
     }
 
 }

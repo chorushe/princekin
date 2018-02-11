@@ -75,6 +75,7 @@ void Worker::startWorker()
     setVarValue();
 
     startRunTime=Helper::getTime2("yyyy-MM-dd hh:mm:ss");
+    qstartRunTime=startRunTime;
     foreach(QString var,qScriptList)
     {
         qActualHash.insert(qDeviceId + "=" + var,0);
@@ -90,6 +91,8 @@ void Worker::startWorker()
         {
             break;
         }
+
+
 
         for(int j=0;j<scriptCount;j++)
         {
@@ -156,6 +159,16 @@ void Worker::startWorker()
                 emit oneScriptFinish(qScriptLine,true);
             }
         }
+
+        /*
+        if(i==2)
+        {
+            QStringList l;
+            l.append("A");
+            qDebug()<<l.at(4);
+        }
+        */
+
     }//for(int i=0;i<loopNumber;i++)
     QThread::msleep(2000);
     emit sendReplayResult(qDeviceId,qSecondLevelDirName,qActualList,qErrorList,qSec,qCrashModuleList,startRunTime,elist);
@@ -170,8 +183,14 @@ void Worker::receiveProcFinished(int exitCode,QProcess::ExitStatus exitStatus)
 
 void Worker::receiveStopReplay()
 {
+    if(gIsCrash)
+    {
+        emit sendReplayResult(qDeviceId,qSecondLevelDirName,qActualList,qErrorList,qSec,qCrashModuleList,qstartRunTime,elist);
+    }
+
     isStopRunScript=true;
     closeP();
+
 }
 
 void Worker::stopReplay()
@@ -319,6 +338,8 @@ void Worker::doMonitorCrash()
     emit sendCrashResult(qDeviceId,qSecondLevelDirName,qModuleBaseName,qScriptBaseName);
 
 
+    QString datapath=Upload::getDataPath(qLogcatDir);
+    datapath="/data/ftpuser/test/"+datapath;
     for(int i=0;i<10;i++)
     {
         currentTime=Helper::getTime();
@@ -326,7 +347,10 @@ void Worker::doMonitorCrash()
         monitorLogFile=QDir::toNativeSeparators(monitorLogFile);
         cmdLine=qAdbDevice + " logcat -n 20000 -d";
         ExeCmd::runCmd(cmdLine,monitorLogFile);
+
+        Upload::putLogcat(qLogcatDir,datapath,"monitor-" + currentTime + ".txt");
         QThread::sleep(0.8);
+
     }
 }
 
