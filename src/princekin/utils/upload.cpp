@@ -242,7 +242,22 @@ QString Upload::getHttp(const QString &arg_detailedPath)
     splitResult=arg_detailedPath.split(QDir::separator());
     len=splitResult.length();
 
+    /*
     for(int i=2;i<len;i++)
+    {
+        httppath=httppath+splitResult.at(i)+"/";
+    }
+    */
+    int index=0;
+    for(int i=0;i<len;i++)
+    {
+        if(splitResult.at(i)=="report")
+        {
+            index=i;
+        }
+    }
+
+    for(int i=index;i<len;i++)
     {
         httppath=httppath+splitResult.at(i)+"/";
     }
@@ -261,7 +276,23 @@ QString Upload::getDataPath(const QString &arg_detailedPath)
     splitResult=arg_detailedPath.split(QDir::separator());
     len=splitResult.length();
 
+    /*
     for(int i=2;i<len;i++)
+    {
+        httppath=httppath+splitResult.at(i)+"/";
+    }
+    */
+
+    int index=0;
+    for(int i=0;i<len;i++)
+    {
+        if(splitResult.at(i)=="report")
+        {
+            index=i;
+        }
+    }
+
+    for(int i=index;i<len;i++)
     {
         httppath=httppath+splitResult.at(i)+"/";
     }

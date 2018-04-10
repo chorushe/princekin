@@ -532,7 +532,16 @@ void Performance::getWifiMobile(const QString &arg_deviceId,const QString&arg_cu
 
     splitResult=arg_currentValue.split("=");
     wifiValue=splitResult.at(0);
-    mobileValue=splitResult.at(2);
+
+    if(splitResult.count()>=3)
+    {
+        mobileValue=splitResult.at(2);
+    }
+    else
+    {
+        mobileValue="0.00";
+    }
+
 
     if(wifiValue!="0.00")
     {
@@ -586,7 +595,14 @@ void Performance::getValues(const QString &arg_deviceId)
     foreach(QString var,tempList)
     {
         splitResult=var.split("->");
-        tempStr=splitResult.at(1);
+        if(splitResult.count()>=2)
+        {
+            tempStr=splitResult.at(1);
+        }
+        else
+        {
+            tempStr="";
+        }
         doubleValue=tempStr.toDouble();
         qMemValue_vector.append(doubleValue);
     }
@@ -595,7 +611,14 @@ void Performance::getValues(const QString &arg_deviceId)
     foreach(QString var,tempList)
     {
         splitResult=var.split("->");
-        tempStr=splitResult.at(1);
+        if(splitResult.count()>=2)
+        {
+            tempStr=splitResult.at(1);
+        }
+        else
+        {
+            tempStr="";
+        }
         doubleValue=tempStr.toDouble();
         qCpuValue_vector.append(doubleValue);
     }
@@ -604,7 +627,14 @@ void Performance::getValues(const QString &arg_deviceId)
     foreach(QString var,tempList)
     {
         splitResult=var.split("->");
-        tempStr=splitResult.at(1);
+        if(splitResult.count()>=2)
+        {
+            tempStr=splitResult.at(1);
+        }
+        else
+        {
+            tempStr="";
+        }
         doubleValue=tempStr.toDouble();
         qCpuTempValue_vector.append(doubleValue);
     }
@@ -613,7 +643,14 @@ void Performance::getValues(const QString &arg_deviceId)
     foreach(QString var,tempList)
     {
         splitResult=var.split("->");
-        tempStr=splitResult.at(1);
+        if(splitResult.count()>=2)
+        {
+            tempStr=splitResult.at(1);
+        }
+        else
+        {
+            tempStr="";
+        }
         doubleValue=tempStr.toDouble();
         qBatteryTempValue_vector.append(doubleValue);
     }
@@ -622,7 +659,14 @@ void Performance::getValues(const QString &arg_deviceId)
     foreach(QString var,tempList)
     {
         splitResult=var.split("->");
-        tempStr=splitResult.at(1);
+        if(splitResult.count()>=2)
+        {
+            tempStr=splitResult.at(1);
+        }
+        else
+        {
+            tempStr="";
+        }
         doubleValue=tempStr.toDouble();
         qWifiValue_vector.append(doubleValue);
     }
@@ -631,9 +675,17 @@ void Performance::getValues(const QString &arg_deviceId)
     foreach(QString var,tempList)
     {
         splitResult=var.split("->");
-        tempStr=splitResult.at(1);
+        if(splitResult.count()>=2)
+        {
+            tempStr=splitResult.at(1);
+        }
+        else
+        {
+            tempStr="";
+        }
         doubleValue=tempStr.toDouble();
         qMobileValue_vector.append(doubleValue);
+
     }
 
 }
@@ -646,7 +698,7 @@ void Performance::mkExcelDir(const QString &arg_deviceId)
 
     secondDirNameList=qSecondLevelDirNameList.filter(arg_deviceId);
     secondDirName=secondDirNameList.at(0);
-//D:\princekinWorkspace\report\20170927\com.sohu.qianfan\sohuvideoreport_20170927_155913
+    //D:\princekinWorkspace\report\20170927\com.sohu.qianfan\sohuvideoreport_20170927_155913
     qSaveDir=gWorkSpace +  QDir::separator() + "report" + QDir::separator() + qFirstLevelDirName + QDir::separator() + secondDirName + QDir::separator() + "performance";
     qSaveDir=gDetailedPath + QDir::separator() + secondDirName + QDir::separator() + "performance";
 }

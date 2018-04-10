@@ -97,30 +97,6 @@ void DataCompareWidget::getExcelData()
     QString filePath;
     QVector<QString> dataVector;
 
-   /* qMemory_time_Map.clear();
-    qCpu_time_Map.clear();
-    qCputemp_time_Map.clear();
-    qBatterytemp_time_Map.clear();
-    qWifi_time_Map.clear();
-    qMobile_time_Map.clear();
-
-
-    qMemory_warning_Map.clear();
-    qCpu_warning_Map.clear();
-    qCputemp_warning_Map.clear();
-    qBatterytemp_warning_Map.clear();
-    qWifi_warning_Map.clear();
-    qMobile_warning_Map.clear();
-
-    qMemory_data_Map.clear();
-    qCpu_data_Map.clear();
-    qCputemp_data_Map.clear();
-    qBatterytemp_data_Map.clear();
-    
-    qBatterytemp_data_Map.clear();
-    qWifi_data_Map.clear();
-    qMobile_data_Map.clear();*/
-
     qMemory_time_Vector.clear();
     qCpu_time_Vector.clear();
     qCputemp_time_Vector.clear();

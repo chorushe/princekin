@@ -3,7 +3,7 @@
 # Project created by QtCreator 2016-04-25T11:34:21
 #
 #-------------------------------------------------
-QT       += core gui concurrent xml xmlpatterns xlsx axcontainer
+QT       += core gui concurrent xml xmlpatterns xlsx axcontainer network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
@@ -151,8 +151,8 @@ SOURCES += main.cpp\
     ui/monkey/monkeyworker.cpp \  
     ui/replay/createcrashreport.cpp \
     ui/record/editscriptfilewidget.cpp \
-    utils/sendsignalclass.cpp \
-    utils/upload.cpp
+    utils/upload.cpp \
+    utils/singleapplication.cpp
     ui/record/editscriptfilewidget.cpp
 
 
@@ -307,8 +307,8 @@ HEADERS  += princekin.h \
     ui/monkey/monkeyworker.h \
     ui/replay/createcrashreport.h \
     ui/record/editscriptfilewidget.h \
-    utils/sendsignalclass.h \
-    utils/upload.h
+    utils/upload.h \
+    utils/singleapplication.h
     ui/record/editscriptfilewidget.h
 
 FORMS    += princekin.ui \

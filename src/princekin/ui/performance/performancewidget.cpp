@@ -347,7 +347,7 @@ void PerformanceWidget::on_equipBtn_clicked()//ShowEquip()
         if(mStr.contains("device") && !mStr.contains("devices"))
         {
             mSplitResult=mStr.split("device");
-            if(!mSplitResult.at(0).contains("error"))
+            if(mSplitResult.count()>0 && (!mSplitResult.at(0).contains("error")))
             {
                 equipList.append(ExeCmd::GetDeviceModel(mSplitResult.at(0).trimmed())+" + "+mSplitResult.at(0).trimmed());
                 equipModel->setStringList(equipList);
@@ -390,7 +390,8 @@ void PerformanceWidget::addPackagesList()
         if(mStr.contains("package:"))
         {
             QStringList mSplitResult=mStr.split("package:");
-            packageList.append(mSplitResult.at(1).trimmed());
+            if(mSplitResult.count()>1)
+                packageList.append(mSplitResult.at(1).trimmed());
         }
     }
 
@@ -781,7 +782,12 @@ void PerformanceWidget::getMemory()
             cmdStrGetMem="adb -s "+deviceName+" shell dumpsys meminfo "+packageName + " | grep Dalvik";
             res=ExeCmd::runCmd(cmdStrGetMem).trimmed();
             if(res!="")
-                memRes=res.split(" ",QString::SkipEmptyParts).at(6);
+            {
+                QStringList  templist=res.split(" ",QString::SkipEmptyParts);
+                if(templist.count()>6)
+                    memRes=templist.at(6);
+            }
+
         }
         else if(memOption==0)
         {
@@ -789,7 +795,11 @@ void PerformanceWidget::getMemory()
             cmdStrGetMem="adb -s "+deviceName+" shell dumpsys meminfo "+packageName + " | grep TOTAL";
             res=ExeCmd::runCmd(cmdStrGetMem).trimmed();
             if(res!="")
-                memRes=res.split(" ",QString::SkipEmptyParts).at(1);
+            {
+                QStringList  templist=res.split(" ",QString::SkipEmptyParts);
+                if(templist.count()>1)
+                    memRes=templist.at(1);
+            }
         }
         if(res=="")
         {
@@ -918,9 +928,16 @@ void PerformanceWidget::getCpu()
         for(int i=0;i<resList.count();i++)
         {
             QStringList resListSub=resList[i].split(" ",QString::SkipEmptyParts);
-            QString cpuStr=resListSub.at(cpuIndex);
-            cpuStr=cpuStr.left(cpuStr.length()-1);
-            cpu+=cpuStr.toInt();
+            if(resListSub.count()>cpuIndex)
+            {
+                QString cpuStr=resListSub.at(cpuIndex);
+                cpuStr=cpuStr.left(cpuStr.length()-1);
+                cpu+=cpuStr.toInt();
+            }
+            else
+            {
+                qDebug()<<"cpuindex is wrong or cpures has somthing error";
+            }
         }
         cpuRes=QString::number(cpu);
     }
@@ -1453,66 +1470,72 @@ void PerformanceWidget::WifiDataHandle(const QString &arg_, const QString &arg_a
 {
     QStringList splistResult;
     splistResult=arg_all.split("=");
-
-    QDateTime current_date_time = QDateTime::currentDateTime();
-    QString currentTime = current_date_time.toString("yyyy-MM-dd hh:mm:ss");
-
-    wifiTime.append(currentTime);
-    wifiNum.append(splistResult.at(2).toDouble()/1024);//单位是M
-    wifiTimeInt.append( QDateTime::fromString(currentTime,"yyyy-MM-dd hh:mm:ss").toTime_t());
-    wifiThres.append(strWifiThres.toDouble());
-
-    if(wifiNum.length()==1)
+    if(splistResult.count()>2)
     {
-        wifiMin=wifiNum[0];
-        wifiMax=wifiNum[0];
+
+        QDateTime current_date_time = QDateTime::currentDateTime();
+        QString currentTime = current_date_time.toString("yyyy-MM-dd hh:mm:ss");
+
+        wifiTime.append(currentTime);
+        wifiNum.append(splistResult.at(2).toDouble()/1024);//单位是M
+        wifiTimeInt.append( QDateTime::fromString(currentTime,"yyyy-MM-dd hh:mm:ss").toTime_t());
+        wifiThres.append(strWifiThres.toDouble());
+
+        if(wifiNum.length()==1)
+        {
+            wifiMin=wifiNum[0];
+            wifiMax=wifiNum[0];
+        }
+
+        if(wifiNum[wifiNum.length()-1]>wifiMax)
+            wifiMax=wifiNum[wifiNum.length()-1];
+        if(wifiNum[wifiNum.length()-1]<wifiMin)
+            wifiMin=wifiNum[wifiNum.length()-1];
+
+        wifiTrafficstats+=splistResult.at(2).toDouble()/1024;
+
+        //***************20170628********************//
+        gPerformanceWifi=wifiTrafficstats;
+        //***************20170628********************//
+
+        emit SendWifiPlotSignal(splistResult.at(2),wifiMin,wifiMax);
     }
-
-    if(wifiNum[wifiNum.length()-1]>wifiMax)
-        wifiMax=wifiNum[wifiNum.length()-1];
-    if(wifiNum[wifiNum.length()-1]<wifiMin)
-        wifiMin=wifiNum[wifiNum.length()-1];
-
-    wifiTrafficstats+=splistResult.at(2).toDouble()/1024;
-
-    //***************20170628********************//
-    gPerformanceWifi=wifiTrafficstats;
-    //***************20170628********************//
-
-    emit SendWifiPlotSignal(splistResult.at(2),wifiMin,wifiMax);
 }
 
 void PerformanceWidget::MobileDataHandle(const QString &arg_, const QString &arg_all)
 {
     QStringList splistResult;
     splistResult=arg_all.split("=");
-
-    QDateTime current_date_time = QDateTime::currentDateTime();
-    QString currentTime = current_date_time.toString("yyyy-MM-dd hh:mm:ss");
-
-    mobileTime.append(currentTime);
-    mobileNum.append(splistResult.at(2).toDouble()/1024);//单位是M
-    mobileTimeInt.append( QDateTime::fromString(currentTime,"yyyy-MM-dd hh:mm:ss").toTime_t());
-    mobileThres.append(strMobileThres.toDouble());
-
-    if(mobileNum.length()==1)
+    if(splistResult.count()>2)
     {
-        mobileMin=mobileNum[0];
-        mobileMax=mobileNum[0];
+
+        QDateTime current_date_time = QDateTime::currentDateTime();
+        QString currentTime = current_date_time.toString("yyyy-MM-dd hh:mm:ss");
+
+        mobileTime.append(currentTime);
+        mobileNum.append(splistResult.at(2).toDouble()/1024);//单位是M
+        mobileTimeInt.append( QDateTime::fromString(currentTime,"yyyy-MM-dd hh:mm:ss").toTime_t());
+        mobileThres.append(strMobileThres.toDouble());
+
+        if(mobileNum.length()==1)
+        {
+            mobileMin=mobileNum[0];
+            mobileMax=mobileNum[0];
+        }
+
+        if(mobileNum[mobileNum.length()-1]>mobileMax)
+            mobileMax=mobileNum[mobileNum.length()-1];
+        if(mobileNum[mobileNum.length()-1]<mobileMin)
+            mobileMin=mobileNum[mobileNum.length()-1];
+
+        mobileTrafficstats+=splistResult.at(2).toDouble()/1024;
+
+        //***************20170628********************//
+        gPerformanceMobile=mobileTrafficstats;
+        //***************20170628********************//
+
+        emit SendWifiPlotSignal(splistResult.at(2),mobileMin,mobileMax);
     }
-
-    if(mobileNum[mobileNum.length()-1]>mobileMax)
-        mobileMax=mobileNum[mobileNum.length()-1];
-    if(mobileNum[mobileNum.length()-1]<mobileMin)
-        mobileMin=mobileNum[mobileNum.length()-1];
-
-    mobileTrafficstats+=splistResult.at(2).toDouble()/1024;
-
-    //***************20170628********************//
-    gPerformanceMobile=mobileTrafficstats;
-    //***************20170628********************//
-
-    emit SendWifiPlotSignal(splistResult.at(2),mobileMin,mobileMax);
 }
 
 void PerformanceWidget::WifiPlotChart(QString numStr, double min,double max)

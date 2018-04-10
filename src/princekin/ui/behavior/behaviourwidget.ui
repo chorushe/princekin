@@ -114,7 +114,7 @@ border-style: flat;</string>
         </property>
        </widget>
       </widget>
-      <widget class="QWidget" name="layoutWidget">
+      <widget class="QWidget" name="">
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
          <widget class="QSplitter" name="splitter_2">
@@ -132,6 +132,7 @@ border-style: flat;</string>
             </item>
            </layout>
           </widget>
+          <widget class="QListWidget" name="domainListWidget"/>
          </widget>
         </item>
         <item>

@@ -95,7 +95,11 @@ void AssistMeasure::getMemory()
         res=ExeCmd::runCmd(cmdStrGetMem).trimmed();
         qDebug()<<res;
         if(res!="")
-            memRes=res.split(" ",QString::SkipEmptyParts).at(1);
+        {
+            QStringList templist = res.split(" ",QString::SkipEmptyParts);
+            if(templist.count()>1)
+                memRes=templist.at(1);
+        }
         else
             return;
         qDebug()<<"MEMRES"<<memRes;
@@ -189,9 +193,12 @@ void AssistMeasure::getCPU()
         for(int i=0;i<resList.count();i++)
         {
             QStringList resListSub=resList[i].split(" ",QString::SkipEmptyParts);
-            QString cpuStr=resListSub.at(cpuIndex);
-            cpuStr=cpuStr.left(cpuStr.length()-1);
-            cpu+=cpuStr.toInt();
+            if(resListSub.count()>cpuIndex)
+            {
+                QString cpuStr=resListSub.at(cpuIndex);
+                cpuStr=cpuStr.left(cpuStr.length()-1);
+                cpu+=cpuStr.toInt();
+            }
         }
         cpuRes=QString::number(cpu);
         qDebug()<<cpuRes;
@@ -481,26 +488,32 @@ void AssistMeasure::getTrafficstats()
             if(mStrLine.contains("wlan0"))
             {
                 mSplitResult=mStrLine.split(" ");
-                mStr=mSplitResult.at(5);
-                l=mStr.toDouble();
-                lrxWifi=lrxWifi+l;
+                if(mSplitResult.count()>7)
+                {
+                    mStr=mSplitResult.at(5);
+                    l=mStr.toDouble();
+                    lrxWifi=lrxWifi+l;
 
 
-                mStr=mSplitResult.at(7);
-                l=mStr.toDouble();
-                ltxWifi=ltxWifi+l;
+                    mStr=mSplitResult.at(7);
+                    l=mStr.toDouble();
+                    ltxWifi=ltxWifi+l;
+                }
             }
             if(mStrLine.contains("rmnet0"))
             {
                 mSplitResult=mStrLine.split(" ");
-                mStr=mSplitResult.at(5);
-                l=mStr.toDouble();
-                lrxMobile=lrxMobile+l;
+                if(mSplitResult.count()>7)
+                {
+                    mStr=mSplitResult.at(5);
+                    l=mStr.toDouble();
+                    lrxMobile=lrxMobile+l;
 
 
-                mStr=mSplitResult.at(7);
-                l=mStr.toDouble();
-                ltxMobile=ltxMobile+l;
+                    mStr=mSplitResult.at(7);
+                    l=mStr.toDouble();
+                    ltxMobile=ltxMobile+l;
+                }
             }
         }
         proc.close();

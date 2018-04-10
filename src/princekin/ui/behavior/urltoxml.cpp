@@ -83,7 +83,7 @@ UrlToXml::UrlToXml(QWidget *parent) :
 }
 
 
-void UrlToXml::CalculateUnique(int index)
+/*void UrlToXml::CalculateUnique(int index)
 {
     uniqueNum=0;
     uniqueList.clear();
@@ -131,6 +131,96 @@ void UrlToXml::CalculateUnique(int index)
         item=new QTableWidgetItem("描述");
         ui->fileTableWidget->setHorizontalHeaderItem(2,item);
     }
+}*/
+
+/*
+ * 如果变化后的index是3，即某个选项被选为关键识别值，这时找到发送信号的combox,并在右侧显示；
+ * 如果变化后的index不是3，需要对整个列表进行遍历，计算目前有几个关键识别值
+ * 没有关键识别值时，右侧表格文案需要变成“参数值”，只有一个关键识别值时右侧表格也要重新画
+ */
+void UrlToXml::CalculateUnique(int index)
+{
+
+    if(index==3)
+        uniqueNum++;
+    else
+    {
+        uniqueNum=0;
+        uniqueList.clear();
+    }
+
+    QString oneUniqueStr="";
+    QObject *object = QObject::sender();
+    QComboBox *senderBox = static_cast<QComboBox *>(object);
+    for(int i=0;i<ui->statisticsTW->rowCount();i++)
+    {
+        QWidget * widget=ui->statisticsTW->cellWidget(i,3);//获得widget
+        QComboBox *combox=(QComboBox*)widget;//强制转化为QComboBox
+        if(index==3)
+        {
+            if(senderBox==combox)
+            {
+                if(uniqueNum<=2)
+                {
+                    uniqueList.append(ui->statisticsTW->item(i,0)->text()+"="+ui->statisticsTW->item(i,1)->text());
+                    if(uniqueNum==1)
+                    {
+                        ui->fileTableWidget->setColumnCount(3);
+                        QTableWidgetItem *item=new QTableWidgetItem(ui->statisticsTW->item(i,0)->text());
+                        ui->fileTableWidget->setHorizontalHeaderItem(1,item);
+                        item=new QTableWidgetItem("描述");
+                        ui->fileTableWidget->setHorizontalHeaderItem(2,item);
+
+                    }
+                    else if(uniqueNum==2)
+                    {
+                        ui->fileTableWidget->setColumnCount(4);
+                        QTableWidgetItem *item=new QTableWidgetItem(ui->statisticsTW->item(i,0)->text());
+                        ui->fileTableWidget->setHorizontalHeaderItem(2,item);
+                        item=new QTableWidgetItem("描述");
+                        ui->fileTableWidget->setHorizontalHeaderItem(3,item);
+                    }
+                }
+                else
+                {
+                    combox->setCurrentIndex(0);
+                    QMessageBox::information(this,"提示","关键识别值最多两个,请重新选择");
+                    return;
+                }
+            }
+        }
+        else
+        {
+            if(combox->currentIndex()==3)
+            {
+                uniqueNum++;
+                uniqueList.append(ui->statisticsTW->item(i,0)->text()+"="+ui->statisticsTW->item(i,1)->text());
+                oneUniqueStr=ui->statisticsTW->item(i,0)->text();
+            }
+        }
+    }
+    if(index!=3)
+    {
+        if(uniqueNum==0)
+        {
+            ui->fileTableWidget->setColumnCount(3);
+            QTableWidgetItem *item=new QTableWidgetItem("参数值");
+            ui->fileTableWidget->setHorizontalHeaderItem(1,item);
+            item=new QTableWidgetItem("描述");
+            ui->fileTableWidget->setHorizontalHeaderItem(2,item);
+        }
+        else if(uniqueNum==1)
+        {
+            ui->fileTableWidget->setColumnCount(3);
+            QTableWidgetItem *item=new QTableWidgetItem(oneUniqueStr);
+            ui->fileTableWidget->setHorizontalHeaderItem(1,item);
+            item=new QTableWidgetItem("描述");
+            ui->fileTableWidget->setHorizontalHeaderItem(2,item);
+        }
+    }
+
+    qDebug()<<"uniqueNum: "<<uniqueNum<<"  "<<uniqueList.count();
+
 }
 
 UrlToXml::~UrlToXml()
@@ -385,7 +475,7 @@ void UrlToXml::on_changeBtn_clicked()
     {
         uniqueStr=uniqueList.at(0);
     }
-    else
+    else if(uniqueList.count()==2)
     {
         uniqueStr=uniqueList.at(0)+";;"+uniqueList.at(1);
     }
@@ -688,8 +778,8 @@ void UrlToXml::readExcelData(QString fileName)
                 cellValue1=var[1].toString()+"="+var[2].toString();
             else if(ui->fileTableWidget->columnCount()==4)
                 cellValue1=var[1].toString()+"="+var[2].toString()+"="+var[3].toString();
-           // if(var[2].toString()!="")
-           // cellValue1+="="+var[2].toString();
+            // if(var[2].toString()!="")
+            // cellValue1+="="+var[2].toString();
             if(fileNameList.contains(cellValue))
             {
                 if(!repeatFlag)
@@ -781,15 +871,18 @@ void UrlToXml::changeUnique(QString filePath,QString uniqueStr,QString des)
         {
             QStringList uniquetmplist=uniquelist.at(i).split("=");
 
-            nodeList = docElem.elementsByTagName(uniquetmplist.at(0));
-            if (nodeList.count() >0 )
+            if(uniquetmplist.count()>1)
             {
-                QDomNode node = nodeList.at(0);
-                QDomNode oldnode = node.firstChild();
-                node.firstChild().setNodeValue(uniquetmplist.at(1));
-                QDomNode newnode = node.firstChild();
-                node.replaceChild(newnode,oldnode);
-                node.toElement().setAttribute("des",des);
+                nodeList = docElem.elementsByTagName(uniquetmplist.at(0));
+                if (nodeList.count() >0 )
+                {
+                    QDomNode node = nodeList.at(0);
+                    QDomNode oldnode = node.firstChild();
+                    node.firstChild().setNodeValue(uniquetmplist.at(1));
+                    QDomNode newnode = node.firstChild();
+                    node.replaceChild(newnode,oldnode);
+                    node.toElement().setAttribute("des",des);
+                }
             }
         }
 
@@ -832,8 +925,8 @@ void UrlToXml::on_xmlPathLineEdit_editingFinished()
     {
         QMessageBox::StandardButton bt;
         bt = QMessageBox::question(this, tr("提示"),
-                                       QString(tr("所选路径不在工作路径内，是否继续？")),
-                                       QMessageBox::Yes|QMessageBox::No,QMessageBox::Yes);
+                                   QString(tr("所选路径不在工作路径内，是否继续？")),
+                                   QMessageBox::Yes|QMessageBox::No,QMessageBox::Yes);
         if(bt==QMessageBox::No)
             ui->xmlPathLineEdit->clear();
         else if(bt==QMessageBox::Yes)

@@ -166,7 +166,7 @@ void AutoTravelWidget::on_equipBtn_clicked()
         if(mStr.contains("device") && !mStr.contains("devices"))
         {
             mSplitResult=mStr.split("device");
-            if(!mSplitResult.at(0).contains("error"))
+            if(mSplitResult.count()>0 && (!mSplitResult.at(0).contains("error")))
             {
                 equipList.append(ExeCmd::GetDeviceModel(mSplitResult.at(0).trimmed())+" + "+mSplitResult.at(0).trimmed());
                 equipModel->setStringList(equipList);
@@ -208,7 +208,8 @@ void AutoTravelWidget::addPackagesList()
         if(mStr.contains("package:"))
         {
             QStringList mSplitResult=mStr.split("package:");
-            packageList.append(mSplitResult.at(1).trimmed());
+            if(mSplitResult.count()>1)
+                packageList.append(mSplitResult.at(1).trimmed());
         }
     }
 
@@ -583,9 +584,12 @@ void AutoTravelWidget::ReadOutput(QString recieveStr)
         //=$遍历开始时间：  5;
         QStringList splitResult;
         splitResult=recieveStr.split("遍历开始时间：");
-        qTravelStartTime=splitResult.at(1).trimmed();
-        if(qTravelStartTime.contains("=$"))
-            qTravelStartTime=qTravelStartTime.left(qTravelStartTime.indexOf("=$"));
+        if(splitResult.count()>1)
+        {
+            qTravelStartTime=splitResult.at(1).trimmed();
+            if(qTravelStartTime.contains("=$"))
+                qTravelStartTime=qTravelStartTime.left(qTravelStartTime.indexOf("=$"));
+        }
 
     }
     if(recieveStr.contains("遍历结束时间："))
@@ -593,9 +597,12 @@ void AutoTravelWidget::ReadOutput(QString recieveStr)
         //=$遍历结束时间：  5;
         QStringList splitResult;
         splitResult=recieveStr.split("遍历结束时间：");
-        qTravelEndTime=splitResult.at(1).trimmed();
-        if(qTravelEndTime.contains("=$"))
-            qTravelEndTime=qTravelEndTime.left(qTravelEndTime.indexOf("=$"));
+        if(splitResult.count()>1)
+        {
+            qTravelEndTime=splitResult.at(1).trimmed();
+            if(qTravelEndTime.contains("=$"))
+                qTravelEndTime=qTravelEndTime.left(qTravelEndTime.indexOf("=$"));
+        }
     }
     if(recieveStr.contains("遍历时长："))
     {
@@ -603,10 +610,13 @@ void AutoTravelWidget::ReadOutput(QString recieveStr)
         QString tempStr;
         QStringList splitResult;
         splitResult=recieveStr.split("时长：");
-        tempStr=splitResult.at(1).trimmed();
+        if(splitResult.count()>1)
+        {
+            tempStr=splitResult.at(1).trimmed();
 
-        splitResult=tempStr.split("=");
-        qTravelTime=splitResult.at(0).trimmed();
+            splitResult=tempStr.split("=");
+            qTravelTime=splitResult.at(0).trimmed();
+        }
     }
     if(recieveStr.contains("检测到的控件总数："))
     {
@@ -614,7 +624,10 @@ void AutoTravelWidget::ReadOutput(QString recieveStr)
         QString tempStr;
         QStringList splitResult;
         splitResult=recieveStr.split("控件总数：");
-        tempStr=splitResult.at(1).trimmed();
+        if(splitResult.count()>=2)
+        {
+            tempStr=splitResult.at(1).trimmed();
+        }
         QRegExp regExp;
         QStringList tempList;
         regExp.setPattern("(\\d+)");
@@ -624,17 +637,23 @@ void AutoTravelWidget::ReadOutput(QString recieveStr)
             tempList << regExp.cap(1);
             pos += regExp.matchedLength();
         }
-        qCheckNumber=tempList.at(0);
-        qClickNumber=tempList.at(1);
-        qErrorNumber=tempList.at(2);
+        if(tempList.count()>=3)
+        {
+            qCheckNumber=tempList.at(0);
+            qClickNumber=tempList.at(1);
+            qErrorNumber=tempList.at(2);
+        }
     }
     if(recieveStr.contains("遍历过的Activity数量："))
     {
         QStringList splitResult;
         splitResult=recieveStr.split("数量：");
-        qTravelActivityNumber=splitResult.at(1).trimmed();
-        if(qTravelActivityNumber.contains("=$"))
-            qTravelActivityNumber=qTravelActivityNumber.left(qTravelActivityNumber.indexOf("=$"));
+        if(splitResult.count()>=2)
+        {
+            qTravelActivityNumber=splitResult.at(1).trimmed();
+            if(qTravelActivityNumber.contains("=$"))
+                qTravelActivityNumber=qTravelActivityNumber.left(qTravelActivityNumber.indexOf("=$"));
+        }
     }
     //*****************20170315*****************//
 }

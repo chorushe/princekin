@@ -156,7 +156,8 @@ void MonkeyWidget::addPackagesList()
         if(mStr.contains("package:"))
         {
             QStringList mSplitResult=mStr.split("package:");
-            packageList.append(mSplitResult.at(1).trimmed());
+            if(mSplitResult.count()>1)
+                packageList.append(mSplitResult.at(1).trimmed());
         }
     }
 
@@ -190,7 +191,7 @@ void MonkeyWidget::on_equipBtn_clicked()//ShowEquip
         if(mStr.contains("device") && !mStr.contains("devices"))
         {
             mSplitResult=mStr.split("device");
-            if(!mSplitResult.at(0).contains("error"))
+            if(mSplitResult.count()>0 && (!mSplitResult.at(0).contains("error")))
             {
                 equipList.append(ExeCmd::GetDeviceModel(mSplitResult.at(0).trimmed())+" + "+mSplitResult.at(0).trimmed());
                 equipModel->setStringList(equipList);
@@ -321,6 +322,10 @@ void MonkeyWidget::on_startBtn_clicked()//StartMonkey
                 QMessageBox::information(this,"提示","请选择一个设备");
                 return;
             }
+            if(packageName.contains(deviceName))//如果是手机名，那么测试整体手机，包包名设置为空
+            {
+                packageName="";
+            }
 
             if(packageName.trimmed()=="")
             {
@@ -383,6 +388,11 @@ void MonkeyWidget::on_startBtn_clicked()//StartMonkey
         }
 
         qDebug()<<cmdStr;
+        //清空问题字段内容
+        ANRErrorStr="";
+        CrashErrorStr="";
+        ExceptionErrorStr="";
+        OtherErrorStr="";
 
         MonkeyWorker *worker=new MonkeyWorker;
         worker->cmdStr=cmdStr;
@@ -476,6 +486,10 @@ void MonkeyWidget::ReadStatisticsData(QStringList statistics)
 
 void MonkeyWidget::on_clearBtn_clicked()//ClearText
 {
+    ANRErrorStr="";
+    CrashErrorStr="";
+    ExceptionErrorStr="";
+    OtherErrorStr="";
     ui->logTextEdit->clear();
 }
 

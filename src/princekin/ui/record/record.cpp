@@ -462,7 +462,7 @@ bool Record::eventFilter(QObject *watched, QEvent *event)
     {
         QWidget * mWidget=ui->tabWidget->currentWidget();
         QTextEdit *mEdit=qobject_cast<QTextEdit *>(mWidget);
-        if(mEdit->toPlainText()=="点击文字编辑脚本")
+        if(mEdit->toPlainText()=="点击文字编辑脚本（请确保脚本运行前手机页面已恢复至该脚本对应的位置）")
         {
             mEdit->clear();
         }
@@ -1422,7 +1422,7 @@ void Record::openFile(const QString &arg_openfile)
 
         if(ss.length()==0)
         {
-            mEdit->append("<font color=gray><em>点击文字编辑脚本</em></font>");
+            mEdit->append("<font color=gray><em>点击文字编辑脚本（请确保脚本运行前手机页面已恢复至该脚本对应的位置）</em></font>");
         }
         else
         {
@@ -1493,7 +1493,7 @@ void Record::doubleClickOpenFile(const QString &arg_openfile)
     {
         //mStream<<"startApp=sohuvideo"<<endl;
         //mEdit->append("startApp=sohuvideo");
-        mEdit->append("<font color=gray><em>点击文字编辑脚本</em></font>");
+        mEdit->append("<font color=gray><em>点击文字编辑脚本（请确保脚本运行前手机页面已恢复至该脚本对应的位置）</em></font>");
     }
     else
     {

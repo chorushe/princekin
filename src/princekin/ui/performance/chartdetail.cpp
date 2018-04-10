@@ -7,9 +7,6 @@ ChartDetail::ChartDetail(QWidget *parent) :
 {
     ui->setupUi(this);
 
-
-
-
     ui->customPlot->xAxis->setTickLabelType(QCPAxis::ltDateTime);
     ui->customPlot->xAxis->setDateTimeFormat("hh:mm:ss");
     ui->customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);

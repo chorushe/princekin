@@ -109,6 +109,8 @@ private slots:
 private:
     Ui::InterfaceWidget *ui;
 
+    QFile *interfacefile=NULL;
+
     QThread *processThread=NULL;
 
     int numForDeviceSignal=0;

@@ -230,7 +230,8 @@ void BehaviourSetup::parseIP_PortToBat(QString fileName)
             //QString IP=getIPAddress(runCmd("ipconfig"));
             QString IP=ui->IPLineEdit->text();
             QString Port=ui->portLineEdit->text();
-            str="mitmdump -b "+IP+" -p "+Port;
+            str="mitmdump -p "+Port;//新安装的mitmproxy换了新命令，不能用-b，所以为了统一，把设置IP的项去掉了，默认都是测本机
+            //str="mitmdump -b "+IP+" -p "+Port;
             //str="mitmdump -b 10.2.8.94 -p 7788";
             in<<str;
         }

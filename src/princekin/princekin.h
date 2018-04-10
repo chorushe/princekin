@@ -73,7 +73,7 @@ private slots:
     void helpBtn_clicked();
     void aboutBtn_clicked();
 
-    void recieveCrashSignal();
+    void receiveMessage(QString str);
 
 private:
     Ui::Princekin *ui;

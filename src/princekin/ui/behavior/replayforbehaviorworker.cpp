@@ -78,8 +78,11 @@ void ReplayForBehaviorWorker::startWorker()
 
         qScriptLine=qScriptList.at(j);
         splitResult=qScriptLine.split("=");
-        qModuleBaseName=splitResult.at(0);
-        qScriptBaseName=splitResult.at(1);
+        if(splitResult.count()>1)
+        {
+            qModuleBaseName=splitResult.at(0);
+            qScriptBaseName=splitResult.at(1);
+        }
 
         jarName=qModuleBaseName + ".jar";
         cmdLine=qAdbDevice + " shell uiautomator runtest /sdcard/" + jarName + " -c com.sohu.test." + qScriptBaseName + " -e checkStat yes";
@@ -129,6 +132,10 @@ void ReplayForBehaviorWorker::receiveRunOneScriptResult()
             sendErrorResult(qSecondLevelDirName,tempStr);
 
         }
+        else if(qDataLine.contains("fastBack"))
+        {
+            fastBack();
+        }
         else if(qDataLine.contains("princekinTakeScreen"))
         {
             pullTakeScreen2();
@@ -153,6 +160,15 @@ void ReplayForBehaviorWorker::receiveRunOneScriptResult()
         }
         Sleep(200);
     }
+}
+
+void ReplayForBehaviorWorker::fastBack()
+{
+    QString cmdLine;
+
+    cmdLine=qAdbDevice + " shell input keyevent 4";
+    ExeCmd::runCmd(cmdLine);
+    ExeCmd::runCmd(cmdLine);
 }
 
 void ReplayForBehaviorWorker::receiveProcFinished(int exitCode)

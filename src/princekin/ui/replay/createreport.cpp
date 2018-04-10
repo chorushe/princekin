@@ -217,6 +217,7 @@ void CreateReport::writeData(Document &arg_xlsx)
 
     foreach(QString var,qScriptList)
     {
+
         splitResult=var.split("=");
 
         moduleName=splitResult.at(0);
@@ -226,15 +227,22 @@ void CreateReport::writeData(Document &arg_xlsx)
             maxWidth1=width1;
         }
 
+        if(splitResult.count()>=2)
+        {
+            scriptName=splitResult.at(1) + ".txt";
+        }
+        else
+        {
+            scriptName="none";
+        }
 
-        scriptName=splitResult.at(1) + ".txt";
+
 
         width2=scriptName.length();
         if(maxWidth2<=width2)
         {
             maxWidth2=width2;
         }
-
 
         rowIndex=QString::number(number);
 
@@ -296,15 +304,20 @@ void CreateReport::mergeModule(Document &arg_xlsx)
     for(QString var:tempList)
     {
         splitResult=var.split("=");
-        scriptCount=splitResult.at(1).toInt(&ok,10);
 
-        startIndex=endMergeIndex+1;
-        endMergeIndex=startIndex+scriptCount-1;
+        if(splitResult.count()>=2)
+        {
+            scriptCount=splitResult.at(1).toInt(&ok,10);
 
-        s1=QString::number(startIndex);
-        s2=QString::number(endMergeIndex);
+            startIndex=endMergeIndex+1;
+            endMergeIndex=startIndex+scriptCount-1;
 
-        mergeCells(arg_xlsx,"A" + s1 + ":" + "A" + s2, format);
+            s1=QString::number(startIndex);
+            s2=QString::number(endMergeIndex);
+
+            mergeCells(arg_xlsx,"A" + s1 + ":" + "A" + s2, format);
+        }
+
     }
 
     /*

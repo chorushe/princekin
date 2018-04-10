@@ -94,7 +94,11 @@ QStringList PreSet::getSecondLevelDirNameList(QList<QListWidgetItem *> arg_selec
     {
         str=arg_selectedDeviceItemList.at(i)->text();
         spliResult=str.split("+");
-        list.append(spliResult.at(0).trimmed()+ "-" + spliResult.at(1).trimmed());
+
+        if(spliResult.count()>=2)
+        {
+            list.append(spliResult.at(0).trimmed()+ "-" + spliResult.at(1).trimmed());
+        }
     }
     return list;
 }

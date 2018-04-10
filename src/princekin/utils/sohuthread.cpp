@@ -464,7 +464,7 @@ void SohuThread::fenxi()
                 {
                     mResourceId="";
                 }
-                //mResourceId=gResourceId.at(i);
+                mResourceId=gResourceId.at(i);
                 mContentDesc=gContentDesc.at(i);
                 mClass=gClass.at(i);
             }
@@ -487,7 +487,7 @@ void SohuThread::fenxi()
         {
             mResourceId="";
         }
-        //mResourceId=gResourceId.at(mIndex);
+        mResourceId=gResourceId.at(mIndex);
 
 
         mClass=gClass.at(mIndex);

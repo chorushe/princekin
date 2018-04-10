@@ -11,35 +11,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "windows.h"
-#include "sendsignalclass.h"
 #include "DbgHelp.h"
-
-SendSignalClass *sendSignal=new SendSignalClass;
-
-static LONG ApplicationCrashHandler(EXCEPTION_POINTERS *pException)
-{
-    //And output crash information
-    EXCEPTION_RECORD *record = pException->ExceptionRecord;
-
-    //Create the dump file
-    HANDLE hDumpFile = CreateFile((LPCWSTR)QString("D:/QtWorkSpace/build-testrelease-Desktop_Qt_5_7_1_MinGW_32bit-Release/release/crash.dmp").utf16(),
-             GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    if(hDumpFile != INVALID_HANDLE_VALUE) {
-        MINIDUMP_EXCEPTION_INFORMATION dumpInfo;
-        dumpInfo.ExceptionPointers = pException;
-        dumpInfo.ThreadId = GetCurrentThreadId();
-        dumpInfo.ClientPointers = TRUE;
-        MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(),hDumpFile, MiniDumpNormal, &dumpInfo, NULL, NULL);
-        CloseHandle(hDumpFile);
-    }
-
-    sendSignal->emitCrash();
-    //这里弹出一个错误对话框并退出程序
-    QString errCode(QString::number(record->ExceptionCode,16)),errAdr(QString::number((uint)record->ExceptionAddress,16)),errMod;
-    QMessageBox::critical(NULL,"小王子崩溃",QString("<div>错误代码：%1</div><div>错误地址：%2</div></FONT>").arg(errCode).arg(errAdr),
-                          QMessageBox::Ok);
-    return EXCEPTION_EXECUTE_HANDLER;
-}
+#include "singleapplication.h"
 
 /*void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
   {
@@ -69,10 +42,16 @@ void initEnv();
 int main(int argc, char *argv[])
 {
     //SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)ApplicationCrashHandler);//注冊异常捕获函数
-    //qInstallMessageHandler(myMessageOutput);
+   // qInstallMessageHandler(myMessageOutput);
 
-    QApplication a(argc, argv);
+   SingleApplication a(argc, argv, "some unique key string");
+    if (a.isRunning())
+    {
+        a.sendMessage("message from other instance.");
+        return 0;
+    }
 
+   // QApplication a(argc, argv);
     QString currentPath=QCoreApplication::applicationDirPath();
     qDebug()<<"currentPath"<<currentPath;
     if(currentPath.contains(" "))
@@ -85,12 +64,14 @@ int main(int argc, char *argv[])
     initEnv();
 
     Princekin w;
+    a.connect(&a, SIGNAL(messageAvailable(QString)), &w, SLOT(receiveMessage(QString)));
+    a.connect(&a,SIGNAL(lastWindowClosed()),&a,SLOT(quit()));
+
     w.setWindowFlags(Qt::WindowCloseButtonHint|Qt::WindowMinimizeButtonHint|Qt::FramelessWindowHint);
     w.setAttribute(Qt::WA_QuitOnClose,true);
     w.show();
 
-    a.connect(sendSignal,SIGNAL(sendCrashSignal()),&w,SLOT(recieveCrashSignal()));
-    a.connect(&a,SIGNAL(lastWindowClosed()),&a,SLOT(quit()));
+
     int ret=a.exec();
 
     return ret;
@@ -103,7 +84,7 @@ void initEnv()
     Helper::initEvent();
     Helper::copyXml();
 
-    QString currentVersion="3.2";
+    QString currentVersion="3.3";
     bool d=Helper::isCopyConfig(currentVersion);
 
     if(d)

@@ -78,6 +78,7 @@ public:
      void receiveRunOneScriptResult();
      void receiveProcFinished(int exitCode);
      void receiveStopReplay();
+     void fastBack();
 };
 
 #endif // REPLAYFORBEHAVIORWORKER_H

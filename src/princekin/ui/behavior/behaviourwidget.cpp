@@ -16,8 +16,9 @@ BehaviourWidget::BehaviourWidget(QWidget *parent) :
     ui->splitter->setStretchFactor(1,3);
     ui->splitter->setStretchFactor(2,1);
     ui->splitter->setStretchFactor(3,1);
-    ui->splitter_2->setStretchFactor(0,5);
-    ui->splitter_2->setStretchFactor(1,5);
+    ui->splitter_2->setStretchFactor(0,7);
+    ui->splitter_2->setStretchFactor(1,7);
+    ui->splitter_2->setStretchFactor(2,3);
     ui->splitter_3->setStretchFactor(0,3);
     ui->splitter_3->setStretchFactor(1,7);
 
@@ -80,6 +81,9 @@ BehaviourWidget::BehaviourWidget(QWidget *parent) :
                                      "QListView::item{height:30px;color:#4d4d4d}");
 
     ui->urlListWidget->setStyleSheet("QListWidget{font-size:12px;background:#ffffff;border:1px #ffffff;}");
+    ui->domainListWidget->setStyleSheet("QListWidget{font-size:12px;background:#ffffff;border:1px #ffffff;}"
+                                        "QListWidget::item{height:30px;color:#4d4d4d}");
+    ui->domainListWidget->addItem("域名列表（点击域名可对URL过滤）");
 
     ui->statisticsListWidget->setStyleSheet("QListWidget{font-size:12px;background:#ffffff;border:1px #ffffff;}");
 
@@ -214,6 +218,7 @@ void BehaviourWidget::ScriptSwitch(bool state)
         toolBar2->setVisible(true);
         toolBar3->setVisible(false);
         scriptPatternFlag=true;
+        ui->domainListWidget->setVisible(false);
     }
     else
     {
@@ -224,6 +229,7 @@ void BehaviourWidget::ScriptSwitch(bool state)
         toolBar2->setVisible(false);
         toolBar3->setVisible(true);
         scriptPatternFlag=false;
+        ui->domainListWidget->setVisible(true);
     }
 }
 
@@ -347,7 +353,21 @@ void BehaviourWidget::on_urlListWidget_itemPressed(QListWidgetItem *item)//urlLi
     if(ui->urlListWidget->currentItem()->text()=="URL列表")
         return;
     int row=ui->urlListWidget->currentRow();
-    QString url=urlList[row];
+    QString url="";
+    if(filterUrlList.count()>0)
+    {
+        if(filterUrlList.length()>row)
+            url=filterUrlList[row];
+        else
+            qDebug()<<"behaviorwidget,361,filterUrlList index out of range"<<filterUrlList.length()<<" row: "<<row;
+    }
+    else
+    {
+        if(urlList.length()>row)
+            url=urlList[row];
+        else
+            qDebug()<<"behaviorwidget,368,urllist index out of range" <<urlList.length()<<" row: "<<row;
+    }
 
     if(url=="")
         ui->statisticsListWidget->clear();
@@ -394,7 +414,24 @@ void BehaviourWidget::on_statisticsListWidget_itemClicked(QListWidgetItem *item)
         qDebug()<<statisticsStr;
     }
 
-    QString url=urlList[ui->urlListWidget->currentRow()];
+    int row=ui->urlListWidget->currentRow();
+    QString url="";
+    if(filterUrlList.count()>0)
+    {
+        if(filterUrlList.length()>row)
+            url=filterUrlList[row];
+        else
+            qDebug()<<"behaviorwidget,423,filterUrlList index out of range"<<filterUrlList.length()<<" row: "<<row;
+    }
+    else
+    {
+        if(urlList.length()>row)
+            url=urlList[row];
+        else
+            qDebug()<<"behaviorwidget,430,urllist index out of range"<<urlList.length()<<" row: "<<row;
+    }
+
+
     QString urlBefore=url.left(url.indexOf(statisticsStr));
     urlBefore=urlBefore.replace("&","& ");
     QString urlAfter=url.mid(url.indexOf(statisticsStr)+statisticsStr.length());
@@ -503,6 +540,12 @@ void BehaviourWidget::on_clearBtn_clicked()
     //qScriptList.clear();
 
     lineNumberUrlMap.clear();
+
+    domainList.clear();
+    domainCheckNum=0;
+    filterUrlList.clear();
+    ui->domainListWidget->clear();
+    ui->domainListWidget->addItem("域名列表（点击域名可对URL过滤）");
 
     //测试套结果数据清空
     QMap<QString,QMap<QString,int>>::const_iterator it;
@@ -619,7 +662,19 @@ void BehaviourWidget::on_startBtn_clicked()
             //添加停止脚本逻辑,脚本停止之后会自动调用stopRun（）
             emit sendStopReplay();
         else
+        {
+            //把域名列表的域名变成可操控
+            int num = ui->domainListWidget->count();
+            qDebug()<<num;
+            for(int i=1;i<num;i++)
+            {
+                QListWidgetItem *item= ui->domainListWidget->item(i);
+                QWidget *widget = ui->domainListWidget->itemWidget(item);
+                QCheckBox *box = ( QCheckBox*) widget ;
+                box->setEnabled(true);
+            }
             stopRun();
+        }
     }
     else
     {
@@ -629,6 +684,27 @@ void BehaviourWidget::on_startBtn_clicked()
             urlList.clear();
             urlErrorList.clear();
             ui->statisticsListWidget->clear();
+        }
+
+       // 域名列表去掉勾选操作
+        int num = ui->domainListWidget->count();
+        if(num>1)
+        {
+            for(int i=1;i<num;i++)
+            {
+                QListWidgetItem *item= ui->domainListWidget->item(i);
+                QWidget *widget= ui->domainListWidget->itemWidget(item);
+                QCheckBox *box = ( QCheckBox*) widget ;
+                box->setChecked(false);
+                box->setEnabled(false);//开始抓包时域名不可操作
+            }
+        }
+        if(domainCheckNum>0 && domainCheckNum<num)//如果选中的域名列表大于1且小于全部
+        {
+            domainCheckNum=0;
+            ui->urlListWidget->clear();//清空掉目前显示部分URL
+            FilterShowURL("");//把之前的所有URL全部显示出来
+            filterUrlList.clear();
         }
 
         //*****************20170505*************************//
@@ -981,6 +1057,16 @@ void BehaviourWidget::ReadStandardOutput(QString res)
                 }
                 if(uniqueflag)//如果所有关键识别值都匹配成功
                 {
+                    if(!domainList.contains(it.value()[0].revelantHead))
+                    {
+                        domainList.append(it.value()[0].revelantHead);
+                        QListWidgetItem * item = new QListWidgetItem ();
+                        QCheckBox *box=new QCheckBox(it.value()[0].revelantHead,this);
+                        connect(box,SIGNAL(clicked(bool)),this,SLOT(clickDomainCheckBox()));
+                        ui->domainListWidget->addItem(item);
+                        ui->domainListWidget->setItemWidget(item,box);
+                        box->setEnabled(false);
+                    }
                     ShowURL(res,it.key());
                     break;
                 }
@@ -1065,6 +1151,45 @@ void BehaviourWidget::ShowURL(QString url,QString key)
     }
 }
 
+void BehaviourWidget::FilterShowURL(QString domainStr)
+{
+    for(int i=0;i<urlList.count();i++)
+    {
+        //qDebug()<<i<<" : "<<urlList[i];
+        if(urlList[i].contains(domainStr))
+        {
+            qDebug()<<"contain";
+            filterUrlList.append(urlList[i]);
+
+            QString url=urlList[i];
+            url.replace("&","& ");//setwordwrap属性需要针对字符串中有空格等分隔符才行，所以这里加了空格作为分隔，这样再用label显示时便可以达到自动换行的效果
+            QLabel *tmpLabel=new QLabel;
+            tmpLabel->setText(url);
+            tmpLabel->setWordWrap(true);
+
+            QListWidgetItem *item=new QListWidgetItem(ui->urlListWidget);
+            item->setSizeHint(QSize(ui->urlListWidget->width()-30,ui->urlListWidget->height()));
+            ui->urlListWidget->setItemWidget(item,tmpLabel);
+        }
+    }
+}
+
+void BehaviourWidget::FilterDeleteURL(QString domainStr)
+{
+    qDebug()<<"filterurllist count "<<filterUrlList.count();
+    for(int i=0;i<filterUrlList.count();i++)
+    {
+        qDebug()<<i<<" : "<<filterUrlList[i];
+        if(filterUrlList[i].contains(domainStr))
+        {
+            qDebug()<<"deletecontain";
+            filterUrlList.removeAt(i);
+            ui->urlListWidget->takeItem(i);
+            i--;//删除了之后，总数少了，这里要i减一
+        }
+    }
+}
+
 QString BehaviourWidget::ParseURL(QString url,bool isLatest)//点击url列表时槽函数，解析url变成统计点
 {
     //isLatest，如果当前url不是最新一条，就是false，其他都是true,比如点击某一条URL解析时
@@ -1076,16 +1201,23 @@ QString BehaviourWidget::ParseURL(QString url,bool isLatest)//点击url列表时
     QMap<QString,QList<DataClass> >::iterator it;
     for(it=allXmlData.begin();it!=allXmlData.end();++it)
     {
-        QStringList uniquelist=it.value()[0].UniqueIdenti.split(";;");
         bool uniqueflag=true;
-        for(int i=0;i<uniquelist.count();i++)
+        if(url.contains(it.value()[0].revelantHead))
         {
-            if(!url.contains(uniquelist[i]))
+            QStringList uniquelist=it.value()[0].UniqueIdenti.split(";;");
+
+            for(int i=0;i<uniquelist.count();i++)
             {
-                uniqueflag=false;
-                break;
+                if(!url.contains(uniquelist[i]))
+                {
+                    uniqueflag=false;
+                    break;
+                }
             }
         }
+        else
+            uniqueflag=false;
+
         if(uniqueflag)//如果所有关键识别值都匹配成功
         {
             isFind=true;
@@ -1767,7 +1899,7 @@ void BehaviourWidget::on_equipBtn_clicked()
         if(mStr.contains("device") && !mStr.contains("devices"))
         {
             mSplitResult=mStr.split("device");
-            if(!mSplitResult.at(0).contains("error"))
+            if(mSplitResult.count()>0 && (!mSplitResult.at(0).contains("error")))
             {
                 equipList.append(ExeCmd::GetDeviceModel(mSplitResult.at(0).trimmed())+" + "+mSplitResult.at(0).trimmed());
                 equipModel->setStringList(equipList);
@@ -2614,6 +2746,51 @@ void BehaviourWidget::on_scriptTextEdit_cursorPositionChanged()
             ui->urlListWidget->setCurrentRow(index);
             if(urlList.count()>index&&allXmlDataForCheck.count()>index)
                 ParseURLForCheck(urlList[index],allXmlDataForCheck[index],true);
+        }
+    }
+}
+
+void BehaviourWidget::clickDomainCheckBox()
+{
+    QObject *object = QObject::sender();
+    QCheckBox *senderCheckBox = static_cast<QCheckBox*>(object);
+    int count=ui->domainListWidget->count();
+    for(int i=0;i<count;i++)
+    {
+        QListWidgetItem *item=ui->domainListWidget->item(i);
+        QWidget *widget = ui->domainListWidget->itemWidget(item);
+        QCheckBox *box = (QCheckBox *)widget;
+        if(box==senderCheckBox)
+        {
+            if(box->isChecked())
+            {
+                domainCheckNum++;
+                qDebug()<<"domainchecknum"<<domainCheckNum;
+                if(domainCheckNum==1)//之前是全部显示的，刚选第一个域名，需要把显示的URL清除掉再添加显示
+                {
+                    ui->urlListWidget->clear();
+                    ui->statisticsListWidget->clear();
+                    filterUrlList.clear();
+                }
+                qDebug()<<box->text();
+                FilterShowURL(box->text());
+            }
+            else
+            {
+                domainCheckNum--;
+                ui->statisticsListWidget->clear();
+                if(domainCheckNum==0)//没有要过滤的域名，显示全部
+                {
+                    ui->urlListWidget->clear();
+                    FilterShowURL("");//
+                    filterUrlList.clear();//显示全部时，又把filterurllist加入新的内容了，所以显示全部之后再清空filterurllist
+                }
+                else//还有要显示的域名，就把目前不符合的删除
+                {
+                    FilterDeleteURL(box->text());
+                }
+            }
+            break;
         }
     }
 }

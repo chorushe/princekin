@@ -514,12 +514,16 @@ QString CreateCrashReport::getMemoryAveValue(const QString &arg_deviceId,QString
     QString tempStr;
     QStringList splitResult;
     QStringList tempList=Value_list.filter(arg_deviceId);
+
     foreach(QString var,tempList)
     {
         splitResult=var.split("->");
-        tempStr=splitResult.at(1);
-        d=tempStr.toDouble();
-        doubleValue=doubleValue+d;
+        if(splitResult.count()>=2)
+        {
+            tempStr=splitResult.at(1);
+            d=tempStr.toDouble();
+            doubleValue=doubleValue+d;
+        }
     }
 
     int count=tempList.count();
@@ -541,12 +545,16 @@ QString CreateCrashReport::getCpuAveValue(const QString &arg_deviceId,QStringLis
     QString tempStr;
     QStringList splitResult;
     QStringList tempList=Value_list.filter(arg_deviceId);
+
     foreach(QString var,tempList)
     {
         splitResult=var.split("->");
-        tempStr=splitResult.at(1);
-        d=tempStr.toDouble();
-        doubleValue=doubleValue+d;
+        if(splitResult.count()>=2)
+        {
+            tempStr=splitResult.at(1);
+            d=tempStr.toDouble();
+            doubleValue=doubleValue+d;
+        }
     }
 
     int count=tempList.count();
@@ -567,12 +575,16 @@ QString CreateCrashReport::getBatterytempAveValue(const QString &arg_deviceId,QS
     QString tempStr;
     QStringList splitResult;
     QStringList tempList=Value_list.filter(arg_deviceId);
+
     foreach(QString var,tempList)
     {
         splitResult=var.split("->");
-        tempStr=splitResult.at(1);
-        d=tempStr.toDouble();
-        doubleValue=doubleValue+d;
+        if(splitResult.count()>=2)
+        {
+            tempStr=splitResult.at(1);
+            d=tempStr.toDouble();
+            doubleValue=doubleValue+d;
+        }
     }
 
     int count=tempList.count();
@@ -594,12 +606,16 @@ QString CreateCrashReport::getCputempAveValue(const QString &arg_deviceId,QStrin
     QString tempStr;
     QStringList splitResult;
     QStringList tempList=Value_list.filter(arg_deviceId);
+
     foreach(QString var,tempList)
     {
         splitResult=var.split("->");
-        tempStr=splitResult.at(1);
-        d=tempStr.toDouble();
-        doubleValue=doubleValue+d;
+        if(splitResult.count()>=2)
+        {
+            tempStr=splitResult.at(1);
+            d=tempStr.toDouble();
+            doubleValue=doubleValue+d;
+        }
     }
 
     int count=tempList.count();
@@ -647,11 +663,14 @@ QString CreateCrashReport::getWifiMobile(const QString &arg_deviceId)
         {
             trafficValue=gData_Traffic_Hash.value(tempStr);
             splitResult=trafficValue.split("=");
-            lrxMobile=splitResult.at(2);
+            if(splitResult.count()>=3)
+            {
+                lrxMobile=splitResult.at(2);
+                double d=lrxMobile.toDouble();
+                d=d/1024;
+                lrxMobile=QString::number(d,'f',2);
+            }
 
-            double d=lrxMobile.toDouble();
-            d=d/1024;
-            lrxMobile=QString::number(d,'f',2);
         }
         else
         {

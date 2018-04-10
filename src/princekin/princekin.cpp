@@ -81,10 +81,12 @@ Princekin::Princekin(QWidget *parent) :QMainWindow(parent),ui(new Ui::Princekin)
     timerThread->start();
 }
 
-void Princekin::recieveCrashSignal()
+void Princekin::receiveMessage(QString str)
 {
-   // performanceDialog->createExcel();
-    QMessageBox::information(this,"提示","哎呀！小王子挂掉了，正在保存数据......\r\n等弹出“excel生成完毕”对话框后再点击“OK”按钮~");
+    //QMessageBox::information(this,"","一打开"+str);
+    setWindowState( (windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
+    raise();
+    activateWindow();
 }
 
 void Princekin::TimerSlot()

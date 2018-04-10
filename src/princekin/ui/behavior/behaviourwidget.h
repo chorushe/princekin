@@ -128,6 +128,8 @@ private:
     void ParseXML(const QDomElement &element);
     QString ParseURL(QString url, bool isLatest);
     void ShowURL(QString url, QString key);
+    void FilterShowURL(QString domainStr);
+    void FilterDeleteURL(QString domainStr);
 
     AssistMeasure *assist=NULL;
     QString deviceName;
@@ -171,6 +173,10 @@ private:
     bool isStartFlag=false;
 
     QString fileNameForReport;
+
+    QStringList domainList;//出现过的域名列表
+    int domainCheckNum=0;//当前选中的域名的个数
+    QStringList filterUrlList;//过滤后的显示中的URL列表
 
    // QStringList statistics;//用来存储统计点信息的变量
 
@@ -315,6 +321,8 @@ private slots:
     void receiveErrorResult(const QString &arg_SecondLevelDirName,const QString &arg_error);
     void on_scriptTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
     void on_scriptTextEdit_cursorPositionChanged();
+
+    void clickDomainCheckBox();
 };
 
 #endif // BEHAVIOURWIDGET_H

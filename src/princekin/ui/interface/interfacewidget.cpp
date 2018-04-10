@@ -226,7 +226,15 @@ void InterfaceWidget::on_startBtn_clicked()
         }
         //*****************20170717*****************//
 
-        QString cmdStr="mitmdump -b "+IP+" -p "+port+" -s "+gConfigDir+QDir::separator()+"getresponsedata.py";
+        //QString cmdStr="mitmdump -b "+IP+" -p "+port+" -s "+gConfigDir+QDir::separator()+"getresponsedata.py";
+        //新安装的mitmproxy换了新命令，不能用-b，所以为了统一，把设置IP的项去掉了，默认都是测本机
+        QString cmdStr="mitmdump -p "+port+" -s "+gConfigDir+QDir::separator()+"getresponsedata.py";
+
+        qDebug()<<cmdStr;
+        //QMessageBox::information(this,"",cmdStr);
+
+        //interfacefile=new QFile(gWorkSpace+QDir::separator()+ "interface.txt");
+        //interfacefile->open(QIODevice::WriteOnly);
         BehaviorWorker *worker=new BehaviorWorker;
         worker->cmdStr=cmdStr;
         QThread *workerThread=new QThread(this);
@@ -297,6 +305,8 @@ void InterfaceWidget::on_startBtn_clicked()
     else
     {
         emit sendStopStatSignal();
+        //if(interfacefile->isOpen())
+        //    interfacefile->close();
     }
 }
 
@@ -419,11 +429,15 @@ void InterfaceWidget::exportReport()
 void InterfaceWidget::ReadStandardOutput(QString res)
 {
     res=UrlDecode(res);
+    //interfacefile->write(res.toStdString().c_str());
+    //interfacefile->write("\r\n");
     if(res.contains("-----START-----")&&res.contains("-----END-----"))
     {
         res=res.left(res.length()-15);
         ContentRes=res.mid(15);
         qDebug()<<"~~"<<ContentRes;
+        //interfacefile->write("~~");
+        //interfacefile->write(ContentRes.toStdString().c_str());
         endflag=false;
     }
     if(res.contains("<< ") && (!endflag))
@@ -637,7 +651,8 @@ void InterfaceWidget::addPackagesList()
         if(mStr.contains("package:"))
         {
             QStringList mSplitResult=mStr.split("package:");
-            packageList.append(mSplitResult.at(1).trimmed());
+            if(mSplitResult.count()>1)
+                packageList.append(mSplitResult.at(1).trimmed());
         }
     }
 

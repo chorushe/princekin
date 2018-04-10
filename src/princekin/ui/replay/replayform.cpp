@@ -1603,7 +1603,10 @@ void ReplayForm::createDaily(const QString &arg_deviceId, QStringList arg_actual
         //QString logcatPath=qDetailedPath+QDir::separator()+model+"-"+arg_deviceId+QDir::separator()+"logcat";
         QString logcatPath=qDetailedPath+QDir::separator()+model+"-"+arg_deviceId;
 
+
+
         QString httppath=Upload::getHttp(logcatPath);
+
 
         Format hyperlinkFormat;
         hyperlinkFormat=getHyperlinkFormat();
@@ -2240,13 +2243,6 @@ void ReplayForm::sendMailSlot()
         file.close();
 
 
-
-
-
-
-
-
-
         double per;
         QString cell;
         QString appName;
@@ -2262,7 +2258,6 @@ void ReplayForm::sendMailSlot()
         Document qXlsx2(dailyXlsx);
         qXlsx2.selectSheet("base");
         appName=qXlsx2.cellAt(1,3)->value().toString();
-
 
         //per=(double)goodDevice/allDevice*100;
         //strPer=QString::number(per,'f',2);
@@ -2297,9 +2292,6 @@ void ReplayForm::sendMailSlot()
         int goodDevice=allDevice-failDevice;
         cell="C2";
         qXlsx2.write(cell,QString::number(goodDevice)+"/"+QString::number(allDevice));
-
-
-
 
         int goodTest=allTest-errorTest;
         per=(double)goodTest/allTest*100;
