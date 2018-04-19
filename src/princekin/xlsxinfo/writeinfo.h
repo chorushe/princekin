@@ -63,9 +63,11 @@ public:
 
     static void writeMobileInfo_Monkey(Document &,const QString &);
     static void writeMobileInfo(Document &);
+    static void writeIOSInfo(Document &);
     static void writeMobileInfo_Travel(Document &,const QString &);
 
     static void writeMobileInfo_behaviour(Document &,const QString &);
+    static void writeIOSInfo_behaviour(Document &,const QString &);
 
     static void writeStyle(Document &,const QString &, const QString &,Format);
     static Format getNormalFormat();

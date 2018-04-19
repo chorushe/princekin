@@ -384,7 +384,11 @@ void Worker::pushApk(const QString &arg_apkName)
     str=QDir::toNativeSeparators(str);
 
     cmdLine=str + " /sdcard/";
+
+    cmdLine=cmdLine.replace("\r\r\n","");
     ExeCmd::runCmd(cmdLine);
+
+
 }
 
 

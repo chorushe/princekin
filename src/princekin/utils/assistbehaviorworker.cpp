@@ -10,7 +10,7 @@ AssistBehaviorWorker::AssistBehaviorWorker(QObject *parent) : QObject(parent)
 void AssistBehaviorWorker::startStatistics()
 {
     GetXMLs();
-    QString cmdStr="mitmdump -b "+IP+" -p "+Port;
+    QString cmdStr="mitmdump --listen-host "+IP+" -p "+Port;
     //cmdStr="mitmdump -b 10.2.8.94 -p 7788";
     if(p->state())
         p->write(cmdStr.toLatin1());

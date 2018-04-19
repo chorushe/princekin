@@ -19,6 +19,11 @@ void ReplayForBehaviorController::setSecondLevelDirName(const QString &arg_text)
     qSecondLevelDirName=arg_text;
 }
 
+void ReplayForBehaviorController::setUiautomatorDirName(const QString &arg_text)
+{
+    qUiautomatorDirName=arg_text;
+}
+
 void ReplayForBehaviorController::setScriptList(QStringList arg_list)
 {
     qScriptList=arg_list;
@@ -64,6 +69,7 @@ void ReplayForBehaviorController::run()
     workerInstance->setDeviceId(qDeviceId);
     workerInstance->setFirstLevelDirName(qFirstLevelDirName);
     workerInstance->setSecondLevelDirName(qSecondLevelDirName);
+    workerInstance->setUiautomatorDirName(qUiautomatorDirName);
     workerInstance->setScriptList(qScriptList);
     workerInstance->startWorker();
 }

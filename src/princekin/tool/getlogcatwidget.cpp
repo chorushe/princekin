@@ -69,6 +69,11 @@ void GetLogcatWidget::on_startBtn_clicked()
 {
     if(!isStartFlag)
     {
+        if(deviceName=="")
+        {
+            QMessageBox::information(this,"提示","请选择设备");
+            return;
+        }
         errorFileLogcat=NULL;
         errorFlag=false;
         isStartFlag=true;

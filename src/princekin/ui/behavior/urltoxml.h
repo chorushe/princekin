@@ -66,7 +66,7 @@ private:
 
     void readExcelData(QString fileName);
     void ShowFileInfo();
-    void changeUnique(QString filePath, QString uniqueStr, QString des);
+    void changeUnique(QString filePath, QString uniqueStr, QString des, QString nullnote);
 
 public slots:
     void CalculateUnique(int index);

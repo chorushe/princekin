@@ -1,0 +1,15 @@
+1、longPressText ：长按文本，当长按失败时，自动结束当前脚本
+例：
+longPressText 热点
+
+2、longPressText_notExit ：长按文本，当长按失败时，不会结束当前脚本
+例：
+longPressText_notExit 热点
+
+3、longPressIdOrClass ：长按类或id，当长按失败时，自动结束当前脚本
+例：
+longPressIdOrClass com.sohu.qianfan:id/cover
+
+4、longPressIdOrClass_notExit ：长按类或id，当长按失败时，不会结束当前脚本
+例：
+longPressIdOrClass_notExit com.sohu.qianfan:id/cover

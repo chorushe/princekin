@@ -31,6 +31,7 @@ public:
     void setDeviceId(const QString &);
     void setFirstLevelDirName(const QString &);
     void setSecondLevelDirName(const QString &);
+    void setUiautomatorDirName(const QString &);
     void setScriptList(QStringList);
 
     void startWorker();
@@ -53,6 +54,7 @@ public:
      QString qDeviceId;
      QString qFirstLevelDirName;
      QString qSecondLevelDirName;
+     QString qUiautomatorDirName;
 
      QByteArray qByte;
      QString  qDataLine;

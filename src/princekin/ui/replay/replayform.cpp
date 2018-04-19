@@ -17,7 +17,7 @@ ReplayForm::ReplayForm(QWidget *parent) :QMainWindow(parent),ui(new Ui::ReplayFo
     //createMenuBar();
     createToolBar();
     //createMenuItems();
-    //设置设备显示框的属性
+    //设置设备显示框的属性F
     ui->listWidget->setStyleSheet("QListWidget{font-size:12px;background:#ffffff;border:1px #ffffff;}"
                                   "QListWidget::item:selected:active{background:#e4e4e4;color:#000000;padding-left:8px;}"
                                   "QListWidget::item:selected{background:#e4e4e4;color:#000000;padding-left:8px;}"

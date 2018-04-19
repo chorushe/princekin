@@ -13,6 +13,7 @@
 #include "windows.h"
 #include "DbgHelp.h"
 #include "singleapplication.h"
+#include "execmd.h"
 
 /*void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
   {
@@ -84,7 +85,7 @@ void initEnv()
     Helper::initEvent();
     Helper::copyXml();
 
-    QString currentVersion="3.3";
+    QString currentVersion="3.4.0";
     bool d=Helper::isCopyConfig(currentVersion);
 
     if(d)
@@ -97,6 +98,24 @@ void initEnv()
         {
             Helper::copyModify(gtempConfigDir + QDir::separator() + "lib",gNewConfigDir, false);
         }
+
+        /*QString res = ExeCmd::runCmd("mitmdump --version");
+        qDebug()<<"mitmdump "<<res;
+        if(res.contains("mitmdump"))
+            res="mitmdump";
+        else
+        {
+            res=res.mid(res.indexOf(":")+1).trimmed();
+            res=res.left(res.indexOf(" "));
+        }
+
+        QFile file(gNewConfigDir + QDir::separator() + "mitmdumpversion.txt");
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+            return;
+
+        QTextStream out(&file);
+        out << res;
+        file.close();*/
     }
 
 

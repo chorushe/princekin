@@ -18,9 +18,11 @@ println 执行成功
 例:
 invoke=dl
 
-8、takeScreen  截图,无参数，直接使用
+8、takeScreen  截图,参数可有可无，不带参数时，会根据时间命名，也可自定义图片名，不建议用中文
 例:
 takeScreen
+或
+takeScreen imagename
 
 
 *********以下点击(每个命令都有对应的_notExit命令)*****
@@ -100,11 +102,65 @@ class=android.widget.ImageView
 index=2
 clickIdOrClass=class=index
 
+7、clickxy :点击具体坐标
+例：点击坐标为（300,400）位置的控件
+clickxy 300 400
+注意：但不同分辨率手机的具体坐标不一致，通过坐标点击控件的脚本不能通用
 
 **********以上点击**********
 
+**********以下长按**********
+
+1、longPressText ：长按文本，当长按失败时，自动结束当前脚本
+例：
+longPressText 热点
+
+2、longPressText_notExit ：长按文本，当长按失败时，不会结束当前脚本
+例：
+longPressText_notExit 热点
+
+3、longPressIdOrClass ：长按类或id，当长按失败时，自动结束当前脚本
+例：
+longPressIdOrClass com.sohu.qianfan:id/cover
+
+4、longPressIdOrClass_notExit ：长按类或id，当长按失败时，不会结束当前脚本
+例：
+longPressIdOrClass_notExit com.sohu.qianfan:id/cover
+
+*********以上长按*********
+
+*********以下双击*********
+
+1、doublePause ：播放视频时，双击暂停.后面参数只能是id
+doublePause com.sohu.sohuvideo:id/player_container
+doublePause_notExit com.sohu.sohuvideo:id/player_container
+或
+str=com.sohu.sohuvideo:id/player_container
+doublePause=str
+doublePause_notExit=str
+
+2、doublePlay ：播放暂停后，双击开始播放.后面参数只能是id
+doublePlay com.sohu.sohuvideo:id/player_container
+doublePlay_notExit com.sohu.sohuvideo:id/player_container
+或
+str=com.sohu.sohuvideo:id/player_container
+doublePlay=str
+doublePlay_notExit=str
+
+3、doubleClick ：双击命令，后面参数只能是id
+doubleClick com.sohu.sohuvideo:id/player_container
+doubleClick_notExit com.sohu.sohuvideo:id/player_container
+或
+str=com.sohu.sohuvideo:id/player_container
+doubleClick=str
+doubleClick_notExit=str
+
+*********以上双击*********
+
 **********以下滑屏**********
-用法同clickText,判断命令为isScrollOK
+
+滑动命令是否成功可通过isScrollOK变量进行检查，同时，所有滚动的命令都有对应的notExit命令，以保证滑动失败后可继续运行脚本。
+
 1、locateClassName 定位某个类，(滑动或设置横竖之前先定位，再滑动)，
     定位之后得到 scroll 对象
 
@@ -160,6 +216,16 @@ locateClassName android.widget.ListView
 scrollIdOrClass com.sohu.sohuvideo:id/iv_comments_comment
 scrollIdOrClass com.sohu.sohuvideo:id/iv_comments_comment 3
 
+8、
+flingForward
+flingBackward
+分别为快速向前向后滑动，不用接参数
+
+9、
+scrollForward
+scrollForward
+分别为向前向后滑动，仅滑动一次，不用接参数，不能设置步数
+
 ************以上滑屏******************
 
 ************以下文字检查**************
@@ -180,6 +246,14 @@ checkTextSelected 纪录片
 
 5、checkTextChecked:检查文字Checked属性是否true
 checkTextChecked 自媒体
+
+6、checkId ：通过控件id检查某个控件是否存在
+checkId com.sohu.sohuvideo:id/player_container
+checkId_notExit com.sohu.sohuvideo:id/player_container
+或
+str=com.sohu.sohuvideo:id/player_container
+checkId=str
+checkId_notExit=str
 
 **********************以上文字检查**************
 
@@ -260,15 +334,17 @@ uninstall=apk
 
 ******************以下统计点检测**********************
 
-checkStatPoint，可对统计点信息进行检测
-格式：checkStatPoint xmlName
+checkStatPoint，可对统计点信息进行检测，等待捕获的时间可自定义设置，缺省值是2秒
+格式：checkStatPoint xmlName waittime
 
 例：
-checkStatPoint \\pv\\behavior_pv_2001.xml
+checkStatPoint \\pv\\behavior_pv_2001.xml 5
 或
-checkStatPoint /pv/behavior_pv_2001.xml
+checkStatPoint /pv/behavior_pv_2001.xml 5
 
-备注：可对多个xml文件进行同时检测，只需在checkStatPoint后接多个xml文件名即可，用空格分开；
+备注：可对多个xml文件进行同时检测，只需在checkStatPoint后接多个xml文件名
+      即可，用空格分开；
       xml文件名需要带部分路径信息，详细情况见说明文档
+      等待捕获的时间可省略不写，此时默认等待时间是2秒
 
 ************************以上统计点检测*********************

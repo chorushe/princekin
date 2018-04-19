@@ -27,7 +27,7 @@
 #include "newwidget.h"
 #include "execmd.h"
 #include "filemanager.h"
-#include "renamedialog.h"
+#include "renamedialog2.h"
 #include "sohuthread.h"
 #include "controller.h"
 #include "worker.h"
@@ -123,6 +123,11 @@ private:
     QString getWorkspace();
     QStringList getDeviceList();
 
+    void deleteScriptFile(const QString &);
+
+    QString getBaseName(const QString &);
+    QString getAbsolutePath(const QString &);
+    void removeFile(const QString &);
 
 signals:
     void signal_closeProc();
@@ -143,6 +148,7 @@ private slots:
 
     void createScriptSlot();
     void deleteProjectSlot();
+    void deleteScriptFileSlot();
     void setButtonIconSlot1(int);
 
     void slot_OutPutProxy(const QString &);
@@ -187,6 +193,7 @@ private slots:
     void NewScriptSlot();
 
     void on_newMoudleBtn_clicked();
+    void renameSlot();
 
 private:
     Ui::Record *ui;
@@ -242,6 +249,7 @@ private:
 
     QThread *workThread;
 
+    RenameDialog2 *renameInstance=NULL;
     SohuThread *ThreadInstance;
 
     QThread *workThread1;

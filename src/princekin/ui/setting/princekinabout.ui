@@ -90,7 +90,7 @@
     <string notr="true">color: rgb(103, 103, 103);</string>
    </property>
    <property name="text">
-    <string>V3.3</string>
+    <string>V3.4</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_4">

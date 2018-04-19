@@ -1,5 +1,4 @@
-
-        private void press_Back()
+private void press_Back()
     {
         isPressOK=device.pressBack();
         System.out.println("BACK");
@@ -203,6 +202,125 @@
         }
         //return isClickOK;
     }
+    
+    
+    private void longPressText_notExit(String arg_Text)
+    {
+        isXXX=true;
+        longPressText(arg_Text);
+    }
+    
+    private void longPressText_notExit(String arg_Text,int arg_index)
+    {
+        isXXX=true;
+        longPressText(arg_Text,arg_index);
+    }
+    
+    private void longPressText(String arg_Text)
+    {
+        try
+        {
+            if(isXXX)
+            {
+                outPutScript("longPressText_notExit " + arg_Text);
+            }
+            else
+            {
+                outPutScript("longPressText " + arg_Text);
+            }
+            
+            selector=getTextSelector(arg_Text);
+            obj=getObj(selector);
+            int x = obj.getBounds().centerX();  
+            int y = obj.getBounds().centerY();  
+            isClickOK=device.swipe(x, y, x, y, 300);
+            /*
+            rectxy=obj.getBounds();
+            isClickOK=device.click(rectxy.centerX(),rectxy.centerY());
+            
+            if(arg_Text.equals(strConfirm) || arg_Text.equals(strCancel))
+            {
+                isClickOK=true;
+            }
+            */
+        }
+        catch(UiObjectNotFoundException e)
+        {
+            isClickOK=false;
+            if(isXXX)
+            {
+                outPutScript("longPressText_notExit " + arg_Text + "    princekin_notExit" + isClickOK + "    NotFound");
+            }
+            else
+            {
+                outPutScript("longPressText " + arg_Text + "    princekin" + isClickOK + "    NotFound");
+            }
+            isXXX=false;
+            return;
+        }
+        if(isXXX)
+        {
+            isXXX=false;
+            outPutScript("longPressText_notExit " + arg_Text + "    princekin_notExit" + isClickOK);
+        }
+        else
+        {
+            outPutScript("longPressText " + arg_Text + "    princekin" + isClickOK);
+        }
+        //return isClickOK;
+    }
+    private void longPressText(String arg_Text,int arg_index)
+    {
+        try
+        {
+            if(isXXX)
+            {
+                outPutScript("longPressText_notExit " + arg_Text + "    " + String.valueOf(arg_index));
+            }
+            else
+            {
+                outPutScript("longPressText " + arg_Text + "    " + String.valueOf(arg_index));
+            }
+            selector=getTextSelector(arg_Text,arg_index);
+            obj=getObj(selector);
+            int x = obj.getBounds().centerX();  
+            int y = obj.getBounds().centerY();  
+            isClickOK=device.swipe(x, y, x, y, 300);
+            //rectxy=obj.getBounds();
+            //isClickOK=device.click(rectxy.centerX(),rectxy.centerY());
+        }
+        catch(UiObjectNotFoundException e)
+        {
+            isClickOK=false;        	
+            if(isXXX)
+            {
+                outPutScript("longPressText_notExit " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin_notExit" + isClickOK + "    NotFound");
+            }
+            else
+            {
+                outPutScript("longPressText " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin" + isClickOK + "    NotFound");
+            }
+            isXXX=false;
+            return;
+        }
+        if(isXXX)
+        {
+            isXXX=false;
+            outPutScript("longPressText_notExit " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin_notExit" + isClickOK);
+        }
+        else
+        {
+            outPutScript("longPressText " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin" + isClickOK);
+        }
+        //return isClickOK;
+    }
+    
+    
+    
+    
+    
+    
+    
     
     private void clickTextMatches_notExit(String arg_Text)
     {
@@ -875,6 +993,205 @@
         //return isClickOK;
     }
     
+    
+    private void longPressId_notExit(String arg_Text)
+    {
+        isXXX=true;
+        longPressId(arg_Text);
+    }
+    private void longPressId_notExit(String arg_Text,int arg_index)
+    {
+        isXXX=true;
+        longPressId(arg_Text,arg_index);
+    }
+    private void longPressId(String arg_Text)
+    {
+        try
+        {
+            if(isXXX)
+            {
+                outPutScript("longPressId_notExit " + arg_Text);
+            }
+            else
+            {
+                outPutScript("longPressId " + arg_Text);
+            }
+            selector=getResourceIdSelector(arg_Text);
+            obj=getObj(selector);
+            int x=obj.getBounds().centerX();
+            int y=obj.getBounds().centerY();
+            isClickOK=device.swipe(x, y, x, y, 300);
+        }
+        catch(UiObjectNotFoundException e)
+        {
+        	  isClickOK=false;        	
+            if(isXXX)
+            {
+                outPutScript("longPressId_notExit " + arg_Text + "    princekin_notExit" + isClickOK + "    NotFound");
+            }
+            else
+            {
+                outPutScript("longPressId " + arg_Text + "    princekin" + isClickOK + "    NotFound");
+            }
+            isXXX=false;
+            return;
+        }
+        if(isXXX)
+        {
+            isXXX=false;
+            outPutScript("longPressId_notExit " + arg_Text + "    princekin_notExit" + isClickOK);
+        }
+        else
+        {
+            outPutScript("longPressId " + arg_Text + "    princekin" + isClickOK);
+        }
+        //return isClickOK;
+    }
+    private void longPressId(String arg_Text,int arg_index)
+    {
+        try
+        {
+            if(isXXX)
+            {
+                outPutScript("longPressId_notExit " + arg_Text + "    " + String.valueOf(arg_index));
+            }
+            else
+            {
+                outPutScript("longPressId " + arg_Text + "    " + String.valueOf(arg_index));
+            }
+            selector=getResourceIdSelector(arg_Text,arg_index);
+            obj=getObj(selector);
+            int x=obj.getBounds().centerX();
+            int y=obj.getBounds().centerY();
+            isClickOK=device.swipe(x, y, x, y, 300);
+        }
+        catch(UiObjectNotFoundException e)
+        {
+        	  isClickOK=false;        	
+            if(isXXX)
+            {
+                outPutScript("longPressId_notExit " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin_notExit" + isClickOK + "    NotFound");
+            }
+            else
+            {
+                outPutScript("longPressId " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin" + isClickOK + "    NotFound");
+            }
+            isXXX=false;
+            return;
+        }
+        if(isXXX)
+        {
+            isXXX=false;
+            outPutScript("longPressId_notExit " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin_notExit" + isClickOK);
+        }
+        else
+        {
+            outPutScript("longPressId " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin" + isClickOK);
+        }
+        //return isClickOK;
+    }
+    
+    
+    
+    private void longPressClassName_notExit(String arg_Text)
+    {
+        isXXX=true;
+        longPressClassName(arg_Text);
+    }
+    private void longPressClassName_notExit(String arg_Text,int arg_index)
+    {
+        isXXX=true;
+        longPressClassName(arg_Text,arg_index);
+    }
+    private void longPressClassName(String arg_Text)
+    {
+        try
+        {
+            if(isXXX)
+            {
+                outPutScript("longPressClassName_notExit " + arg_Text);
+            }
+            else
+            {
+                outPutScript("longPressClassName " + arg_Text);
+            }
+            selector=getClassNameSelector(arg_Text);
+            obj=getObj(selector);
+            int x=obj.getBounds().centerX();
+            int y=obj.getBounds().centerY();
+            isClickOK=device.swipe(x, y, x, y, 300);
+        }
+        catch(UiObjectNotFoundException e)
+        {
+        	  isClickOK=false;        	
+            if(isXXX)
+            {
+                outPutScript("longPressClassName_notExit " + arg_Text + "    princekin_notExit" + isClickOK + "    NotFound");
+            }
+            else
+            {
+                outPutScript("longPressClassName " + arg_Text + "    princekin" + isClickOK + "    NotFound");
+            }
+            isXXX=false;
+            return;
+        }
+        if(isXXX)
+        {
+            isXXX=false;
+            outPutScript("longPressClassName_notExit " + arg_Text + "    princekin_notExit" + isClickOK);
+        }
+        else
+        {
+            outPutScript("longPressClassName " + arg_Text + "    princekin" + isClickOK);
+        }
+        //return isClickOK;
+    }
+    private void longPressClassName(String arg_Text,int arg_index)
+    {
+        try
+        {
+            if(isXXX)
+            {
+                outPutScript("longPressClassName_notExit " + arg_Text + "    " + String.valueOf(arg_index));
+            }
+            else
+            {
+                outPutScript("longPressClassName " + arg_Text + "    " + String.valueOf(arg_index));
+            }
+            selector=getClassNameSelector(arg_Text,arg_index);
+            obj=getObj(selector);
+            int x=obj.getBounds().centerX();
+            int y=obj.getBounds().centerY();
+            isClickOK=device.swipe(x, y, x, y, 300);
+        }
+        catch(UiObjectNotFoundException e)
+        {
+        	  isClickOK=false;        	
+            if(isXXX)
+            {
+                outPutScript("longPressClassName_notExit " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin_notExit" + isClickOK + "    NotFound");
+            }
+            else
+            {
+                outPutScript("longPressClassName " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin" + isClickOK + "    NotFound");
+            }
+            isXXX=false;
+            return;
+        }
+        if(isXXX)
+        {
+            isXXX=false;
+            outPutScript("longPressClassName_notExit " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin_notExit" + isClickOK);
+        }
+        else
+        {
+            outPutScript("longPressClassName " + arg_Text + "    " + String.valueOf(arg_index) + "    princekin" + isClickOK);
+        }
+        //return isClickOK;
+    }
+    
+    
+    //////////////////////////////222222222222222222222222222222222
     
     
     private void clickResourceId_notExit(String arg_Text)
@@ -3392,7 +3709,7 @@
     	  {
     	      if(checkStatStr.startsWith("no"))
     	      {
-    	      	  System.out.println("该模块不支持统计点检??");
+    	      	  System.out.println("该模块不支持统计点检查");
     	          return;
     	      }
     	  }
@@ -3400,12 +3717,36 @@
     	  {
     	  }
 
-        String[] array=arg_str.split(" ");
+        String[] array=arg_str.split("\\s+");
+        
+        int dec=0;
         String str="";
+        String sec;
+        boolean isInt=false;
         int len=array.length;
-        for(int i=0;i<len;i++)
+        sec=array[len-1];
+        //System.out.println("------------");
+        //System.out.println(sec);
+        
+        isInt=Pattern.matches("^\\d+$",sec);
+        if(isInt)
         {
-            if(!array[i].trim().equals(""))
+            dec=Integer.parseInt(sec);
+            for(int i=0;i<len;i++)
+            {
+                if(i==len-1)
+                {
+                    str=str+array[i];
+                }
+                else
+                {
+                    str=str+array[i] + "=";
+                }
+            }
+        }
+        else
+        {
+            for(int i=0;i<len;i++)
             {
                 if(i==len-1)
                 {
@@ -3418,9 +3759,18 @@
             }
         }
         
+        
         try
         {
-            Thread.sleep(2000);
+            if(isInt)
+            {
+                Thread.sleep(dec*1000);
+            }
+            else
+            {
+                Thread.sleep(2000);
+            }
+            
         }
         catch (InterruptedException e)
         {
@@ -3428,7 +3778,14 @@
         System.out.println(str);
         try
         {
-            Thread.sleep(2000);
+            /*if(isInt)
+            {
+                Thread.sleep(dec*1000);
+            }
+            else*/
+            {
+                Thread.sleep(2000);
+            }
         }
         catch (InterruptedException e)
         {

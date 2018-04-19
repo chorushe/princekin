@@ -20,6 +20,11 @@ void ReplayForBehaviorWorker::setSecondLevelDirName(const QString &arg_text)
     qSecondLevelDirName=arg_text;
 }
 
+void ReplayForBehaviorWorker::setUiautomatorDirName(const QString &arg_text)
+{
+    qUiautomatorDirName=arg_text;
+}
+
 void ReplayForBehaviorWorker::setScriptList(QStringList arg_list)
 {
     qScriptList=arg_list;
@@ -85,6 +90,11 @@ void ReplayForBehaviorWorker::startWorker()
         }
 
         jarName=qModuleBaseName + ".jar";
+
+        cmdLine="adb -s " + qDeviceId + " push " + qUiautomatorDirName + QDir::separator() + qModuleBaseName + QDir::separator() + "bin" + QDir::separator() + jarName + " /sdcard/" + jarName;
+        qDebug()<<cmdLine;
+        ExeCmd::runCmd(cmdLine);
+
         cmdLine=qAdbDevice + " shell uiautomator runtest /sdcard/" + jarName + " -c com.sohu.test." + qScriptBaseName + " -e checkStat yes";
         qDebug()<<"cmdline"<<cmdLine;
 

@@ -324,6 +324,24 @@ void FileManager::parseTempScript(QStringList arg_tempScriptList)
         }
 
 
+        else if(mStr.trimmed().startsWith("longPressText "))
+        {
+            createString("longPressText",mStr,strClickOK,space1);
+        }
+        else if(mStr.trimmed().startsWith("longPressText="))
+        {
+            createString("longPressText",mStr,strClickOK,equalSign);
+        }
+        else if(mStr.trimmed().startsWith("longPressText_notExit "))
+        {
+            createStringNotExit("longPressText_notExit",mStr,space1);
+        }
+        else if(mStr.trimmed().startsWith("longPressText_notExit="))
+        {
+            createStringNotExit("longPressText_notExit",mStr,equalSign);
+        }
+
+
 
         else if(mStr.trimmed().startsWith("clickTextMatches "))
         {
@@ -500,11 +518,23 @@ void FileManager::parseTempScript(QStringList arg_tempScriptList)
 
 
 
-
-
-
-
-
+        /////////////////////////////
+        else if(mStr.trimmed().startsWith("longPressIdOrClass "))
+        {
+            longPressIdOrClass("longPressIdOrClass",mStr,strClickOK,space1);
+        }
+        else if(mStr.trimmed().startsWith("longPressIdOrClass="))
+        {
+            longPressIdOrClass("longPressIdOrClass",mStr,strClickOK,equalSign);
+        }
+        else if(mStr.trimmed().startsWith("longPressIdOrClass_notExit "))
+        {
+            longPressIdOrClassNotExit("longPressIdOrClass_notExit",mStr,space1);
+        }
+        else if(mStr.trimmed().startsWith("longPressIdOrClass_notExit="))
+        {
+            longPressIdOrClassNotExit("longPressIdOrClass_notExit",mStr,equalSign);
+        }
 
 
 
@@ -1215,6 +1245,28 @@ void FileManager::parseTempScript(QStringList arg_tempScriptList)
         {
             takeScreen("take_ScreenError",baseName);
         }
+
+
+        else if(mStr.trimmed().startsWith("takeScreen "))
+        {
+            takeScreen2("take_Screen",mStr,space1);
+        }
+        else if(mStr.trimmed().startsWith("takeScreen="))
+        {
+            takeScreen2("take_Screen",mStr,equalSign);
+        }
+
+        else if(mStr.trimmed().startsWith("takeScreenError "))
+        {
+            takeScreen2("take_ScreenError",mStr,space1);
+        }
+        else if(mStr.trimmed().startsWith("takeScreenError="))
+        {
+            takeScreen2("take_ScreenError",mStr,equalSign);
+        }
+
+
+
 
 
         else if(mStr.trimmed().startsWith("sleep "))
@@ -2750,6 +2802,244 @@ void FileManager::clickIdOrClassNotExit(const QString &arg_funName,const QString
 
 
 
+
+
+
+void FileManager::longPressIdOrClass(const QString &arg_funName,const QString &arg_line,const QString &arg_isok,const QString &arg_fgf)
+{
+    int mCount;
+    QString mStr;
+    QString mSSS;
+    QStringList mListResult;
+
+    mListResult=getSplist(arg_line,arg_fgf);
+    mCount=mListResult.count();
+
+    if(arg_fgf==space1)
+    {
+        if(mCount==2)
+        {
+            mSSS=mListResult.at(1);
+            if(mSSS.contains(":id"))
+            {
+                mStr=glSpace + "longPressId" + "(" + "\"" + mListResult.at(1) + "\"" +");";
+                *stream<<mStr<<endl;
+                writeOK(arg_isok);
+            }
+            else
+            {
+                mStr=glSpace + "longPressClassName" + "(" + "\"" + mListResult.at(1) + "\"" +");";
+                *stream<<mStr<<endl;
+                writeOK(arg_isok);
+            }
+        }
+        else if(mCount==3)
+        {
+            mSSS=mListResult.at(1);
+            if(mSSS.contains(":id"))
+            {
+                mStr=glSpace + "longPressId" + "(" + "\"" + mListResult.at(1) + "\"" + "," + mListResult.at(2) +");";
+                *stream<<mStr<<endl;
+                writeOK(arg_isok);
+            }
+            else
+            {
+                mStr=glSpace + "longPressClassName" + "(" + "\"" + mListResult.at(1) + "\"" + "," + mListResult.at(2) +");";
+                *stream<<mStr<<endl;
+                writeOK(arg_isok);
+            }
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+    else if(arg_fgf==equalSign)
+    {
+        if(mCount==2)
+        {
+            QString mVarName;
+            QString mVarValue;
+            mVarName=mListResult.at(1);
+            if(glHashVar.contains(mVarName))
+            {
+                mVarValue=glHashVar.value(mVarName).trimmed();
+                if(mVarValue.contains(":id"))
+                {
+                    mStr=glSpace + "longPressId" + "(" + "\"" + mVarValue + "\"" +");";
+                    *stream<<mStr<<endl;
+                    writeOK(arg_isok);
+                }
+                else
+                {
+                    mStr=glSpace + "longPressClassName" + "(" + "\"" + mVarValue + "\"" +");";
+                    *stream<<mStr<<endl;
+                    writeOK(arg_isok);
+                }
+            }
+            else
+            {
+                mStr=glSpace + arg_line;
+                *stream<<mStr<<endl;
+            }
+        }
+        else if(mCount==3)
+        {
+            QString mVarName1;
+            QString mVarName2;
+            QString mVarValue1;
+            QString mVarValue2;
+
+            mVarName1=mListResult.at(1);
+            mVarName2=mListResult.at(2);
+            if(!glHashVar.contains(mVarName1) || !glHashVar.contains(mVarName2))
+            {
+                mStr=glSpace + arg_line;
+                *stream<<mStr<<endl;
+            }
+            else
+            {
+                mVarValue1=glHashVar.value(mVarName1).trimmed();
+                mVarValue2=glHashVar.value(mVarName2).trimmed();
+
+                if(mVarValue1.contains(":id"))
+                {
+                    mStr=glSpace + "longPressId" + "(" + "\"" + mVarValue1 + "\"" + "," + mVarValue2 +");";
+                    *stream<<mStr<<endl;
+                    writeOK(arg_isok);
+                }
+                else
+                {
+                    mStr=glSpace + "longPressClassName" + "(" + "\"" + mVarValue1 + "\"" + "," + mVarValue2 +");";
+                    *stream<<mStr<<endl;
+                    writeOK(arg_isok);
+                }
+            }
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+
+}
+
+void FileManager::longPressIdOrClassNotExit(const QString &arg_funName,const QString &arg_line,const QString &arg_fgf)
+{
+    int mCount;
+    QString mStr;
+    QString mSSS;
+    QStringList mListResult;
+
+    mListResult=getSplist(arg_line,arg_fgf);
+    mCount=mListResult.count();
+
+    if(arg_fgf==space1)
+    {
+        if(mCount==2)
+        {
+            mSSS=mListResult.at(1);
+            if(mSSS.contains(":id"))
+            {
+                mStr=glSpace + "longPressId_notExit" + "(" + "\"" + mListResult.at(1) + "\"" +");";
+                *stream<<mStr<<endl;
+            }
+            else
+            {
+                mStr=glSpace + "longPressClassName_notExit" + "(" + "\"" + mListResult.at(1) + "\"" +");";
+                *stream<<mStr<<endl;
+            }
+        }
+        else if(mCount==3)
+        {
+            mSSS=mListResult.at(1);
+            if(mSSS.contains(":id"))
+            {
+                mStr=glSpace + "longPressId_notExit" + "(" + "\"" + mListResult.at(1) + "\"" + "," + mListResult.at(2) +");";
+                *stream<<mStr<<endl;
+            }
+            else
+            {
+                mStr=glSpace + "longPressClassName_notExit" + "(" + "\"" + mListResult.at(1) + "\"" + "," + mListResult.at(2) +");";
+                *stream<<mStr<<endl;
+            }
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+    else if(arg_fgf==equalSign)
+    {
+        if(mCount==2)
+        {
+            QString mVarName;
+            QString mVarValue;
+            mVarName=mListResult.at(1);
+            if(glHashVar.contains(mVarName))
+            {
+                mVarValue=glHashVar.value(mVarName).trimmed();
+                if(mVarValue.contains(":id"))
+                {
+                    mStr=glSpace + "longPressId_notExit" + "(" + "\"" + mVarValue + "\"" +");";
+                    *stream<<mStr<<endl;
+                }
+                else
+                {
+                    mStr=glSpace + "longPressClassName_notExit" + "(" + "\"" + mVarValue + "\"" +");";
+                    *stream<<mStr<<endl;
+                }
+            }
+            else
+            {
+                mStr=glSpace + arg_line;
+                *stream<<mStr<<endl;
+            }
+        }
+        else if(mCount==3)
+        {
+            QString mVarName1;
+            QString mVarName2;
+            QString mVarValue1;
+            QString mVarValue2;
+
+            mVarName1=mListResult.at(1);
+            mVarName2=mListResult.at(2);
+            if(!glHashVar.contains(mVarName1) || !glHashVar.contains(mVarName2))
+            {
+                mStr=glSpace + arg_line;
+                *stream<<mStr<<endl;
+            }
+            else
+            {
+                mVarValue1=glHashVar.value(mVarName1).trimmed();
+                mVarValue2=glHashVar.value(mVarName2).trimmed();
+
+                if(mVarValue1.contains(":id"))
+                {
+                    mStr=glSpace + "longPressId_notExit" + "(" + "\"" + mVarValue1 + "\"" + "," + mVarValue2 +");";
+                    *stream<<mStr<<endl;
+                }
+                else
+                {
+                    mStr=glSpace + "longPressClassName_notExit" + "(" + "\"" + mVarValue1 + "\"" + "," + mVarValue2 +");";
+                    *stream<<mStr<<endl;
+                }
+            }
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+
+}
+
+
 void FileManager::scrollIdOrClass(const QString &arg_funName,const QString &arg_line,const QString &arg_isok,const QString &arg_fgf)
 {
     int mCount;
@@ -3579,6 +3869,59 @@ void FileManager::doubleClickNotExit(const QString &arg_funName,const QString &a
             *stream<<mStr<<endl;
         }
     }
+}
+
+
+void FileManager::takeScreen2(const QString &arg_funName,const QString &arg_line,const QString &arg_fgf)
+{
+    int mCount;
+    QString mStr;
+    QStringList mListResult;
+
+    mListResult=getSplist(arg_line,arg_fgf);
+    mCount=mListResult.count();
+
+    if(arg_fgf==space1)
+    {
+        if(mCount==2)
+        {
+            mStr=glSpace + arg_funName + "(" + "\"" + mListResult.at(1) + "\"" +");";
+            *stream<<mStr<<endl;
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+    else if(arg_fgf==equalSign)
+    {
+        if(mCount==2)
+        {
+            QString mVarName;
+            QString mVarValue;
+            mVarName=mListResult.at(1);
+            if(glHashVar.contains(mVarName))
+            {
+                mVarValue=glHashVar.value(mVarName).trimmed();
+                mStr=glSpace + arg_funName + "(" + "\"" + mVarValue + "\"" +");";
+                *stream<<mStr<<endl;
+            }
+            else
+            {
+                mStr=glSpace + arg_line;
+                *stream<<mStr<<endl;
+            }
+        }
+        else
+        {
+            mStr=glSpace + arg_line;
+            *stream<<mStr<<endl;
+        }
+    }
+
+
+
 }
 
 

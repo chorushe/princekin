@@ -239,7 +239,14 @@ void Record::initPopupMenu()
     popMenu3=new QMenu;
     action=new QAction("删除脚本",this);
     popMenu3->addAction(action);
-    connect(action, SIGNAL(triggered()), this, SLOT(deleteProjectSlot()));
+    connect(action, SIGNAL(triggered()), this, SLOT(deleteScriptFileSlot()));
+
+    action=new QAction("重命名",this);
+    popMenu3->addAction(action);
+    connect(action, SIGNAL(triggered()), this, SLOT(renameSlot()));
+
+
+
 
     popMenuNewSuite=new QMenu;
     action=new QAction("新建测试套文件夹",this);
@@ -608,6 +615,25 @@ void Record::deleteProjectSlot()
     {
         deleteFile(selectTreePath);
     }
+}
+
+void Record::deleteScriptFileSlot()
+{
+    QMessageBox::StandardButton jValue=QMessageBox::information(NULL, "提示", "   是否删除？", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+    if(jValue==QMessageBox::Yes)
+    {
+        deleteScriptFile(selectTreePath);
+    }
+}
+
+void Record::renameSlot()
+{
+    if(renameInstance==NULL)
+    {
+        renameInstance=new RenameDialog2;
+    }
+    renameInstance->setFilePath(selectTreePath);
+    renameInstance->show();
 }
 void Record::deleteFile(const QString & mFilePaths)
 {
@@ -1851,4 +1877,58 @@ void Record::on_newMoudleBtn_clicked()
         return;
     }
     selectTreePath=gTreeRootDir+QDir::separator()+"script";
+}
+
+
+void Record::deleteScriptFile(const QString &arg_path)
+{
+    QString baseName;
+
+    QString absolutePath;
+    QString moduleName;
+    QString filePath;
+
+    removeFile(arg_path);
+
+    baseName=getBaseName(arg_path);
+
+    absolutePath=getAbsolutePath(arg_path);
+    moduleName=getBaseName(absolutePath);
+
+
+    filePath=gUiautomatorDir+QDir::separator()+moduleName+QDir::separator()+baseName+".java";
+    filePath=QDir::toNativeSeparators(filePath);
+    removeFile(filePath);
+
+
+    QString str="bin\\classes\\com\\sohu\\test\\";
+    filePath=gUiautomatorDir+QDir::separator()+moduleName+QDir::separator()+str+baseName+".class";
+    filePath=QDir::toNativeSeparators(filePath);
+    removeFile(filePath);
+
+    filePath=gUiautomatorDir+QDir::separator()+moduleName+QDir::separator()+str+baseName+"$Receive.class";
+    filePath=QDir::toNativeSeparators(filePath);
+    removeFile(filePath);
+
+}
+
+
+QString Record::getBaseName(const QString &arg_path)
+{
+    QFileInfo fileInfo(arg_path);
+    QString baseName=fileInfo.baseName();
+    return baseName;
+}
+
+QString Record::getAbsolutePath(const QString &arg_path)
+{
+    QFileInfo fileInfo(arg_path);
+    QString absolutePath=fileInfo.absolutePath();
+    return absolutePath;
+}
+
+void Record::removeFile(const QString &arg_path)
+{
+    QFile file(arg_path);
+    file.remove();
 }

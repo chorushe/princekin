@@ -62,9 +62,9 @@ UrlToXml::UrlToXml(QWidget *parent) :
     ui->fileTableWidget->setColumnWidth(0,75);
     ui->fileTableWidget->setColumnWidth(1,75);
     ui->fileTableWidget->setRowCount(1);
-    ui->fileTableWidget->setItem(0,0,new QTableWidgetItem(""));//前两栏的也new个实例
-    ui->fileTableWidget->setItem(0,1,new QTableWidgetItem(""));
-    ui->fileTableWidget->setItem(0,2,new QTableWidgetItem(""));
+    for(int i=0;i<ui->fileTableWidget->columnCount();i++)
+        ui->fileTableWidget->setItem(0,i,new QTableWidgetItem(""));//前两栏的也new个实例
+
     ui->fileTableWidget->verticalHeader()->setVisible(false); // 隐藏水平header
 
     ui->multiCBox->setToolTip("可批量生成关键识别值所对应的不同参数值的批量xml文件，其他参数验证规则与下表一致");
@@ -175,6 +175,8 @@ void UrlToXml::CalculateUnique(int index)
                     else if(uniqueNum==2)
                     {
                         ui->fileTableWidget->setColumnCount(4);
+                        //以下这一句很重要，变成四列之后，第一行的最后一个表格还没被初始化，所以，取其值的时候会死掉
+                        ui->fileTableWidget->setItem(0,3,new QTableWidgetItem(""));
                         QTableWidgetItem *item=new QTableWidgetItem(ui->statisticsTW->item(i,0)->text());
                         ui->fileTableWidget->setHorizontalHeaderItem(2,item);
                         item=new QTableWidgetItem("描述");
@@ -485,6 +487,25 @@ void UrlToXml::on_changeBtn_clicked()
     else
     {
         saveXml(xmlPath+QDir::separator()+"model.xml");//先生成一个模板，按照url里内容
+        //生成model文件后先检查下该文件是否有问题，如有问题，怎不进行批量的复制，直接中断生成，并return
+        QFile file(xmlPath+QDir::separator()+"model.xml");
+        QDomDocument document;
+        QString error;
+        int row = 0, column = 0;
+        if(!document.setContent(&file, false, &error, &row, &column))
+        {
+            QMessageBox::information(NULL, QString("提示"), QString("解析文件错误，行： ") + QString::number(row, 10) + QString(" ,列： ") + QString::number(column, 10));
+            errorFlag=false;
+            file.close();
+            QFile ff(xmlPath+QDir::separator()+"model.xml") ;//删除模板
+            if(ff.exists())
+                ff.remove();
+            ff.close();
+            QMessageBox::information(this,"提示","文件生成失败");
+            return;
+        }
+        else
+            file.close();
         bool allReplace=false;
         for(int i=0;i<ui->fileTableWidget->rowCount()-1;i++)//再对model进行复制，按照右侧表格生成新的
         {
@@ -502,6 +523,7 @@ void UrlToXml::on_changeBtn_clicked()
                     {
                         f.remove();
                         int numCover=0;
+                        //检测一共有多少个重复的文件
                         for(int j=i+1;j<ui->fileTableWidget->rowCount()-1;j++)
                         {
                             QString newFilePath=xmlPath+QDir::separator()+ui->fileTableWidget->item(j,0)->text();
@@ -527,6 +549,23 @@ void UrlToXml::on_changeBtn_clicked()
                     f.remove();
             }
 
+            //如果右侧列表的关键识别值没有赋值，此处给出提示
+            if(ui->fileTableWidget->columnCount()==4)
+            {
+                if(ui->fileTableWidget->item(i,1)->text()==""&&ui->fileTableWidget->item(i,2)->text()=="")
+                {
+                    QMessageBox::information(this,"提示",newFilePath+"文件需要至少一个关键识别值！");
+                    continue;
+                }
+            }
+            else if(ui->fileTableWidget->columnCount()==3)
+            {
+                if(ui->fileTableWidget->item(i,1)->text()=="")
+                {
+                    QMessageBox::information(this,"提示",newFilePath+"文件需要至少一个关键识别值！");
+                    continue;
+                }
+            }
             bool flag=QFile::copy(xmlPath+QDir::separator()+"model.xml",newFilePath);
             Q_UNUSED(flag);//可打印错误信息
             errorFlag&=flag;
@@ -535,20 +574,26 @@ void UrlToXml::on_changeBtn_clicked()
             else
             {
                 QString uniquestr="";
+                QString nullnote="";//批量生成时，如果有两个关键识别值，而右侧只写了一直关键识别值，那么另外一个关键识别值就算是nullnote，要在xml中将onlycheck改成N，值改成unknown
                 if(ui->fileTableWidget->columnCount()==3)
                     uniquestr=ui->fileTableWidget->horizontalHeaderItem(1)->text() +"="+ ui->fileTableWidget->item(i,1)->text();
                 else
                 {
                     if(ui->fileTableWidget->item(i,1)->text().trimmed()!="")//判断当前字段有没有值，如果没有，那么关键识别值就不要这个字段
                         uniquestr+=ui->fileTableWidget->horizontalHeaderItem(1)->text() +"="+ ui->fileTableWidget->item(i,1)->text();
+                    else
+                        nullnote=ui->fileTableWidget->horizontalHeaderItem(1)->text();
                     if(ui->fileTableWidget->item(i,2)->text().trimmed()!="")
                     {
                         if(uniquestr!="")
                             uniquestr+=";;";
                         uniquestr+=ui->fileTableWidget->horizontalHeaderItem(2)->text() +"="+ ui->fileTableWidget->item(i,2)->text();
                     }
+                    else
+                        nullnote=ui->fileTableWidget->horizontalHeaderItem(2)->text();
                 }
-                changeUnique(newFilePath,uniquestr,ui->fileTableWidget->item(i,ui->fileTableWidget->columnCount()-1)->text());
+
+                changeUnique(newFilePath,uniquestr,ui->fileTableWidget->item(i,ui->fileTableWidget->columnCount()-1)->text(),nullnote);
             }
 
         }
@@ -632,9 +677,9 @@ void UrlToXml::on_fileTableWidget_itemChanged(QTableWidgetItem *item)
     {
         disconnect(ui->fileTableWidget,SIGNAL(itemChanged(QTableWidgetItem*)),this,SLOT(on_fileTableWidget_itemChanged(QTableWidgetItem*)));
         ui->fileTableWidget->setRowCount(count+1);
-        ui->fileTableWidget->setItem(count,0,new QTableWidgetItem(""));
-        ui->fileTableWidget->setItem(count,1,new QTableWidgetItem(""));
-        ui->fileTableWidget->setItem(count,2,new QTableWidgetItem(""));
+        for(int i=0;i<ui->fileTableWidget->columnCount();i++)
+            ui->fileTableWidget->setItem(count,i,new QTableWidgetItem(""));
+
         connect(ui->fileTableWidget,SIGNAL(itemChanged(QTableWidgetItem*)),this,SLOT(on_fileTableWidget_itemChanged(QTableWidgetItem*)));
     }
     else if(item->column()==0 && ui->fileTableWidget->item(item->row(),0)->text()=="" && ui->fileTableWidget->rowCount()>1)
@@ -828,8 +873,9 @@ void UrlToXml::ShowFileInfo()
     connect(ui->fileTableWidget,SIGNAL(itemChanged(QTableWidgetItem*)),this,SLOT(on_fileTableWidget_itemChanged(QTableWidgetItem*)));
 }
 
-void UrlToXml::changeUnique(QString filePath,QString uniqueStr,QString des)
+void UrlToXml::changeUnique(QString filePath,QString uniqueStr,QString des, QString nullnote)
 {
+    qDebug()<<"uniqueStr"<<uniqueStr;
     if(!filePath.isEmpty())
     {
         QFile file(filePath);
@@ -847,7 +893,7 @@ void UrlToXml::changeUnique(QString filePath,QString uniqueStr,QString des)
             file.close();
             return;
         }
-
+        qDebug()<<"filePath"<<filePath;
         QDomDocument document;
         QString error;
         int row = 0, column = 0;
@@ -866,11 +912,13 @@ void UrlToXml::changeUnique(QString filePath,QString uniqueStr,QString des)
             QDomElement el=node.toElement();
             el.setAttribute("unique",uniqueStr);
         }
+        qDebug()<<"uniqueStr"<<uniqueStr;
         QStringList uniquelist=uniqueStr.split(";;");
         for(int i=0;i<uniquelist.count();i++)
         {
+            qDebug()<<"uniquelist"<<uniquelist.at(i);
             QStringList uniquetmplist=uniquelist.at(i).split("=");
-
+            qDebug()<<"uniquetmplist.count"<<uniquetmplist.count();
             if(uniquetmplist.count()>1)
             {
                 nodeList = docElem.elementsByTagName(uniquetmplist.at(0));
@@ -885,7 +933,19 @@ void UrlToXml::changeUnique(QString filePath,QString uniqueStr,QString des)
                 }
             }
         }
-
+        if(nullnote!="")
+        {
+            nodeList = docElem.elementsByTagName(nullnote);
+            if (nodeList.count() >0 )
+            {
+                QDomNode node = nodeList.at(0);
+                QDomNode oldnode = node.firstChild();
+                node.firstChild().setNodeValue("unknown");
+                QDomNode newnode = node.firstChild();
+                node.replaceChild(newnode,oldnode);
+                node.toElement().setAttribute("onlyCheck","N");
+            }
+        }
 
         QFile filexml(filePath);
         if(!filexml.exists())

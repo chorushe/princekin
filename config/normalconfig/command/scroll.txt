@@ -1,4 +1,5 @@
-用法同clickText,判断命令为isScrollOK
+滑动命令是否成功可通过isScrollOK变量进行检查，同时，所有滚动的命令都有对应的notExit命令，以保证滑动失败后可继续运行脚本。
+
 1、locateClassName 定位某个类，(滑动或设置横竖之前先定位，再滑动)，
     定位之后得到 scroll 对象
 

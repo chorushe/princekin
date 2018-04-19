@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="title">
-    <string>参量测量选项</string>
+    <string>警戒值设置</string>
    </property>
    <widget class="QLabel" name="label_3">
     <property name="geometry">
@@ -35,7 +35,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>警戒值 （M）：</string>
+     <string>内存(M)：</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="memLineEdit">
@@ -68,7 +68,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>警戒值 （%）：</string>
+     <string>CPU(%)：</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="batteryLineEdit">
@@ -91,7 +91,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>警戒值（℃）：</string>
+     <string>CPU温度(℃)：</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="cpuTempLineEdit">
@@ -114,7 +114,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>警戒值（℃）：</string>
+     <string>电池温度(℃)：</string>
     </property>
    </widget>
    <widget class="QLabel" name="wifiLabel">
@@ -127,7 +127,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>警戒值（M）：</string>
+     <string>wifi流量(M)：</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="mobileLineEdit">
@@ -145,12 +145,12 @@
      <rect>
       <x>30</x>
       <y>180</y>
-      <width>81</width>
+      <width>111</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>警戒值（M）：</string>
+     <string>Mobile流量(M)：</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="wifiLineEdit">

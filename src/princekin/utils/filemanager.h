@@ -62,6 +62,12 @@ public:
     void clickIdOrClass(const QString &,const QString &,const QString &,const QString &);
     void clickIdOrClassNotExit(const QString &,const QString &,const QString &);
 
+
+    void longPressIdOrClass(const QString &,const QString &,const QString &,const QString &);
+    void longPressIdOrClassNotExit(const QString &,const QString &,const QString &);
+
+
+
     void scrollIdOrClass(const QString &,const QString &,const QString &,const QString &);
     void scrollIdOrClassNotExit(const QString &,const QString &,const QString &);
 
@@ -83,6 +89,7 @@ public:
 
     void takeScreen(const QString &,const QString &);
 
+    void takeScreen2(const QString &,const QString &,const QString &);
 
     void writeOK(const QString &);
     void writeOKStart(const QString &);

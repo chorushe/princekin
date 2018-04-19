@@ -115,6 +115,7 @@ QString gPerformanceStartTime;
 QString gInterfaceStartTime;
 QString gMonkeyReport;
 QString gTravelReport;
+QString gMobileOS;
 QStringList gPvStringList;
 QStringList gPvStringList2;
 QStringList gVvStringList;

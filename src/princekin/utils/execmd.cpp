@@ -463,7 +463,7 @@ QString ExeCmd::runCmd_getLunchTime(const QString &arg_cmdLine)
     proc.start(arg_cmdLine);
     proc.waitForStarted();
 
-   while(proc.waitForFinished()==false)
+    while(proc.waitForFinished()==false)
     {
     }
 
@@ -910,15 +910,18 @@ QStringList ExeCmd::getDevices()
         if(mStr.contains("device") && !mStr.contains("devices"))
         {
             mTempList=mStr.split("device");
-            QString tempStr=GetDeviceModel(mTempList.at(0).trimmed());
-            //qDebug()<<mStr<<"   "<<tempStr;
-            if((!tempStr.contains("error"))&&tempStr!="")
-                mDevicesResult.append(tempStr+" + "+mTempList.at(0).trimmed());
-            else
+            if(mTempList.length()>0)
             {
-                mDevicesResult.clear();
-                mDevicesResult.append("");
-                return mDevicesResult;
+                QString tempStr=GetDeviceModel(mTempList.at(0).trimmed());
+                //qDebug()<<mStr<<"   "<<tempStr;
+                if((!tempStr.contains("error"))&&tempStr!="")
+                    mDevicesResult.append(tempStr+" + "+mTempList.at(0).trimmed());
+                else
+                {
+                    mDevicesResult.clear();
+                    mDevicesResult.append("");
+                    return mDevicesResult;
+                }
             }
         }
     }

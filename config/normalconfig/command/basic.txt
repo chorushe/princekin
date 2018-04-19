@@ -18,6 +18,8 @@ println 执行成功
 例:
 invoke=dl
 
-8、takeScreen  截图,无参数，直接使用
+8、takeScreen  截图,参数可有可无，不带参数时，会根据时间命名，也可自定义图片名
 例:
 takeScreen
+或
+takeScreen imagename

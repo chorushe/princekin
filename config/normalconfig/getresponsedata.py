@@ -1,28 +1,48 @@
 from mitmproxy import http
 
 def response(flow) :
-    print("-----START-----",end = '')
-    print(flow.request.url,end = '')
-    print("-&&-",end = '')
-    print(flow.request.http_version,end = '')
-    print("-&&-",end = '')
+
+    res='-----START-----'
+    #print("-----START-----",end = '')
+    #print(flow.request.url,end = '')
+    res+=flow.request.url
+    res+="-&&-"
+    res+=flow.request.http_version
+    res+="-&&-"
+    
     method=flow.request.method
-    print(method,end = '')
-    print("-&&-",end = '')
-    print ((flow.response.timestamp_end-flow.request.timestamp_start)*1000,end = '')
-    print("-&&-",end = '')
+    res+=method
+    res+="-&&-"
+    res+=str((flow.response.timestamp_end-flow.request.timestamp_start)*1000)
+    res+="-&&-"
+    encoding = 'utf-8'
     h=flow.response.headers
     if 'Content-Type' in h:
-        print(h['Content-Type'],end = '')
+        contentType =h['Content-Type']
+        res+=contentType
+        index=contentType.find('charset=')
+        if index!=-1:
+            encoding=contentType[index+8:]
+            #print(encoding, file=open("encodings.txt", "a"))
+
     else :
-        print('XXX',end = '')
-    print("-&&-",end = '')
+        res+='XXX'
+    res+="-&&-"
     if method == "POST" :
         str1=flow.request.data.content
-        print(str1.decode('utf-8'),end = '')
-    print("-&&-",end = '')
-    print(flow.response.status_code,end = '')
-    print("-&&-",end = '')
-    str=flow.response.content
-    print(str.decode("utf-8"),end = '')
-    print("-----END-----")
+        try:
+            res+=str1.decode(encoding)
+        except UnicodeDecodeError:
+            res+='小王子无法解析'
+    res+="-&&-"
+    res+=str(flow.response.status_code)
+    res+="-&&-"
+    str2=flow.response.content
+    try:
+        res+=str2.decode(encoding)
+    except UnicodeDecodeError:
+        res+='小王子无法解析'
+        
+    res+="-----END-----"
+    print(res)
+   

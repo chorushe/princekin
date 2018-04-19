@@ -691,102 +691,209 @@ void Upload::putTravel(const QString &arg_deviceId,const QString &arg_startTime,
 
 void Upload::createFtpbehaviourFolder(const QString &arg_deviceId,const QString &arg_startTime,const QString &arg_xlsSaveDir)
 {
-    QString paramStr;
-    QString filename=gConfigDir+QDir::separator()+"behaviourfolder.txt";
-    QFile file(filename);
-    QTextStream outStream(&file);
-    file.open(QIODevice::WriteOnly);
+    if(gMobileOS=="android")
+    {
+        QString paramStr;
+        QString filename=gConfigDir+QDir::separator()+"behaviourfolder.txt";
+        QFile file(filename);
+        QTextStream outStream(&file);
+        file.open(QIODevice::WriteOnly);
 
 
-    paramStr="open 10.10.53.117";
-    outStream<<paramStr<<endl;
+        paramStr="open 10.10.53.117";
+        outStream<<paramStr<<endl;
 
-    paramStr="ftpuser";
-    outStream<<paramStr<<endl;
+        paramStr="ftpuser";
+        outStream<<paramStr<<endl;
 
-    paramStr="djs1#sjm";
-    outStream<<paramStr<<endl;
-
-
-    paramStr="cd /data/ftpuser/test/report";
-    outStream<<paramStr<<endl;
-
-    paramStr="mkdir behaviour";
-    outStream<<paramStr<<endl;
-
-    paramStr="cd behaviour";
-    outStream<<paramStr<<endl;
-    paramStr="mkdir "+arg_deviceId;
-    outStream<<paramStr<<endl;
+        paramStr="djs1#sjm";
+        outStream<<paramStr<<endl;
 
 
-    paramStr="cd "+arg_deviceId;
-    outStream<<paramStr<<endl;
-    paramStr="mkdir "+arg_startTime;
-    outStream<<paramStr<<endl;
+        paramStr="cd /data/ftpuser/test/report";
+        outStream<<paramStr<<endl;
+
+        paramStr="mkdir behaviour";
+        outStream<<paramStr<<endl;
+
+        paramStr="cd behaviour";
+        outStream<<paramStr<<endl;
+        paramStr="mkdir "+arg_deviceId;
+        outStream<<paramStr<<endl;
 
 
-    paramStr="bye";
-    outStream<<paramStr<<endl;
+        paramStr="cd "+arg_deviceId;
+        outStream<<paramStr<<endl;
+        paramStr="mkdir "+arg_startTime;
+        outStream<<paramStr<<endl;
 
-    paramStr="quit";
-    outStream<<paramStr<<endl;
 
-    paramStr="exit";
-    outStream<<paramStr<<endl;
+        paramStr="bye";
+        outStream<<paramStr<<endl;
 
-    file.close();
+        paramStr="quit";
+        outStream<<paramStr<<endl;
 
-    QString cmdLine="ftp -s:"+gConfigDir+QDir::separator()+"behaviourfolder.txt";
-    ExeCmd::runCmd(cmdLine);
+        paramStr="exit";
+        outStream<<paramStr<<endl;
+
+        file.close();
+
+        QString cmdLine="ftp -s:"+gConfigDir+QDir::separator()+"behaviourfolder.txt";
+        ExeCmd::runCmd(cmdLine);
+    }
+    else
+    {
+        QString paramStr;
+        QString filename=gConfigDir+QDir::separator()+"behaviourfolder.txt";
+        QFile file(filename);
+        QTextStream outStream(&file);
+        file.open(QIODevice::WriteOnly);
+
+
+        paramStr="open 10.10.53.117";
+        outStream<<paramStr<<endl;
+
+        paramStr="ftpuser";
+        outStream<<paramStr<<endl;
+
+        paramStr="djs1#sjm";
+        outStream<<paramStr<<endl;
+
+
+        paramStr="cd /data/ftpuser/test/report";
+        outStream<<paramStr<<endl;
+
+        paramStr="mkdir behaviour";
+        outStream<<paramStr<<endl;
+
+        paramStr="cd behaviour";
+        outStream<<paramStr<<endl;
+        paramStr="mkdir ios";
+        outStream<<paramStr<<endl;
+
+
+        paramStr="cd ios";
+        outStream<<paramStr<<endl;
+        paramStr="mkdir "+arg_startTime;
+        outStream<<paramStr<<endl;
+
+
+        paramStr="bye";
+        outStream<<paramStr<<endl;
+
+        paramStr="quit";
+        outStream<<paramStr<<endl;
+
+        paramStr="exit";
+        outStream<<paramStr<<endl;
+
+        file.close();
+
+        QString cmdLine="ftp -s:"+gConfigDir+QDir::separator()+"behaviourfolder.txt";
+        ExeCmd::runCmd(cmdLine);
+    }
+
 }
 
 void Upload::putBehaviour(const QString &arg_deviceId,const QString &arg_startTime,const QString &arg_xlsSaveDir)
 {
-    QString paramStr;
-    QString filename=gConfigDir+QDir::separator()+"behaviourfolder.txt";
-    QFile file(filename);
-    QTextStream outStream(&file);
-    file.open(QIODevice::WriteOnly);
+    if(gMobileOS=="android")
+    {
+        QString paramStr;
+        QString filename=gConfigDir+QDir::separator()+"behaviourfolder.txt";
+        QFile file(filename);
+        QTextStream outStream(&file);
+        file.open(QIODevice::WriteOnly);
 
 
-    paramStr="open 10.10.53.117";
-    outStream<<paramStr<<endl;
+        paramStr="open 10.10.53.117";
+        outStream<<paramStr<<endl;
 
-    paramStr="ftpuser";
-    outStream<<paramStr<<endl;
+        paramStr="ftpuser";
+        outStream<<paramStr<<endl;
 
-    paramStr="djs1#sjm";
-    outStream<<paramStr<<endl;
-
-
-    paramStr="prompt";
-    outStream<<paramStr<<endl;
+        paramStr="djs1#sjm";
+        outStream<<paramStr<<endl;
 
 
-    paramStr="cd /data/ftpuser/test/report/behaviour/"+arg_deviceId+"/"+arg_startTime;
-    outStream<<paramStr<<endl;
-
-    paramStr="mput " + arg_xlsSaveDir + QDir::separator() + "*.xlsx";
-    outStream<<paramStr<<endl;
-
-    paramStr="mput " + arg_xlsSaveDir + QDir::separator() + "*.txt";
-    outStream<<paramStr<<endl;
+        paramStr="prompt";
+        outStream<<paramStr<<endl;
 
 
-    paramStr="bye";
-    outStream<<paramStr<<endl;
+        paramStr="cd /data/ftpuser/test/report/behaviour/"+arg_deviceId+"/"+arg_startTime;
+        outStream<<paramStr<<endl;
 
-    paramStr="quit";
-    outStream<<paramStr<<endl;
+        paramStr="mput " + arg_xlsSaveDir + QDir::separator() + "*.xlsx";
+        outStream<<paramStr<<endl;
 
-    paramStr="exit";
-    outStream<<paramStr<<endl;
+        paramStr="mput " + arg_xlsSaveDir + QDir::separator() + "*.txt";
+        outStream<<paramStr<<endl;
 
-    file.close();
 
-    QString cmdLine="ftp -s:"+gConfigDir+QDir::separator()+"behaviourfolder.txt";
-    ExeCmd::runCmd(cmdLine);
+        paramStr="bye";
+        outStream<<paramStr<<endl;
+
+        paramStr="quit";
+        outStream<<paramStr<<endl;
+
+        paramStr="exit";
+        outStream<<paramStr<<endl;
+
+        file.close();
+
+        QString cmdLine="ftp -s:"+gConfigDir+QDir::separator()+"behaviourfolder.txt";
+        ExeCmd::runCmd(cmdLine);
+    }
+    else
+    {
+        QString paramStr;
+        QString filename=gConfigDir+QDir::separator()+"behaviourfolder.txt";
+        QFile file(filename);
+        QTextStream outStream(&file);
+        file.open(QIODevice::WriteOnly);
+
+
+        paramStr="open 10.10.53.117";
+        outStream<<paramStr<<endl;
+
+        paramStr="ftpuser";
+        outStream<<paramStr<<endl;
+
+        paramStr="djs1#sjm";
+        outStream<<paramStr<<endl;
+
+
+        paramStr="prompt";
+        outStream<<paramStr<<endl;
+
+
+        QString ssss="ios";
+        paramStr="cd /data/ftpuser/test/report/behaviour/"+ssss+"/"+arg_startTime;
+        outStream<<paramStr<<endl;
+
+        paramStr="mput " + arg_xlsSaveDir + QDir::separator() + "*.xlsx";
+        outStream<<paramStr<<endl;
+
+        paramStr="mput " + arg_xlsSaveDir + QDir::separator() + "*.txt";
+        outStream<<paramStr<<endl;
+
+
+        paramStr="bye";
+        outStream<<paramStr<<endl;
+
+        paramStr="quit";
+        outStream<<paramStr<<endl;
+
+        paramStr="exit";
+        outStream<<paramStr<<endl;
+
+        file.close();
+
+        QString cmdLine="ftp -s:"+gConfigDir+QDir::separator()+"behaviourfolder.txt";
+        ExeCmd::runCmd(cmdLine);
+    }
+
 }
 
 

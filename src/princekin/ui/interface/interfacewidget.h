@@ -179,6 +179,7 @@ private:
 
     bool endflag;
     QString ContentRes="";
+    QString contentLength="";//每条url的响应的长度
 
     QString UrlDecode(QString str);
     void createToolBar();

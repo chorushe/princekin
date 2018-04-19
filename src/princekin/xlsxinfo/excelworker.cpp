@@ -154,10 +154,10 @@ void Worker::setMeasureVector(QVector<MeasureReport> arg_vector)
 
 void Worker::doWork()
 {
-    qDebug()<<"qMark";
-    qDebug()<<qMark;
+    qDebug()<<"excelexcelexcel";
     if(qMark.startsWith("base-"))
     {
+        qDebug()<<"excelexcelexcel";
         QStringList splitResult=qMark.split("-");
         createBaseExcel(splitResult.at(1));
     }
@@ -170,6 +170,7 @@ void Worker::doWork()
 
 void Worker::createExcel(const QString &arg_mark)
 {
+    qDebug()<<"excelexcelexcel";
     WriteInfo::setXlsxSaveDir(qXlsxSaveDir);
     if(arg_mark=="travel")
     {
@@ -818,6 +819,7 @@ void Worker::performanceHtml()
 //*****************20170630**********//
 void Worker::createBaseExcel(const QString &arg_mark)
 {
+    qDebug()<<"excelexcelexcel";
     WriteInfo::setXlsxSaveDir(qXlsxSaveDir);
     if(arg_mark=="travel")
     {
@@ -830,13 +832,32 @@ void Worker::createBaseExcel(const QString &arg_mark)
     }
     if(arg_mark=="behaviour")
     {
-        getAppInfo1(arg_mark);
-        setAppInfo_universal();
-        setAppInfo_behaviour();
-        writeInfo(arg_mark);
+        if(gMobileOS=="android")
+        {
+            getAppInfo1(arg_mark);
+            setAppInfo_universal();
+            setAppInfo_behaviour();
+            writeInfo(arg_mark);
 
-        Upload::createFtpbehaviourFolder(qDeviceId,qStartTime,qXlsxSaveDir);
-        Upload::putBehaviour(qDeviceId,qStartTime,qXlsxSaveDir);
+            Upload::createFtpbehaviourFolder(qDeviceId,qStartTime,qXlsxSaveDir);
+            Upload::putBehaviour(qDeviceId,qStartTime,qXlsxSaveDir);
+        }
+        else
+        {
+            getAppInfo1(arg_mark);
+            setAppInfo_universal();
+            setAppInfo_behaviour();
+            writeInfo(arg_mark);
+
+            //getValues(arg_mark);
+            createBehaviourMail();
+            qSubject=qAppChineseName+"埋点统计测试报告-"+Helper::getTime2("yyyyMMdd");
+            chart();
+
+            Upload::createFtpbehaviourFolder(qDeviceId,qStartTime,qXlsxSaveDir);
+            Upload::putBehaviour(qDeviceId,qStartTime,qXlsxSaveDir);
+        }
+
     }
 
     if(arg_mark=="monkey")
@@ -1175,17 +1196,26 @@ void Worker::createBehaviourMail()
     tempStr="To All:";
     outStream<<tempStr<<endl;
 
-    tempStr="APP名称: " + qAppChineseName;
-    outStream<<tempStr<<endl;
+    if(gMobileOS=="android")
+    {
+        tempStr="APP名称: " + qAppChineseName;
+        outStream<<tempStr<<endl;
 
-    tempStr="测试平台: android";
-    outStream<<tempStr<<endl;
+        tempStr="测试平台: android";
+        outStream<<tempStr<<endl;
 
-    tempStr="测试设备: " + qMobileBrand+qMobileModel;
-    outStream<<tempStr<<endl;
+        tempStr="测试设备: " + qMobileBrand+qMobileModel;
+        outStream<<tempStr<<endl;
 
-    tempStr="系统版本: " + qMobileVersion;
-    outStream<<tempStr<<endl;
+        tempStr="系统版本: " + qMobileVersion;
+        outStream<<tempStr<<endl;
+    }
+    else
+    {
+        tempStr="测试平台: ios";
+        outStream<<tempStr<<endl;
+    }
+
 
     tempValue=QString::number(qUrlTotalNum);
     tempStr="测试上报个数: " + tempValue;

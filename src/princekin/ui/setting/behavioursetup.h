@@ -28,6 +28,28 @@ namespace Ui {
 class BehaviourSetup;
 }
 
+typedef struct __signalBehaviorData_s
+{
+    QString xmlRootPath;
+    bool isMemCheck;
+    bool isCpuCheck;
+    bool isBatteryCheck;
+    bool isCpuTempCheck;
+    bool isWifiCheck;
+    bool isMobileCheck;
+    bool isDebugVersion;
+    QString memThres;
+    QString cpuThres;
+    QString batteryThres;
+    QString cpuTempThres;
+    QString wifiThres;
+    QString mobileThres;
+    QString mobileSystem;
+
+}signalBehaviorData_s;
+
+Q_DECLARE_METATYPE(signalBehaviorData_s)
+
 class BehaviourSetup : public QWidget
 {
     Q_OBJECT
@@ -36,12 +58,10 @@ public:
     explicit BehaviourSetup(QWidget *parent = 0);
     ~BehaviourSetup();
 
-    void setSeverBtnEnabled(bool flag);
+    void setMobilePaternAndroid(bool flag);
 
 signals:
-    void SendData(QString xmlRootPath, bool isMemCheck,bool isCpuCheck,bool isBatteryCheck,bool isCpuTempCheck,bool isWifiCheck,bool isMobileCheck,
-                  QString UID,bool isServerPattern,bool isDebugVersion,QString memThres,QString cpuThres,
-                  QString batteryThres,QString cpuTempThres,QString wifiThres,QString mobileThres);
+    void SendData(QVariant var);
 
 private:
     Ui::BehaviourSetup *ui;
@@ -55,12 +75,11 @@ private:
 
     QString filePath;
     QString deviceName;
-    bool isServerPattern;
     bool isDebugVersion;
 
-    QString appUid;
+    QString mobileSystem="android";
 
-    void parseIP_PortToBat(QString fileName);
+    void parseIP_PortToBat();
 
 
 protected:
@@ -73,8 +92,7 @@ private slots:
     void on_cpuTempCBtn_clicked();
     void on_wifiCBtn_clicked();
     void on_mobileCBtn_clicked();
-    void on_proxyRBtn_clicked();
-    void on_serverRBtn_clicked();
+
     void on_debugRBtn_clicked();
     void on_releaseRBtn_clicked();
 
@@ -88,8 +106,9 @@ private slots:
     void stateChanged(bool state);
     void recieveSettingSig(bool isMemCheck, bool isCpuCheck, bool isBatteryCheck, bool isCpuTempCheck,bool isWifiCheck,bool isMobileCheck,
                            QString memThres, QString cpuThres, QString batteryThres, QString cpuTempThres,QString wifiThres,QString mobileThres);
-    void on_configBtn_clicked();
     void on_browseBtn_clicked();
+    void on_RBtnAndroid_clicked();
+    void on_RBtnIos_clicked();
 };
 
 #endif // BEHAVIOURSETUP_H

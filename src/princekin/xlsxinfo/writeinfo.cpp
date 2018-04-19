@@ -248,9 +248,25 @@ void WriteInfo::writeUniversal(const QString &arg_targetXlsx,const QString &arg_
     info.setFile(paretnDir);
     paretnDir=info.absolutePath();
 
-    writeIcon(xlsxDoc,arg_tag);
+    if(arg_tag=="performance" || arg_tag=="monkey" || arg_tag=="travel" || arg_tag=="interface")
+    {
+        writeIcon(xlsxDoc,arg_tag);
+        writeAppInfo(xlsxDoc,arg_tag);
+    }
+    else if(arg_tag=="behaviour")
+    {
+        if(gMobileOS=="android")
+        {
+            writeIcon(xlsxDoc,arg_tag);
+            writeAppInfo(xlsxDoc,arg_tag);
+        }
+        else
+        {
+            writeIOSInfo(xlsxDoc);
+        }
+    }
 
-    writeAppInfo(xlsxDoc,arg_tag);
+
 
     if(arg_tag=="performance")
     {
@@ -263,8 +279,16 @@ void WriteInfo::writeUniversal(const QString &arg_targetXlsx,const QString &arg_
     }
     if(arg_tag=="behaviour")
     {
-        writeMobileInfo(xlsxDoc);
-        writeMobileInfo_behaviour(xlsxDoc,paretnDir);
+        if(gMobileOS=="android")
+        {
+            writeMobileInfo(xlsxDoc);
+            writeMobileInfo_behaviour(xlsxDoc,paretnDir);
+        }
+        else
+        {
+            writeIOSInfo_behaviour(xlsxDoc,paretnDir);
+        }
+
     }
     if(arg_tag=="travel")
     {
@@ -1170,6 +1194,62 @@ void WriteInfo::writeMobileInfo_behaviour(Document &arg_xlsxDoc,const QString &a
 }
 
 
+void WriteInfo::writeIOSInfo_behaviour(Document &arg_xlsxDoc,const QString &arg_path)
+{
+    QString strCell;
+    QString rowIndexStr;
+    QString tempValue;
+
+    Format format=getNormalFormat();
+    Format hyperlinkFormat=getHyperlinkFormat();
+
+    rowIndexStr="9";
+    strCell="B"+rowIndexStr;
+    tempValue=QString::number(qUrlTotalNum);
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+    strCell="E"+rowIndexStr;
+    tempValue=QString::number(qUrlSuccessNum);
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+    rowIndexStr="10";
+    strCell="B"+rowIndexStr;
+    tempValue=QString::number(qUrlErrorNum);
+    if(tempValue.isEmpty())
+    {
+        tempValue="-";
+    }
+    writeStyle(arg_xlsxDoc,strCell,tempValue,format);
+
+    strCell="E"+rowIndexStr;
+    writeStyle(arg_xlsxDoc,strCell,"查看详情",format);
+
+    QDir dir(qXlsxSaveDir);
+    QStringList fileList=dir.entryList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
+    QString linkFile;
+    foreach (QString var, fileList)
+    {
+        if(var.startsWith("url"))
+        {
+            linkFile=var;
+        }
+    }
+
+    QString ssss="ios";
+    QString httppath="http://10.10.53.117/report/behaviour/"+ssss+"/"+qStartTime;
+    QUrl url;
+    url.setUrl(httppath);
+    writeHyperlink(arg_xlsxDoc,10,5,url,hyperlinkFormat,"查看详情","");
+}
+
 void WriteInfo::writeStyle(Document &arg_xlsxDoc,const QString &arg_cell, const QString &arg_text,Format arg_format)
 {
     arg_xlsxDoc.write(arg_cell,arg_text,arg_format);
@@ -1923,3 +2003,104 @@ void WriteInfo::mergeModule(Document &arg_xlsx)
         }
     }
 }
+
+
+void WriteInfo::writeIOSInfo(Document &arg_xlsxDoc)
+{
+    Format format=getNormalFormat();
+    QString strCell;
+
+
+
+    //////////////////////////
+    strCell="A1";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+
+    strCell="A2";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+
+    strCell="A3";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+
+    strCell="A4";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+
+    strCell="C1";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+
+    strCell="C2";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+
+    strCell="C3";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+
+    strCell="F1";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+
+    strCell="F2";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+
+    strCell="F3";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+
+
+    strCell="C4";
+    writeStyle(arg_xlsxDoc,strCell,"IOS",format);
+    strCell="F4";
+    writeStyle(arg_xlsxDoc,strCell,qTestDate,format);
+
+
+
+    strCell="A7";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+
+    strCell="B7";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+
+    strCell="C7";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+
+    strCell="E7";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+
+
+
+    strCell="B12";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+    strCell="B13";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+    strCell="B14";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+    strCell="B15";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+    strCell="B16";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+
+    strCell="C12";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+    strCell="C13";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+    strCell="C14";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+    strCell="C15";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+
+
+
+    strCell="E12";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+    strCell="E13";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+    strCell="E14";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+    strCell="E15";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+    strCell="E16";
+    writeStyle(arg_xlsxDoc,strCell,"-",format);
+
+
+
+
+
+}
+

@@ -67,7 +67,6 @@ SOURCES += main.cpp\
     ui/replay/replayform.cpp \
     utils/assistmeasure.cpp \
     utils/measurereport.cpp \
-    utils/servercontrol.cpp \
     utils/test.cpp \
     ui/setting/allsetting.cpp \
     utils/clickedlabel.cpp \
@@ -152,7 +151,8 @@ SOURCES += main.cpp\
     ui/replay/createcrashreport.cpp \
     ui/record/editscriptfilewidget.cpp \
     utils/upload.cpp \
-    utils/singleapplication.cpp
+    utils/singleapplication.cpp \
+    ui/record/renamedialog2.cpp
     ui/record/editscriptfilewidget.cpp
 
 
@@ -223,7 +223,6 @@ HEADERS  += princekin.h \
     ui/replay/replayform.h \
     utils/assistmeasure.h \
     utils/measurereport.h \
-    utils/servercontrol.h \
     utils/test.h \
     ui/setting/allsetting.h \
     utils/clickedlabel.h \
@@ -308,7 +307,8 @@ HEADERS  += princekin.h \
     ui/replay/createcrashreport.h \
     ui/record/editscriptfilewidget.h \
     utils/upload.h \
-    utils/singleapplication.h
+    utils/singleapplication.h \
+    ui/record/renamedialog2.h
     ui/record/editscriptfilewidget.h
 
 FORMS    += princekin.ui \
@@ -344,7 +344,8 @@ FORMS    += princekin.ui \
     tool/toolboxwidget.ui \
     tool/getlogcatwidget.ui \
     ui/replay/form.ui \
-    ui/record/editscriptfilewidget.ui
+    ui/record/editscriptfilewidget.ui \
+    ui/record/renamedialog2.ui
 
 
 RESOURCES += \

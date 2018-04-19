@@ -40,7 +40,6 @@
 #include "ui/setting/behavioursetup.h"
 #include "utils/xmleditdialog.h"
 #include "assistmeasure.h"
-#include "servercontrol.h"
 #include "helper.h"
 #include "urltoxml.h"
 #include "globalvar.h"
@@ -97,6 +96,7 @@ private:
     QToolButton *editXmlButton;
     QToolButton *addScriptButton;
 
+    bool getXmlFlag=true;//在获取xml时，如果出现错误，返回标志位，在选择xml项后给取消
     QList<DataClass> xmlData;
     QMap<QString,QList<DataClass> > allXmlData;//所有xml文件的信息
     QMap<QString,int> xmlNum;//记录xml文件后的出现次数
@@ -155,17 +155,10 @@ private:
     bool isWifiOverThres;
     bool isMobileOverThres;
 
-    bool isServerPattern;
-    QString UID;
     bool isDebugVersion;
     int xmlCount;
 
-    QThread *processThread=NULL;
-
-    QVector<ServerControl*> server;
-    QMap<QString,QString> xmlMatch;//服务器模式用
-
-    QSettings *iniContent;
+    QString mobileSystem;
 
     QProcess *pLogcat=NULL;
     QFile *fileLogcat=NULL;
@@ -173,6 +166,7 @@ private:
     bool isStartFlag=false;
 
     QString fileNameForReport;
+    QString uiautomatorDirName;//脚本的uiautomator位置
 
     QStringList domainList;//出现过的域名列表
     int domainCheckNum=0;//当前选中的域名的个数
@@ -193,7 +187,8 @@ private:
     QMap<QString,QMap<QString,int>> suiteResForEveScript;//记录测试套内每个脚本的运行情况；
     QMap<QString,bool> suiteRes;//记录每个测试套文件内最后的结果，暂时没有用，以备后患
     QString ParseURLForCheck(QString url,QList<DataClass> xmlData, bool isLatest);
-    void GetFourSecData();
+    void GetFourSecData(int sec);
+    bool isDigitStr(QString TxtData);
     bool FindMatchUrl(QString xmlFile);
 
     QMap<int,int> lineNumberUrlMap;
@@ -270,14 +265,12 @@ private slots:
     void EditXmlBtnClicked();
     void AddScriptBtnClicked();
 
-    void RecieveData(QString xmlRootPath, bool isMemCheck, bool isCpuCheck, bool isBatteryCheck, bool isCpuTempCheck, bool isWifiCheck, bool isMobileCheck, QString UID, bool isServerPattern, bool isDebugVersion, QString memThres, QString cpuThres, QString batteryThres, QString cpuTempThres, QString wifiThres, QString mobileThres);
+    void RecieveData(QVariant var);
 
     bool eventFilter(QObject *,QEvent *);    //注意这里
     void keyPressEvent(QKeyEvent *e);
 
     void treeItemChanged(QTreeWidgetItem *item, int column);
-
-    void readFromServerClass(QString str);
 
     void RecieveLogcatOutput();
 

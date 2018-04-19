@@ -122,6 +122,7 @@ extern QString gPerformanceStartTime;
 extern QString gInterfaceStartTime;
 extern QString gMonkeyReport;
 extern QString gTravelReport;
+extern QString gMobileOS;
 
 extern QStringList gPvStringList;
 extern QStringList gPvStringList2;

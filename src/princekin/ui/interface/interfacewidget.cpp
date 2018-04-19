@@ -226,9 +226,9 @@ void InterfaceWidget::on_startBtn_clicked()
         }
         //*****************20170717*****************//
 
-        //QString cmdStr="mitmdump -b "+IP+" -p "+port+" -s "+gConfigDir+QDir::separator()+"getresponsedata.py";
+        QString cmdStr="mitmdump --listen-host "+IP+" -p "+port+" -s "+gConfigDir+QDir::separator()+"getresponsedata.py";
         //新安装的mitmproxy换了新命令，不能用-b，所以为了统一，把设置IP的项去掉了，默认都是测本机
-        QString cmdStr="mitmdump -p "+port+" -s "+gConfigDir+QDir::separator()+"getresponsedata.py";
+        //QString cmdStr="mitmdump -p "+port+" -s "+gConfigDir+QDir::separator()+"getresponsedata.py";
 
         qDebug()<<cmdStr;
         //QMessageBox::information(this,"",cmdStr);
@@ -429,25 +429,38 @@ void InterfaceWidget::exportReport()
 void InterfaceWidget::ReadStandardOutput(QString res)
 {
     res=UrlDecode(res);
+    qDebug()<<"......."<<res;
     //interfacefile->write(res.toStdString().c_str());
     //interfacefile->write("\r\n");
-    if(res.contains("-----START-----")&&res.contains("-----END-----"))
+    /* if(res.contains("-----START-----")&&res.contains("-----END-----"))
     {
+        qDebug()<<"-----------"<<res;
         res=res.left(res.length()-15);
         ContentRes=res.mid(15);
-        qDebug()<<"~~"<<ContentRes;
+        qDebug()<<"~~~~"<<ContentRes;
         //interfacefile->write("~~");
         //interfacefile->write(ContentRes.toStdString().c_str());
         endflag=false;
     }
     if(res.contains("<< ") && (!endflag))
     {
-        qDebug()<<res;
+        qDebug()<<"========"<<res;
         QStringList tempList=res.split(" ",QString::SkipEmptyParts);
-        QString contentLength=tempList.at(tempList.length()-1);
+        QString contentLength=tempList.at(tempList.length()-1);*/
+    if(res.contains("<< "))
+    {
+        //qDebug()<<"========"<<res;
+        QStringList tempList=res.split(" ",QString::SkipEmptyParts);
+        contentLength=tempList.at(tempList.length()-1);
+        endflag=false;
+    }
+    if(res.contains("-----START-----")&&res.contains("-----END-----") && (!endflag))
+    {
+        //qDebug()<<"-----------"<<res;
+        res=res.left(res.length()-15);
+        ContentRes=res.mid(15);
         endflag=true;
         QStringList data=ContentRes.split("-&&-");
-        qDebug()<<data.length();
         if(data.length()<8)
             return;
         interDataClass tempData;
@@ -496,11 +509,6 @@ void InterfaceWidget::ReadStandardOutput(QString res)
                 maxTime=tempData.time;
             if(tempData.time<minTime)
                 minTime=tempData.time;
-
-            for(int i=0;i<data.length();i++)
-            {
-                qDebug()<<data[i];
-            }
 
             if(isLatest)
             {

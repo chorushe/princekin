@@ -19,8 +19,11 @@ BehaviourWidget::BehaviourWidget(QWidget *parent) :
     ui->splitter_2->setStretchFactor(0,7);
     ui->splitter_2->setStretchFactor(1,7);
     ui->splitter_2->setStretchFactor(2,3);
-    ui->splitter_3->setStretchFactor(0,3);
-    ui->splitter_3->setStretchFactor(1,7);
+    //ui->splitter_3->setStretchFactor(0,3);
+    //ui->splitter_3->setStretchFactor(1,7);
+    ui->xmlTreeWidget->setFixedWidth(282);
+    ui->widget_2->setFixedWidth(282);
+    ui->scriptTreeWidget->setFixedWidth(282);
 
     ui->verticalLayout->setStretch(0,4);
     ui->verticalLayout->setStretch(1,3);
@@ -60,7 +63,6 @@ BehaviourWidget::BehaviourWidget(QWidget *parent) :
 
     currentPath=gWorkSpace;//初始化加载xml文件的路径也为工作目录
 
-    this->isServerPattern=false;
     this->isDebugVersion=true;
 
     ui->xmlTreeWidget->verticalScrollBar()->setStyleSheet("QScrollBar:vertical {border:0px solid grey;width: 10px;}"
@@ -100,7 +102,7 @@ BehaviourWidget::BehaviourWidget(QWidget *parent) :
     ui->urlListWidget->setSelectionMode(QAbstractItemView::ContiguousSelection);//设置可选中多行
     ui->scriptTextEdit->append("脚本日志");
 
-    connect(setupDialog,SIGNAL(SendData(QString, bool,bool,bool,bool,bool,bool,QString,bool,bool,QString,QString,QString,QString,QString,QString)),this,SLOT(RecieveData(QString, bool,bool,bool,bool,bool,bool,QString,bool,bool,QString,QString,QString,QString,QString,QString)));
+    connect(setupDialog,SIGNAL(SendData(QVariant)),this,SLOT(RecieveData(QVariant)));
     connect(settingButton,SIGNAL(clicked(bool)),this,SLOT(SetupBtnClicked()));
     connect(this,SIGNAL(sendStateChange(bool)),setupDialog,SLOT(stateChanged(bool)));
     connect(this,SIGNAL(sendSettingSig(bool,bool,bool,bool,bool,bool,QString,QString,QString,QString,QString,QString)),setupDialog,SLOT(recieveSettingSig(bool,bool,bool,bool,bool,bool,QString,QString,QString,QString,QString,QString)));
@@ -127,6 +129,38 @@ BehaviourWidget::BehaviourWidget(QWidget *parent) :
     toolBar2->setVisible(false);
     //初始化脚本模式xml文件的根路径
     xmlRootPath = gWorkSpace + QDir::separator() + "StatisticalXML";
+
+    mobileSystem="android";
+
+    //读取version
+    /*QFile fileversion(gNewConfigDir + QDir::separator() + "mitmdumpversion.txt");
+     if (!fileversion.open(QIODevice::ReadOnly | QIODevice::Text))
+         return;
+
+     QTextStream in(&fileversion);
+     QString mitmVersion = in.readLine();*/
+    QString mitmVersion = ExeCmd::runCmd("mitmdump --version");
+    qDebug()<<"mitmdump "<<mitmVersion;
+    if(mitmVersion=="")
+        mitmVersion="mitmdump";
+    else
+    {
+        mitmVersion=mitmVersion.mid(mitmVersion.indexOf(":")+1).trimmed();
+        mitmVersion=mitmVersion.left(mitmVersion.indexOf(" "));
+    }
+     qDebug()<<"mitmVersion: "<<mitmVersion;
+
+     if(mitmVersion.contains("mitmdump"))
+        QMessageBox::information(this,"提示","该模块需要安装mitdump才能使用，安装方法：\r\n"
+                                               "1）在线安装，安装python后命令行输入python –m pip install mitmproxy即可自动安装，安装后注意配置环境变量；\r\n"
+                                               "2）文件复制，通过http://10.10.53.117/mitm/mitmdump.exe连接下载文件mitmdump.exe，放在本地任何位置，并将该路径配置成环境变量；"
+                                               "详细内容可参考说明文档。");
+     else if(mitmVersion.contains("2.0"))
+        QMessageBox::information(0,"提示","3.4及以上版本需要升级mitmproxy,升级方法：\r\n"
+                                            "1）在线升级，安装python后命令行输入python –m pip install –upgrade mitmproxy即可自动升级；\r\n"
+                                            "2）文件复制，通过http://10.10.53.117/mitm/mitmdump.exe连接下载文件mitmdump.exe，放在本地任何位置，并将该路径配置成环境变量；"
+                                            "详细内容可参考说明文档。");
+
 }
 
 BehaviourWidget::~BehaviourWidget()
@@ -219,6 +253,10 @@ void BehaviourWidget::ScriptSwitch(bool state)
         toolBar3->setVisible(false);
         scriptPatternFlag=true;
         ui->domainListWidget->setVisible(false);
+        mobileSystem="android";//脚本模式只能测Android手机，所以把设置中的选项设置成Android
+        setupDialog->setMobilePaternAndroid(true);
+        ui->widget_2->setVisible(true);
+        ui->equipListView->setVisible(true);
     }
     else
     {
@@ -230,6 +268,7 @@ void BehaviourWidget::ScriptSwitch(bool state)
         toolBar3->setVisible(true);
         scriptPatternFlag=false;
         ui->domainListWidget->setVisible(true);
+        setupDialog->setMobilePaternAndroid(false);
     }
 }
 
@@ -272,18 +311,34 @@ void BehaviourWidget::on_xmlTreeWidget_itemClicked(QTreeWidgetItem *item, int co
             }
         }
 
-        for(int i=0;i<urlList.count();i++)
+        if(filterUrlList.count()>0)
         {
-            if(urlList[i].contains(uniqueTemp)&&uniqueTemp!="")
+            for(int i=0;i<filterUrlList.count();i++)
             {
-                ui->urlListWidget->setCurrentRow(i);
-                QString url=urlList[i];
+                if(filterUrlList[i].contains(uniqueTemp)&&uniqueTemp!="")
+                {
+                    ui->urlListWidget->setCurrentRow(i);
+                    QString url=filterUrlList[i];
 
-                ParseURL(url,true);
-                break;
+                    ParseURL(url,true);
+                    break;
+                }
             }
         }
+        else
+        {
+            for(int i=0;i<urlList.count();i++)
+            {
+                if(urlList[i].contains(uniqueTemp)&&uniqueTemp!="")
+                {
+                    ui->urlListWidget->setCurrentRow(i);
+                    QString url=urlList[i];
 
+                    ParseURL(url,true);
+                    break;
+                }
+            }
+        }
     }
 }
 
@@ -298,8 +353,9 @@ void BehaviourWidget::on_xmlTreeWidget_itemChanged(QTreeWidgetItem *item, int co
             tmplabel->setText("<font color=orange>...</font>");
             ui->xmlTreeWidget->setItemWidget(item,1,tmplabel);
             QString xmlFilePath=currentPath+"/"+ StaticticsHerper::getBasePathForXml(item);//!!!!!!!!!
+            getXmlFlag=true;
             QList<DataClass> tempData = GetXML(xmlFilePath);
-            if(tempData.isEmpty())
+            if(tempData.isEmpty()||!getXmlFlag)
             {
                 item->setCheckState(0,Qt::Unchecked);
                 return;
@@ -449,10 +505,17 @@ void BehaviourWidget::exportReport()
 {
     if(gWorkSpace=="")
         gWorkSpace=gNewDisk + QDir::separator() + "princekinWorkspace";
-    QString deviceStr=ExeCmd::GetDeviceModel(deviceName.replace(" ",""))+"-"+ deviceName.replace(" ","");//去掉空格
+    //QString deviceStr=ExeCmd::GetDeviceModel(deviceName.replace(" ",""))+"-"+ deviceName.replace(" ","");//去掉空格
 
+    if(mobileSystem=="android")
+    {
+        fileNameForReport=gWorkSpace+QDir::separator() + "report" + QDir::separator()+ "Behaviour_" + deviceName + "_" + qStartTime;
+    }
+    else
+    {
+        fileNameForReport=gWorkSpace+QDir::separator() + "report" + QDir::separator()+ "Behaviour_" + "ios" + "_" + qStartTime;
+    }
 
-    fileNameForReport=gWorkSpace+QDir::separator() + "report" + QDir::separator()+ "Behaviour_" + deviceName + "_" + qStartTime;
     Helper::createPath(fileNameForReport);
 
     QString urlFileName=qUrlTxtPath;
@@ -503,11 +566,18 @@ void BehaviourWidget::exportReport()
         urlTotalNum=urlErrorList.count();
         qDebug()<<"urlTotalNum"<<urlTotalNum<<"urlerrornum"<<urlErrorNum;
 
-        if(isCpuTempCheck||isBatteryCheck||isMemCheck||isCpuCheck||isWifiCheck||isMobileCheck)
+        if(mobileSystem=="android")
         {
-            if(assist!=NULL)
+            if(isCpuTempCheck||isBatteryCheck||isMemCheck||isCpuCheck||isWifiCheck||isMobileCheck)
             {
-                createExcel();
+                if(assist!=NULL)
+                {
+                    createExcel();
+                }
+            }
+            else
+            {
+                createBaseExcel();
             }
         }
         else
@@ -528,7 +598,6 @@ void BehaviourWidget::on_clearBtn_clicked()
     xmlNum.clear();
     gxmlNum.clear();
     xmlData.clear();
-    xmlMatch.clear();
     revelantHead="";
 
     urlTimeList.clear();
@@ -580,7 +649,12 @@ void BehaviourWidget::on_clearBtn_clicked()
                 ui->xmlTreeWidget->setItemWidget((*item),2,numlabel);
 
                 QString xmlFilePath=currentPath+"/"+ StaticticsHerper::getBasePathForXml((*item));//!!!!!!!!!
+                getXmlFlag=true;
                 QList<DataClass> tempData = GetXML(xmlFilePath);
+                if(tempData.isEmpty()||!getXmlFlag)
+                {
+                    (*item)->setCheckState(0,Qt::Unchecked);
+                }
                 if(!tempData.isEmpty())
                     allXmlData.insert(StaticticsHerper::getBasePathForXml((*item)),tempData);
             }
@@ -626,7 +700,8 @@ void BehaviourWidget::on_clearBtn_clicked()
 
 void BehaviourWidget::on_startBtn_clicked()
 {
-    if(deviceName=="")
+    gMobileOS=mobileSystem;
+    if(deviceName=="" && mobileSystem=="android")
     {
         QMessageBox::information(this,"提示","请选择一个设备");
         return;
@@ -712,41 +787,6 @@ void BehaviourWidget::on_startBtn_clicked()
         qStatisticsDataList.clear();
         //*****************20170505*************************//
 
-        if(isServerPattern)//服务器模式
-        {
-            QMap<QString,QString>::iterator it;
-            for(it=xmlMatch.begin();it!=xmlMatch.end();++it)
-            {
-                ServerControl *tmp=new ServerControl;
-                QFile file(gConfigDir+QDir::separator()+"serverCmd.sh");
-                if(!file.exists())
-                {
-                    QMessageBox::warning(this,"警告",gConfigDir+QDir::separator()+"serverCmd.sh 文件不存在");
-                    return;
-                }
-                if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-                {
-                    QTextStream in(&file);
-                    tmp->cdCmd= in.readLine()+it.value()+"\n";
-                    qDebug()<<tmp->cdCmd;
-                    tmp->getCmd=in.readLine()+UID+ "\n";
-                    qDebug()<<tmp->getCmd;
-                    server.append( tmp);
-                }
-                else
-                {
-                    QMessageBox::warning(this,"警告",gConfigDir+QDir::separator()+"serverCmd.sh 文件打开失败");
-                    return;
-                }
-            }
-            for(int i=0;i<server.count();i++)
-            {
-                connect(server[i],SIGNAL(SendReadOutput(QString)),this,SLOT(readFromServerClass(QString)));
-                server[i]->StartControl();
-            }
-        }
-        else//代理模式
-        {
             QString cmdStr=gConfigDir + QDir::separator() +"behavior_cmd.bat\n";
             qDebug()<<cmdStr;
 
@@ -764,7 +804,7 @@ void BehaviourWidget::on_startBtn_clicked()
 
             worker->moveToThread(workerThread);
             workerThread->start();
-        }
+
         if(scriptPatternFlag)//脚本模式，运行脚本
         {
             startRunScript();
@@ -787,40 +827,52 @@ void BehaviourWidget::on_startBtn_clicked()
         isStartFlag=true;
         emit sendStateChange(true);//开始之后，设置中的内存温度等选项失效
 
-        if(isCpuTempCheck||isBatteryCheck||isMemCheck||isCpuCheck||isWifiCheck||isMobileCheck)
+        if(mobileSystem=="android")
         {
-            assist=new AssistMeasure();
-            assist->deviceModel=ExeCmd::GetDeviceModel( deviceName )+" + "+deviceName;
+            if(isCpuTempCheck||isBatteryCheck||isMemCheck||isCpuCheck||isWifiCheck||isMobileCheck)
+            {
+                assist=new AssistMeasure();
+                assist->deviceModel=ExeCmd::GetDeviceModel( deviceName )+" + "+deviceName;
 
-            assist->isCpuTempCheck=this->isCpuTempCheck;
-            assist->isBatteryCheck=this->isBatteryCheck;
-            assist->isMemCheck=this->isMemCheck;
-            assist->isCpuCheck=this->isCpuCheck;
-            assist->isWifiCheck=this->isWifiCheck;
-            assist->isMobileCheck=this->isMobileCheck;
+                assist->isCpuTempCheck=this->isCpuTempCheck;
+                assist->isBatteryCheck=this->isBatteryCheck;
+                assist->isMemCheck=this->isMemCheck;
+                assist->isCpuCheck=this->isCpuCheck;
+                assist->isWifiCheck=this->isWifiCheck;
+                assist->isMobileCheck=this->isMobileCheck;
 
-            assist->memThres=this->memThres;
-            assist->cpuThres=this->cpuThres;
-            assist->batteryThres=this->batteryThres;
-            assist->cpuTempThres=this->cpuTempThres;
-            assist->wifiThres=this->wifiThres;
-            assist->mobileThres=this->mobileThres;
+                assist->memThres=this->memThres;
+                assist->cpuThres=this->cpuThres;
+                assist->batteryThres=this->batteryThres;
+                assist->cpuTempThres=this->cpuTempThres;
+                assist->wifiThres=this->wifiThres;
+                assist->mobileThres=this->mobileThres;
 
-            connect(assist,SIGNAL(sendMemOverThresSignal(bool,QString)),this,SLOT(RecieveMemOverThresSignal(bool,QString)));
-            connect(assist,SIGNAL(sendCpuOverThresSignal(bool,QString)),this,SLOT(RecieveCpuOverThresSignal(bool,QString)));
-            connect(assist,SIGNAL(sendBatteryOverThresSignal(bool,QString)),this,SLOT(RecieveBatteryOverThresSignal(bool,QString)));
-            connect(assist,SIGNAL(sendCpuTempOverThresSignal(bool,QString)),this,SLOT(RecieveCpuTempOverThresSignal(bool,QString)));
-            connect(assist,SIGNAL(sendWifiOverThresSignal(bool,QString)),this,SLOT(RecieveWifiOverThresSignal(bool,QString)));
-            connect(assist,SIGNAL(sendMobileOverThresSignal(bool,QString)),this,SLOT(RecieveMobileOverThresSignal(bool,QString)));
+                connect(assist,SIGNAL(sendMemOverThresSignal(bool,QString)),this,SLOT(RecieveMemOverThresSignal(bool,QString)));
+                connect(assist,SIGNAL(sendCpuOverThresSignal(bool,QString)),this,SLOT(RecieveCpuOverThresSignal(bool,QString)));
+                connect(assist,SIGNAL(sendBatteryOverThresSignal(bool,QString)),this,SLOT(RecieveBatteryOverThresSignal(bool,QString)));
+                connect(assist,SIGNAL(sendCpuTempOverThresSignal(bool,QString)),this,SLOT(RecieveCpuTempOverThresSignal(bool,QString)));
+                connect(assist,SIGNAL(sendWifiOverThresSignal(bool,QString)),this,SLOT(RecieveWifiOverThresSignal(bool,QString)));
+                connect(assist,SIGNAL(sendMobileOverThresSignal(bool,QString)),this,SLOT(RecieveMobileOverThresSignal(bool,QString)));
 
-            assist->StartMeasure();
+                assist->StartMeasure();
+            }
         }
 
         if(gWorkSpace=="")
             gWorkSpace=gNewDisk + QDir::separator() + "princekinWorkspace";
 
         qStartTime=Helper::getTime2("yyyyMMdd_hhmmss");
-        fileNameForReport=gWorkSpace+QDir::separator() + "report" + QDir::separator()+ "Behaviour_" + deviceName + "_" + qStartTime;
+
+        if(mobileSystem=="android")
+        {
+            fileNameForReport=gWorkSpace+QDir::separator() + "report" + QDir::separator()+ "Behaviour_" + deviceName + "_" + qStartTime;
+        }
+        else
+        {
+            fileNameForReport=gWorkSpace+QDir::separator() + "report" + QDir::separator()+ "Behaviour_" + "ios" + "_" + qStartTime;
+        }
+
         Helper::createPath(fileNameForReport);
 
         qUrlTxtPath=fileNameForReport + QDir::separator() + "url_" + qStartTime +".txt";
@@ -831,15 +883,18 @@ void BehaviourWidget::on_startBtn_clicked()
 
         QString errorFileName=qErrorReportPath;
 
-        //建立logcat文件
-        if(isMemCheck||isCpuCheck||isBatteryCheck||isCpuTempCheck||isWifiCheck||isMobileCheck)
+        if(mobileSystem=="android")
         {
-            fileLogcat=new QFile(errorFileName);
-            if ( !fileLogcat->exists())
-                fileLogcat->open( QIODevice::WriteOnly );
-        }
+            //建立logcat文件
+            if(isMemCheck||isCpuCheck||isBatteryCheck||isCpuTempCheck||isWifiCheck||isMobileCheck)
+            {
+                fileLogcat=new QFile(errorFileName);
+                if ( !fileLogcat->exists())
+                    fileLogcat->open( QIODevice::WriteOnly );
+            }
 
-        getXXX();
+            getXXX();
+        }
     }
 }
 
@@ -869,6 +924,7 @@ void BehaviourWidget::startRunScript()
     controllerInstance->setDeviceId(deviceName);
     controllerInstance->setFirstLevelDirName(fileNameForReport);
     controllerInstance->setSecondLevelDirName(secondLevelDirName);
+    controllerInstance->setUiautomatorDirName(uiautomatorDirName);
     controllerInstance->setScriptList(qScriptList);
 
     connect(controllerInstance,SIGNAL(sendRunOneScriptResult(const QString &)),this,SLOT(receiveRunScriptResult(const QString &))   );//接收到的每一条信息
@@ -992,48 +1048,6 @@ void BehaviourWidget::RecieveCpuTempOverThresSignal(bool flag,QString deviceName
     }
 }
 
-void BehaviourWidget::readFromServerClass(QString str)
-{
-    qDebug()<<str;
-    QString tmp;int num;
-    QMap<QString,QList<DataClass> >::iterator it;
-
-    for(it=allXmlData.begin();it!=allXmlData.end();++it)
-    {
-        if(str.contains(it.value()[0].revelantHead))//先用revelant进行大过滤
-        {
-            //接下来用unique的字段进行小过率
-            QStringList uniquelist=it.value()[0].UniqueIdenti.split(";;");
-            bool uniqueflag=true;
-            for(int i=0;i<uniquelist.count();i++)
-            {
-                if(!str.contains(uniquelist[i]))
-                {
-                    uniqueflag=false;
-                    break;
-                }
-            }
-            if(uniqueflag)//如果所有关键识别值都匹配成功
-            {
-                tmp=it.value()[0].revelantHead;
-                num=str.indexOf(tmp);
-                str=str.mid(num);
-                tmp="HTTP/1.0";//结尾的标志，但是和对手机直接抓包的不一样，那是1.1这是1.0
-                num=str.indexOf(tmp);
-                if(num!=-1)
-                {
-                    num+=tmp.length();
-                    QString url=UrlDecode( str.left(num));
-                    ShowURL(url,it.key());
-                    str=str.mid(num);
-                }
-                break;
-            }
-        }
-
-    }
-}
-
 void BehaviourWidget::ReadStandardOutput(QString res)
 {
     res=UrlDecode(res);
@@ -1085,6 +1099,7 @@ void BehaviourWidget::ReadStandardOutput(QString res)
         }
     }
 }
+
 void BehaviourWidget::ShowURL(QString url,QString key)
 {
     urlList<<url;//所有的url都放在一个qstring list里保存，对字符串操作时都对原始的字符串操作，而显示出来的字符串是有空格或其他变化的，包括用label显示后无法拿到label的text
@@ -1442,12 +1457,18 @@ QList<DataClass> BehaviourWidget::GetXML(QString fileName)//打开XML文件，�
         QDomElement root = document.documentElement();
         QDomNode node = root.firstChild();
 
-        if((!isServerPattern)&&isDebugVersion)
+        if(!isDebugVersion)
+        {
+            if(node.toElement().attributeNode("behaviour_release").isNull())
+            {
+                QMessageBox::information(this,"提示","当前设置中选择release模式，但该xml中无对应的behaviour_release选项，请重新选择或者更改xml文件");
+                getXmlFlag=false;
+            }
+            else
+                revelantHead=node.toElement().attributeNode("behaviour_release").value();
+        }
+        else
             revelantHead=node.toElement().attributeNode("behaviour_debug").value();
-        else if((!isServerPattern)&&(!isDebugVersion))
-            revelantHead=node.toElement().attributeNode("behaviour_release").value();
-        else if(isServerPattern)
-            revelantHead=node.toElement().attributeNode("behaviour").value();
 
         xmlData.clear();
         DataClass tempData;
@@ -1459,12 +1480,6 @@ QList<DataClass> BehaviourWidget::GetXML(QString fileName)//打开XML文件，�
             tempData.UniqueIdenti=unique;//加上前后缀后，如果把第一个字段和最后一个字段设为unique会出问题，把它去掉，20170608
         }
         xmlData<<tempData;
-
-        if(isServerPattern)
-        {
-            QString behaviourPattern=iniContent->value("xmlMatch/"+revelantHead).toString();
-            xmlMatch.insert(revelantHead,behaviourPattern);
-        }
 
         ParseXML(root);
         file.close();
@@ -1502,19 +1517,7 @@ void BehaviourWidget::ParseXML(const QDomElement &element)//解析xml文件，�
 
 void BehaviourWidget::SetupBtnClicked()
 {
-    QString iniName=gConfigDir + QDir::separator() + "match.ini";
-    QFileInfo fi(iniName);
-    if(!fi.exists())
-    {
-        QMessageBox::warning(this,"警告", gConfigDir + QDir::separator()+"match.ini 不存在");
-    }
-
-    QString tempIniPath=gConfigDir + QDir::separator() + "match.ini";
-    iniContent=new QSettings(tempIniPath,QSettings::IniFormat);//加载ini文件
-
-    //setupDialog->setWindowModality(Qt::ApplicationModal);
     setupDialog->setAttribute(Qt::WA_QuitOnClose,false);
-    setupDialog->setSeverBtnEnabled(!scriptPatternFlag);//脚本模式设置服务器模式不可选
     setupDialog->show();
     setupDialog->raise();
     setupDialog->move ((QApplication::desktop()->width() - setupDialog->width())/2,(QApplication::desktop()->height() - setupDialog->height())/2);
@@ -1551,7 +1554,6 @@ void BehaviourWidget::AddXmlBtnClicked()
         xmlNum.clear();
         gxmlNum.clear();
         xmlData.clear();
-        xmlMatch.clear();
     }
     else//如果路径与之前一致，
     {
@@ -1609,29 +1611,40 @@ void BehaviourWidget::EditXmlBtnClicked()
     editMultiXmlDialog->move ((QApplication::desktop()->width() - editMultiXmlDialog->width())/2,(QApplication::desktop()->height() - editMultiXmlDialog->height())/2);
 }
 
-void BehaviourWidget::RecieveData(QString xmlRootPath, bool isMemCheck, bool isCpuCheck, bool isBatteryCheck, bool isCpuTempCheck,bool isWifiCheck,bool isMobileCheck,
-                                  QString UID , bool isServerPattern, bool isDebugVersion,
-                                  QString memThres,QString cpuThres,QString batteryThres,QString cpuTempThres,QString wifiThres,QString mobileThres)
+void BehaviourWidget::RecieveData(QVariant var)
 {
-    this->xmlRootPath=xmlRootPath;
-    this->isMemCheck=isMemCheck;
-    this->isCpuCheck=isCpuCheck;
-    this->isBatteryCheck=isBatteryCheck;
-    this->isCpuTempCheck=isCpuTempCheck;
-    this->isWifiCheck=isWifiCheck;
-    this->isMobileCheck=isMobileCheck;
+    signalBehaviorData_s signalBehaviorData;
+    signalBehaviorData=var.value<signalBehaviorData_s>();
 
-    this->UID=UID;
-    this->isServerPattern=isServerPattern;
-    this->isDebugVersion=isDebugVersion;
+    this->xmlRootPath=signalBehaviorData.xmlRootPath;
+    this->isMemCheck=signalBehaviorData.isMemCheck;
+    this->isCpuCheck=signalBehaviorData.isCpuCheck;
+    this->isBatteryCheck=signalBehaviorData.isBatteryCheck;
+    this->isCpuTempCheck=signalBehaviorData.isCpuTempCheck;
+    this->isWifiCheck=signalBehaviorData.isWifiCheck;
+    this->isMobileCheck=signalBehaviorData.isMobileCheck;
 
-    this->memThres=memThres;
-    this->cpuThres=cpuThres;
-    this->batteryThres=batteryThres;
-    this->cpuTempThres=cpuTempThres;
-    this->wifiThres=wifiThres;
-    this->mobileThres=mobileThres;
+    this->isDebugVersion=signalBehaviorData.isDebugVersion;
 
+    this->memThres=signalBehaviorData.memThres;
+    this->cpuThres=signalBehaviorData.cpuThres;
+    this->batteryThres=signalBehaviorData.batteryThres;
+    this->cpuTempThres=signalBehaviorData.cpuTempThres;
+    this->wifiThres=signalBehaviorData.wifiThres;
+    this->mobileThres=signalBehaviorData.mobileThres;
+    this->mobileSystem=signalBehaviorData.mobileSystem;
+
+    gMobileOS=this->mobileSystem;
+    if(mobileSystem=="ios")
+    {
+        ui->widget_2->setVisible(false);
+        ui->equipListView->setVisible(false);
+    }
+    else if(mobileSystem=="android")
+    {
+        ui->widget_2->setVisible(true);
+        ui->equipListView->setVisible(true);
+    }
 }
 
 bool BehaviourWidget::eventFilter(QObject *watched, QEvent *event)//事件过滤器，检测鼠标当前焦点在哪个控件上
@@ -1782,35 +1795,29 @@ void BehaviourWidget::stopRun()
 
     emit sendStateChange(false);
 
-    if(server.count()!=0)
+    if(mobileSystem=="android")
     {
-        for(int i=0;i<server.count();i++)
+        if(isCpuTempCheck||isBatteryCheck||isMemCheck||isCpuCheck||isWifiCheck||isMobileCheck)
         {
-            server[i]->StopControl();
-        }
-    }
-    server.clear();
+            if(assist!=NULL)
+            {
+                disconnect(assist,SIGNAL(sendMemOverThresSignal(bool,QString)),this,SLOT(RecieveMemOverThresSignal(bool,QString)));
+                disconnect(assist,SIGNAL(sendCpuOverThresSignal(bool,QString)),this,SLOT(RecieveCpuOverThresSignal(bool,QString)));
+                disconnect(assist,SIGNAL(sendBatteryOverThresSignal(bool,QString)),this,SLOT(RecieveBatteryOverThresSignal(bool,QString)));
+                disconnect(assist,SIGNAL(sendCpuTempOverThresSignal(bool,QString)),this,SLOT(RecieveCpuTempOverThresSignal(bool,QString)));
+                disconnect(assist,SIGNAL(sendWifiOverThresSignal(bool,QString)),this,SLOT(RecieveWifiOverThresSignal(bool,QString)));
+                disconnect(assist,SIGNAL(sendMobileOverThresSignal(bool,QString)),this,SLOT(RecieveMobileOverThresSignal(bool,QString)));
+                assist->StopMeasure();
 
-    if(isCpuTempCheck||isBatteryCheck||isMemCheck||isCpuCheck||isWifiCheck||isMobileCheck)
-    {
-        if(assist!=NULL)
+            }
+        }
+        ExeCmd::StopLogcat(deviceName);//停止后停止logcat
+        if(fileLogcat!=NULL)
         {
-            disconnect(assist,SIGNAL(sendMemOverThresSignal(bool,QString)),this,SLOT(RecieveMemOverThresSignal(bool,QString)));
-            disconnect(assist,SIGNAL(sendCpuOverThresSignal(bool,QString)),this,SLOT(RecieveCpuOverThresSignal(bool,QString)));
-            disconnect(assist,SIGNAL(sendBatteryOverThresSignal(bool,QString)),this,SLOT(RecieveBatteryOverThresSignal(bool,QString)));
-            disconnect(assist,SIGNAL(sendCpuTempOverThresSignal(bool,QString)),this,SLOT(RecieveCpuTempOverThresSignal(bool,QString)));
-            disconnect(assist,SIGNAL(sendWifiOverThresSignal(bool,QString)),this,SLOT(RecieveWifiOverThresSignal(bool,QString)));
-            disconnect(assist,SIGNAL(sendMobileOverThresSignal(bool,QString)),this,SLOT(RecieveMobileOverThresSignal(bool,QString)));
-            assist->StopMeasure();
-
+            fileLogcat->close();
+            if(fileLogcat->size()==0)
+                QFile::remove(fileLogcat->fileName());
         }
-    }
-    ExeCmd::StopLogcat(deviceName);//停止后停止logcat
-    if(fileLogcat!=NULL)
-    {
-        fileLogcat->close();
-        if(fileLogcat->size()==0)
-            QFile::remove(fileLogcat->fileName());
     }
 
     //把没有检测到的xml文件写到statRes变量里
@@ -1866,9 +1873,6 @@ void BehaviourWidget::RecieveDevicesSigal(QStringList devicesList)
         on_equipListView_clicked(index);
     }
 }
-
-
-
 
 void BehaviourWidget::on_equipListView_clicked(const QModelIndex &index)
 {
@@ -1927,10 +1931,11 @@ void BehaviourWidget::on_xmlTreeWidget_itemEntered(QTreeWidgetItem *item, int co
 
 void BehaviourWidget::AddScriptBtnClicked()
 {
-    QString filePath=QFileDialog::getExistingDirectory(this, tr("选择文件夹"),currentScriptPath,QFileDialog::ShowDirsOnly);
+    QString filePath=QFileDialog::getExistingDirectory(this, tr("选择文件夹"),gWorkSpace,QFileDialog::ShowDirsOnly);
     if(filePath=="")
         return;
     qScriptList.clear();
+    uiautomatorDirName=filePath+QDir::separator()+"uiautomatorjava";
     filePath=filePath + QDir::separator() + "testcase";
     filePath=QDir::toNativeSeparators(filePath);
 
@@ -2089,8 +2094,27 @@ void BehaviourWidget::on_scriptTreeWidget_itemChanged(QTreeWidgetItem *item, int
     ui->scriptTreeWidget->setColumnWidth(1,width*0.08);
 }
 
+/***
+  *判断一个字符串是否为纯数字
+  */
+bool BehaviourWidget::isDigitStr(QString TxtData)
+{
+    TxtData = TxtData.trimmed();
+    int vl = TxtData.length();
+    for(int i = 0; i < vl; i++)
+    {
+        QChar c = TxtData.at(i);
+        if (!((c >= '0' && c <= '9')||c=='.'))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 void BehaviourWidget::receiveRunScriptResult(const QString &arg_result)
 {
+    qDebug()<<"~~~~~"<<arg_result;
     if(ui->scriptTextEdit->toPlainText().contains("脚本日志"))
         ui->scriptTextEdit->clear();
 
@@ -2104,15 +2128,28 @@ void BehaviourWidget::receiveRunScriptResult(const QString &arg_result)
         ui->scriptTextEdit->append("<font color = black>" + arg_result + "</font>");
         ui->scriptTextEdit->append("\r\n");
     }
-    if(arg_result.contains("checkStatPoint"))//脚本中检测统计点命令
+    QStringList xmlList=arg_result.split(" ",QString::SkipEmptyParts);
+    if(xmlList[xmlList.length()-1].contains("checkStatPoint="))//脚本中检测统计点命令
     {
-        //  ui->scriptTextEdit->append("~~~"+QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz"));
-        GetFourSecData();//获取前4秒的数据
+        int sec=0;
+        int xmlcount=0;
 
-        QStringList xmlList=arg_result.split(" ",QString::SkipEmptyParts);
         xmlList=xmlList[xmlList.length()-1].split("=");
-        qDebug()<<xmlList[1];
-        for(int i=1;i<xmlList.length();i++)
+        bool isint=isDigitStr(xmlList.at(xmlList.length()-1));
+        qDebug()<<"isint: "<<isint;
+        if(!isint)
+        {
+            sec=2;
+            xmlcount=xmlList.length();
+        }
+        else
+        {
+            sec=xmlList.at(xmlList.length()-1).toInt();
+            xmlcount=xmlList.length()-1;
+        }
+        GetFourSecData(sec);//获取前N秒的数据
+
+        for(int i=1;i<xmlcount;i++)
         {
             QString allPath;
             if(xmlList[i].startsWith("\\")||xmlList[i].startsWith("/"))
@@ -2138,6 +2175,7 @@ void BehaviourWidget::receiveRunScriptResult(const QString &arg_result)
                 qDebug()<<"noexist";
                 ui->scriptTextEdit->append("<span style=\"background:#e4e4e4;color:red;\">" +allPath + "  文件不存在</span>");
                 ui->scriptTextEdit->append("\r\n");
+                tempFlagForStat=false;//xml文件路径不存在时脚本也返回false
             }
         }
         urlTimeList.clear();//完成一句checkStatPoint校验可清空数据下次校验不会用到这些数据
@@ -2145,16 +2183,18 @@ void BehaviourWidget::receiveRunScriptResult(const QString &arg_result)
     }
 }
 
-void BehaviourWidget::GetFourSecData()
+void BehaviourWidget::GetFourSecData(int sec)
 {
     urlListFour.clear();
+    int time=sec*1000+2000;
+    qDebug()<<"time: "<<time;
     int m=urlTimeList.length();
     if(m>0)
     {
         int endTime=urlTimeList[m-1].time;
         for(int i=m-1;i>=0;--i)
         {
-            if(endTime-urlTimeList[i].time<4000)
+            if(endTime-urlTimeList[i].time<time)
             {
                 urlListFour.append(urlTimeList[i].url);
             }
@@ -2174,7 +2214,7 @@ bool BehaviourWidget::FindMatchUrl(QString xmlFile)
     QString errorStr="";
     for(int p=0;p<urlListFour.length();p++)
     {
-        // qDebug()<<"----"<<urlListFour[p];
+         //qDebug()<<"----"<<urlListFour[p];
         if(urlListFour[p].contains(revelantHead))//先用revelant进行大过滤
         {
             //接下来用unique的字段进行小过率
@@ -2628,6 +2668,7 @@ void BehaviourWidget::createExcel()
 
 void BehaviourWidget::createBaseExcel()
 {
+
     ExcelController::Controller *controller=new ExcelController::Controller;
     controller->setMark("base-behaviour");
     controller->setXlsxSaveDir(fileNameForReport);
